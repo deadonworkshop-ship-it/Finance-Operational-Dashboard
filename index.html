@@ -35,7 +35,7 @@ body{margin:0;font-family:-apple-system,system-ui;background:#0b0f14;color:#fff;
   padding:14px;
   border-radius:12px;
   font-weight:800;
-  width:60%;
+  width:45%;
   margin-right:8px;
 }
 
@@ -55,7 +55,7 @@ body{margin:0;font-family:-apple-system,system-ui;background:#0b0f14;color:#fff;
   border:1px solid #1b2533;
   padding:14px;
   border-radius:12px;
-  width:35%;
+  width:25%;
 }
 
 /* ===== BEGIN EDIT BUTTON ===== */
@@ -65,7 +65,7 @@ body{margin:0;font-family:-apple-system,system-ui;background:#0b0f14;color:#fff;
   border:1px solid #1b2533;
   padding:14px;
   border-radius:12px;
-  width:35%;
+  width:25%;
 }
 /* ===== END EDIT BUTTON ===== */
 
@@ -112,23 +112,21 @@ body{margin:0;font-family:-apple-system,system-ui;background:#0b0f14;color:#fff;
 
   <!-- Section: Debt Snapshot -->
   <div class="card" style="margin-bottom:14px;">
-    <div style="font-size:12px;color:#9aa7b6;margin-bottom:10px;">Debt Snapshot</div>
+  <div style="font-size:12px;color:#9aa7b6;margin-bottom:10px;">Navigate</div>
 
-    <div style="display:flex; gap:10px; align-items:center; margin-bottom:12px;">
-      <select id="debtSnapshotSelect" style="flex:1; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;"></select>
-
-      <input id="debtSnapshotInput"
-             inputmode="decimal"
-             placeholder="$0.00"
-             oninput="autoFormatCurrencyInput(this)"
-             onblur="finalizeCurrencyInput(this)"
-             style="width:160px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
-
-      <button class="confirmBtn" onclick="saveDebtSnapshotValue()" style="width:auto;">SAVE</button>
+  <div class="list">
+    <div class="item" style="cursor:pointer;" onclick="navigateTo('home')">
+      <div>Home</div><div>›</div>
     </div>
-
-    <div class="list" id="debtSnapshotList"></div>
+    <div class="item" style="cursor:pointer;" onclick="navigateTo('debt')">
+      <div>Debt Snapshot</div><div>›</div>
+    </div>
+    <div class="item" style="cursor:pointer;" onclick="navigateTo('bills')">
+      <div>Monthly Bills</div><div>›</div>
+    </div>
   </div>
+</div>
+
 
   <!-- Section: Monthly Bills -->
   <div class="card">
@@ -149,8 +147,8 @@ body{margin:0;font-family:-apple-system,system-ui;background:#0b0f14;color:#fff;
 </div>
 <!-- ===== END MENU DRAWER ===== -->
 
-
-<div class="container">
+<!-- ===== BEGIN PAGE HOME WRAPPER ===== -->
+<div class="container page" id="pageHome">
 
 <div class="card">
 <div style="font-size:12px;color:#9aa7b6;">YOU SHOULD HAVE</div>
@@ -241,6 +239,46 @@ body{margin:0;font-family:-apple-system,system-ui;background:#0b0f14;color:#fff;
 </div>
 
 </div>
+
+</div>
+<!-- ===== END PAGE HOME WRAPPER ===== -->
+
+<!-- ===== BEGIN DEBT SNAPSHOT PAGE ===== -->
+<div class="container page" id="pageDebt" style="display:none;">
+
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div style="font-weight:800;">Debt Snapshot</div>
+      <button class="cancelBtn" onclick="navigateTo('home')" style="width:auto; padding:10px 12px;">BACK</button>
+    </div>
+    <div style="font-size:12px;color:#9aa7b6;margin-top:6px;">
+      Update balances manually. Auto-apply payments toggle comes next (Option C).
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="font-size:12px;color:#9aa7b6;margin-bottom:10px;">Select Debt</div>
+
+    <div style="display:flex; gap:10px; align-items:center; margin-bottom:12px;">
+      <select id="debtSnapshotSelect"
+              style="flex:1; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;"></select>
+
+      <input id="debtSnapshotInput"
+             inputmode="decimal"
+             placeholder="$0.00"
+             oninput="autoFormatCurrencyInput(this)"
+             onblur="finalizeCurrencyInput(this)"
+             style="width:160px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
+
+      <button class="confirmBtn" onclick="alert('Debt snapshot storage next (Option C)')" style="width:auto;">SAVE</button>
+
+    </div>
+
+    <div class="list" id="debtSnapshotList"></div>
+  </div>
+
+</div>
+<!-- ===== END DEBT SNAPSHOT PAGE ===== -->
 
 <script>
 
@@ -577,7 +615,6 @@ function toggleMenu(){
 
   if(!open){
     // When opening, refresh snapshot + bills view
-    if(typeof initDebtSnapshot === "function") initDebtSnapshot();
     renderMonthlyBills();
   }
 }
@@ -588,7 +625,11 @@ function renderMonthlyBills(){
   if(!out || !sel) return;
 
   const month = sel.value; // "YYYY-MM"
-  const items = Array.from(document.querySelectorAll(".container > .list .item"));
+  /* ===== BEGIN FIX: monthly bills selector ===== */
+  const items = Array.from(document.querySelectorAll("#pageHome > .list .item"));
+  /* ===== END FIX: monthly bills selector ===== */
+
+
 
   const bills = items.map(el => ({
     name: el.querySelector("div")?.textContent?.trim() || "Bill",
@@ -617,6 +658,43 @@ function renderMonthlyBills(){
 }
 
 /* ===== END MENU + MONTHLY BILLS ===== */
+
+/* ===== BEGIN NAVIGATION ===== */
+function showPage(pageId){
+  document.querySelectorAll(".page").forEach(p => p.style.display = "none");
+  const page = document.getElementById(pageId);
+  if(page) page.style.display = "block";
+}
+
+function navigateTo(dest){
+  // Close menu if open
+  const drawer = document.getElementById("menuDrawer");
+  const back = document.getElementById("menuBackdrop");
+  if(drawer && back){
+    drawer.style.display = "none";
+    back.style.display = "none";
+  }
+
+  if(dest === "home"){
+    showPage("pageHome");
+    return;
+  }
+
+  if(dest === "debt"){
+    showPage("pageDebt");
+    // Initialize snapshot if functions exist
+    if(typeof initDebtSnapshot === "function") initDebtSnapshot();
+    return;
+  }
+
+  if(dest === "bills"){
+    // We'll make a pageMonthlyBills next; for now, just open menu bills list or stay home
+    alert("Monthly Bills page next — coming up.");
+    showPage("pageHome");
+    return;
+  }
+}
+/* ===== END NAVIGATION ===== */
 
 
 document.addEventListener("DOMContentLoaded", () => {
