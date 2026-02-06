@@ -121,6 +121,27 @@ html, body { overflow-x: hidden; }
 }
 /* ===== END MOBILE FIX: debt form stacks vertically ===== */
 
+/* ===== BEGIN MOBILE FIX: debt snapshot controls stack vertically ===== */
+@media (max-width: 520px){
+  #debtSnapshotControls{
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #debtSnapshotSelect,
+  #debtSnapshotInput{
+    width: 100% !important;
+    box-sizing: border-box;
+    font-size: 16px; /* prevents iOS zoom/focus weirdness */
+  }
+
+  #debtSnapshotControls .confirmBtn{
+    width: 100% !important;
+  }
+}
+/* ===== END MOBILE FIX: debt snapshot controls stack vertically ===== */
+
+
 </style>
 
 </head>
@@ -253,7 +274,7 @@ html, body { overflow-x: hidden; }
 <div class="list">
 <div class="item" data-amount="229.03" data-date="2026-02-05" onclick="toggleConfirm(this)">
 
-  <div>Car Payment</div>
+  <div>Car Payment - Highlander</div>
   <div>$229.03</div>
 
   <div class="confirmBar">
@@ -263,7 +284,7 @@ html, body { overflow-x: hidden; }
 </div>
 
 <div class="item" data-amount="569.00" data-date="2026-02-05" onclick="toggleConfirm(this)">
-  <div>Car Payment</div>
+  <div>Car Payment - Tesla</div>
   <div>$569.00</div>
 
   <div class="confirmBar">
@@ -302,7 +323,7 @@ html, body { overflow-x: hidden; }
   <div class="card">
     <div style="font-size:12px;color:#9aa7b6;margin-bottom:10px;">Select Debt</div>
 
-    <div style="display:flex; gap:10px; align-items:center; margin-bottom:12px;">
+    <div id="debtSnapshotControls" style="display:flex; gap:10px; align-items:center; margin-bottom:12px;">
       <select id="debtSnapshotSelect"
               style="flex:1; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;"></select>
 
