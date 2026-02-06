@@ -446,6 +446,34 @@ html, body { overflow-x: hidden; }
     <div style="font-size:12px;color:#9aa7b6;margin-top:10px;">
       Toggle paid/unpaid. Set a paid date to override. Clearing paid date marks unpaid.
     </div>
+
+    <div class="row" style="margin-top:14px;">
+      <div>MONTH TOTAL</div>
+      <div id="billsMonthTotal">$0</div>
+    </div>
+
+    <div class="row">
+      <div>MONTH PAID</div>
+      <div id="billsMonthPaid">$0</div>
+    </div>
+
+    <div class="row">
+      <div>MONTH REMAINING</div>
+      <div id="billsMonthRemaining">$0</div>
+    </div>
+
+    <div style="border-top:1px solid #1b2533; margin-top:14px; padding-top:14px;"></div>
+
+    <div class="row">
+      <div>DEBT PAYMENTS QUEUED</div>
+      <div id="phaseDebtQueued">$0</div>
+    </div>
+
+    <div class="row">
+      <div>PHASE REMAINING</div>
+      <div id="phaseRemaining" style="font-weight:800;">$0</div>
+    </div>
+
   </div>
 
   <div class="card">
@@ -640,6 +668,11 @@ function toggleBillPaid(e, btn){
 
   // Refresh menu list if visible
   renderMonthlyBills();
+
+  // refresh phase totals if Bills page is visible
+  if(document.getElementById("pageBills")?.style.display !== "none"){
+    renderBillsAndPhaseTotals(month);
+  }
 }
 
 /* Menu drawer monthly bills list: render FROM storage */
@@ -833,6 +866,12 @@ function addDebtPaymentFromForm(){
 
   debtList.prepend(renderDebtPaymentRow(p));
   hideDebtForm();
+
+  if(document.getElementById("pageBills")?.style.display !== "none"){
+    const m = document.getElementById("billsPageMonthSelect")?.value || currentMonthYYYYMM();
+    renderBillsAndPhaseTotals(m);
+  }
+
 }
 
 function editDebtAmount(e, btn){
@@ -861,7 +900,16 @@ function editDebtAmount(e, btn){
   item.dataset.amount = String(next);
   const amtEl = item.querySelector(".debtAmt");
   if(amtEl) amtEl.textContent = fmtMoney(next);
+
+  // refresh phase totals if Bills page is visible
+    if(document.getElementById("pageBills")?.style.display !== "none"){
+    const m = document.getElementById("billsPageMonthSelect")?.value || currentMonthYYYYMM();
+    renderBillsAndPhaseTotals(m);
+  }
+
 }
+
+
 
 function confirmDebtPaid(e, btn){
   e.stopPropagation();
@@ -912,7 +960,14 @@ function confirmDebtPaid(e, btn){
         syncDebtSnapshotInput();
       }
     }
+
   }
+
+// refresh phase totals if Bills page is visible
+if(document.getElementById("pageBills")?.style.display !== "none"){
+  const m = document.getElementById("billsPageMonthSelect")?.value || currentMonthYYYYMM();
+  renderBillsAndPhaseTotals(m);
+}
 
   // Animate + remove row
   item.classList.add("removing");
@@ -1238,13 +1293,6 @@ function navigateTo(dest){
 
 /* ===== BEGIN MONTHLY BILLS PAGE LOGIC ===== */
 
-function todayISO(){
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth()+1).padStart(2,"0");
-  const day = String(d.getDate()).padStart(2,"0");
-  return `${y}-${m}-${day}`;
-}
 
 // Ensure older stored bills don’t break
 function normalizeBill(b){
@@ -1310,6 +1358,7 @@ function renderBillsPage(){
   if(!sel || !out) return;
 
   const month = sel.value;
+  renderBillsAndPhaseTotals(month);
 
   importBillsFromDOMIfNeeded(month);
 
@@ -1455,6 +1504,47 @@ function clearBillPaidDate(e, billIdVal, month){
 
 /* ===== END MONTHLY BILLS PAGE LOGIC ===== */
 
+function computeBillsTotals(month){
+  importBillsFromDOMIfNeeded(month);
+  const bills = getBills(month).map(normalizeBill);
+
+  let total = 0;
+  let paid = 0;
+
+  bills.forEach(b => {
+    const amt = Number(b.amount || 0);
+    total += amt;
+    if(b.paid) paid += amt;
+  });
+
+  const remaining = Math.max(0, total - paid);
+  return { total, paid, remaining };
+}
+
+function computeDebtQueuedTotal(){
+  const items = getDebtPayments ? getDebtPayments() : [];
+  return items.reduce((sum, p) => sum + Math.max(0, Number(p.amount || 0)), 0);
+}
+
+function renderBillsAndPhaseTotals(month){
+  const t = computeBillsTotals(month);
+  const debtQueued = computeDebtQueuedTotal();
+  const phaseRemaining = t.remaining + debtQueued;
+
+  const elTotal = document.getElementById("billsMonthTotal");
+  const elPaid = document.getElementById("billsMonthPaid");
+  const elRem = document.getElementById("billsMonthRemaining");
+  const elDebt = document.getElementById("phaseDebtQueued");
+  const elPhase = document.getElementById("phaseRemaining");
+
+  if(elTotal) elTotal.textContent = fmtMoney(t.total);
+  if(elPaid)  elPaid.textContent  = fmtMoney(t.paid);
+  if(elRem)   elRem.textContent   = fmtMoney(t.remaining);
+  if(elDebt)  elDebt.textContent  = fmtMoney(debtQueued);
+  if(elPhase) elPhase.textContent = fmtMoney(phaseRemaining);
+}
+
+
 function restoreCarPaymentLabels(){
   const month = currentMonthYYYYMM();
   const bills = getBills(month);
@@ -1505,6 +1595,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const month = currentMonthYYYYMM();
   importBillsFromDOMIfNeeded(month);
   renderHomeBills(month);
+  restoreCarPaymentLabels();
+
 
   // If we load directly onto the Debt page, initialize snapshot
   if(document.getElementById("pageDebt")?.style.display !== "none"){
