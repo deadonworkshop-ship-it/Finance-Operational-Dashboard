@@ -318,7 +318,13 @@ html, body { overflow-x: hidden; }
   </label>
 </div>
 
+<div class="row" style="margin-top:12px;">
+  <div>TOTAL DEBT OWED</div>
+  <div id="totalDebtOwed" style="font-weight:800;">$0</div>
+</div>
+
   </div>
+
 
   <div class="card">
     <div style="font-size:12px;color:#9aa7b6;margin-bottom:10px;">Select Debt</div>
@@ -741,6 +747,7 @@ function confirmDebtPaid(e, btn){
       const debtPage = document.getElementById("pageDebt");
       if(debtPage && debtPage.style.display !== "none"){
         renderDebtSnapshotList();
+        renderTotalDebtOwed(); 
         syncDebtSnapshotInput();
       }
     }
@@ -885,6 +892,18 @@ function fmtOwed(n){
 
 /* ===== END DEBT SNAPSHOT MODEL (defaults + storage) ===== */
 
+function computeTotalDebtOwed(){
+  const balances = getDebtBalances();
+  return Object.values(balances).reduce((sum, v) => sum + Math.max(0, Number(v) || 0), 0);
+}
+
+function renderTotalDebtOwed(){
+  const el = document.getElementById("totalDebtOwed");
+  if(!el) return;
+  el.textContent = fmtMoney(computeTotalDebtOwed());
+}
+
+
 /* ===== BEGIN DEBT SNAPSHOT PAGE LOGIC ===== */
 
 function initDebtSnapshot(){
@@ -918,6 +937,7 @@ function initDebtSnapshot(){
 
   sel.onchange = () => syncDebtSnapshotInput();
   renderDebtSnapshotList();
+  renderTotalDebtOwed();
   syncDebtSnapshotInput();
 }
 
@@ -948,6 +968,7 @@ function saveDebtSnapshotValue(){
   setDebtBalances(balances);
 
   renderDebtSnapshotList();
+  renderTotalDebtOwed();
   syncDebtSnapshotInput();
 }
 
