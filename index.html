@@ -1108,6 +1108,39 @@ function initDebtDropdown(){
 }
 >>>>>>> Stashed changes
 
+/* ===== BEGIN MOBILE FIX: debt form stacks vertically ===== */
+
+/* Prevent any accidental horizontal scroll */
+html, body { overflow-x: hidden; }
+
+@media (max-width: 520px){
+  #debtForm{
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  #debtCardSelect,
+  #debtAmountInput{
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  #debtForm .confirmBtn,
+  #debtForm .cancelBtn{
+    width: 100%;
+  }
+
+  /* Optional: put ADD/CANCEL on one row instead of full width */
+  /* 
+  #debtForm .confirmBtn, #debtForm .cancelBtn { width: 49%; }
+  #debtForm { flex-direction: column; }
+  */
+}
+/* ===== END MOBILE FIX: debt form stacks vertically ===== */
+
+
 </script>
 
 </body>
