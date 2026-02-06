@@ -252,8 +252,17 @@ body{margin:0;font-family:-apple-system,system-ui;background:#0b0f14;color:#fff;
       <button class="cancelBtn" onclick="navigateTo('home')" style="width:auto; padding:10px 12px;">BACK</button>
     </div>
     <div style="font-size:12px;color:#9aa7b6;margin-top:6px;">
-      Update balances manually. Auto-apply payments toggle comes next (Option C).
-    </div>
+  Update balances manually. Optional: auto-apply confirmed payments to reduce balances.
+</div>
+
+<div class="row" style="margin-top:12px;">
+  <div>AUTO-APPLY PAYMENTS</div>
+  <label style="display:flex;align-items:center;gap:10px;">
+    <input id="autoApplyToggle" type="checkbox" onchange="onToggleAutoApply(this.checked)" />
+    <span style="color:#9aa7b6;font-size:13px;">ON/OFF</span>
+  </label>
+</div>
+
   </div>
 
   <div class="card">
@@ -270,8 +279,12 @@ body{margin:0;font-family:-apple-system,system-ui;background:#0b0f14;color:#fff;
              onblur="finalizeCurrencyInput(this)"
              style="width:160px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
 
-      <button class="confirmBtn" onclick="alert('Debt snapshot storage next (Option C)')" style="width:auto;">SAVE</button>
-
+    <button class="confirmBtn"
+      onclick="saveDebtSnapshotValue()"
+      style="width:auto;">
+      SAVE
+    </button>
+ 
     </div>
 
     <div class="list" id="debtSnapshotList"></div>
@@ -471,6 +484,29 @@ function confirmDebtPaid(e, btn){
 
   updateStatus();
 
+  /* ===== BEGIN AUTO-APPLY PAYMENT TO DEBT BALANCE ===== */
+if(getAutoApplyEnabled()){
+  const nameEl = item.querySelector(".debtName");
+  const debtName = nameEl ? nameEl.textContent.trim() : "";
+
+  if(debtName){
+    const balances = getDebtBalances();
+    const currentOwed = Number(balances[debtName] || 0);
+    const nextOwed = Math.max(0, currentOwed - amt);
+    balances[debtName] = nextOwed;
+    setDebtBalances(balances);
+
+    // If you're currently on the Debt page, refresh it
+    const debtPage = document.getElementById("pageDebt");
+    if(debtPage && debtPage.style.display !== "none"){
+      renderDebtSnapshotList();
+      syncDebtSnapshotInput();
+    }
+  }
+}
+/* ===== END AUTO-APPLY PAYMENT TO DEBT BALANCE ===== */
+
+
   item.classList.add("removing");
   setTimeout(()=>{ item.remove(); },230);
 }
@@ -555,6 +591,151 @@ function updateStatus(){
   }
 }
 /* ===== END STATUS (SAFE/SHORTFALL) + DELTA ===== */
+
+/* ===== BEGIN DEBT SNAPSHOT MODEL (defaults + storage) ===== */
+
+const DEBT_BALANCES_KEY = "debt_balances_v1";
+const DEBT_AUTO_APPLY_KEY = "debt_auto_apply_v1";
+
+// Store as POSITIVE amounts owed (we'll DISPLAY them as parentheses)
+const DEFAULT_DEBT_BALANCES = {
+  "House Mortgage": 550000.00,
+  "Land Mortgage": 91750.34,
+  "Tesla Loan": 30918.79,
+  "Highlander Loan": 5781.08,
+  "USAA Signature Credit Card": 4519.56,
+  "USAA Platinum Credit Card": 0,
+  "Amazon Prime Credit Card": 90.82,
+  "AMEX Platinum Card": 0,
+  "AMEX Blue Cash Credit Card": 178.57,
+  "AMEX Delta Credit Card": 0,
+  "AMEX Bonvoy Card": 1701.99,
+  "Amazon Prime Business Credit Card": 1715.46
+};
+
+function getDebtBalances(){
+  try{
+    const stored = JSON.parse(localStorage.getItem(DEBT_BALANCES_KEY) || "null");
+    if(stored && typeof stored === "object") return stored;
+  }catch(e){}
+  return { ...DEFAULT_DEBT_BALANCES };
+}
+
+function setDebtBalances(obj){
+  localStorage.setItem(DEBT_BALANCES_KEY, JSON.stringify(obj));
+}
+
+function getAutoApplyEnabled(){
+  return localStorage.getItem(DEBT_AUTO_APPLY_KEY) === "true";
+}
+
+function setAutoApplyEnabled(enabled){
+  localStorage.setItem(DEBT_AUTO_APPLY_KEY, enabled ? "true" : "false");
+}
+
+function fmtOwed(n){
+  const val = Number(n || 0);
+  if(val <= 0) return "$-";
+  // display like your sheet: $(550,000.00)
+  return `$(${val.toLocaleString(undefined,{minimumFractionDigits:2, maximumFractionDigits:2})})`;
+}
+
+/* ===== END DEBT SNAPSHOT MODEL (defaults + storage) ===== */
+
+/* ===== BEGIN DEBT SNAPSHOT PAGE LOGIC ===== */
+
+function initDebtSnapshot(){
+  // Initialize storage once
+  if(!localStorage.getItem(DEBT_BALANCES_KEY)){
+    setDebtBalances({ ...DEFAULT_DEBT_BALANCES });
+  }
+
+  const balances = getDebtBalances();
+
+  const sel = document.getElementById("debtSnapshotSelect");
+  const input = document.getElementById("debtSnapshotInput");
+  const list = document.getElementById("debtSnapshotList");
+  const toggle = document.getElementById("autoApplyToggle");
+
+  if(!sel || !input || !list) return;
+
+  // Toggle init
+  if(toggle){
+    toggle.checked = getAutoApplyEnabled();
+  }
+
+  // Populate dropdown
+  sel.innerHTML = "";
+  Object.keys(balances).forEach(name => {
+    const opt = document.createElement("option");
+    opt.value = name;
+    opt.textContent = name;
+    sel.appendChild(opt);
+  });
+
+  sel.onchange = () => syncDebtSnapshotInput();
+  renderDebtSnapshotList();
+  syncDebtSnapshotInput();
+}
+
+function onToggleAutoApply(checked){
+  setAutoApplyEnabled(checked);
+}
+
+function syncDebtSnapshotInput(){
+  const sel = document.getElementById("debtSnapshotSelect");
+  const input = document.getElementById("debtSnapshotInput");
+  if(!sel || !input) return;
+
+  const balances = getDebtBalances();
+  const val = Number(balances[sel.value] || 0);
+
+  // Input should be normal currency (no parentheses), so user can type easily
+  input.value = val > 0 ? fmtMoney(val) : "";
+}
+
+function saveDebtSnapshotValue(){
+  const sel = document.getElementById("debtSnapshotSelect");
+  const input = document.getElementById("debtSnapshotInput");
+  if(!sel || !input) return;
+
+  const next = Math.max(0, parseMoney(input.value)); // allow 0
+  const balances = getDebtBalances();
+  balances[sel.value] = next;
+  setDebtBalances(balances);
+
+  renderDebtSnapshotList();
+  syncDebtSnapshotInput();
+}
+
+function renderDebtSnapshotList(){
+  const list = document.getElementById("debtSnapshotList");
+  if(!list) return;
+
+  const balances = getDebtBalances();
+  const entries = Object.entries(balances);
+
+  // Sort highest owed first
+  entries.sort((a,b) => (b[1]||0) - (a[1]||0));
+
+  list.innerHTML = "";
+  entries.forEach(([name, val]) => {
+    const row = document.createElement("div");
+    row.className = "item";
+    row.style.cursor = "pointer";
+    row.onclick = () => {
+      const sel = document.getElementById("debtSnapshotSelect");
+      if(sel){
+        sel.value = name;
+        syncDebtSnapshotInput();
+      }
+    };
+    row.innerHTML = `<div>${escapeHtml(name)}</div><div>${fmtOwed(val)}</div>`;
+    list.appendChild(row);
+  });
+}
+
+/* ===== END DEBT SNAPSHOT PAGE LOGIC ===== */
 
 
 /* ===== BEGIN STALE BALANCE (UPDATED X AGO) ===== */
@@ -706,6 +887,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Keep the "UPDATED X ago" line fresh automatically
   setInterval(updateStaleIndicator, 60000);
+
+  // If we load directly onto the Debt page, initialize snapshot
+  if(document.getElementById("pageDebt")?.style.display !== "none"){
+  initDebtSnapshot();
+}
+
 });
 
 
