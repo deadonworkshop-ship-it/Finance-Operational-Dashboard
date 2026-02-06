@@ -69,6 +69,16 @@ body{margin:0;font-family:-apple-system,system-ui;background:#0b0f14;color:#fff;
 }
 /* ===== END EDIT BUTTON ===== */
 
+/* ===== BEGIN BILLS PAID STATE (REVERSIBLE) ===== */
+.item.paid{
+  opacity: 0.55;
+}
+.item.paid > div:first-child{
+  text-decoration: line-through;
+  color: #9aa7b6;
+}
+/* ===== END BILLS PAID STATE (REVERSIBLE) ===== */
+
 .item .confirmBar{
   animation: dropIn 160ms ease-out;
 }
@@ -271,7 +281,7 @@ html, body { overflow-x: hidden; }
 
 
 
-<div class="list">
+<div class="list" id="billsList">
 <div class="item" data-amount="229.03" data-date="2026-02-05" onclick="toggleConfirm(this)">
 
   <div>Car Payment - Highlander</div>
@@ -364,12 +374,21 @@ function monthFromDate(dateStr){
   return dateStr.slice(0,7);
 }
 
+function currentMonthYYYYMM(){
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,"0");
+  return `${y}-${m}`;
+}
+
 function billId(name, amount, dateStr){
   // Stable-ish ID: deterministic from fields
   const key = `${name}|${Number(amount).toFixed(2)}|${dateStr}`;
-  // simple hash
   let h = 0;
-  for(let i=0;i<key.length;i++){ h = ((h<<5)-h) + key.charCodeAt(i); h |= 0; }
+  for(let i=0;i<key.length;i++){
+    h = ((h<<5)-h) + key.charCodeAt(i);
+    h |= 0;
+  }
   return `b_${Math.abs(h)}`;
 }
 
@@ -389,7 +408,7 @@ function setBills(month, bills){
   localStorage.setItem(billsKey(month), JSON.stringify(bills));
 }
 
-// One-time import: if no stored bills for month, read your hardcoded DOM bills into storage.
+// One-time import: if no stored bills for the month, read your hardcoded Home DOM bills into storage.
 function importBillsFromDOMIfNeeded(month){
   const existing = getBills(month);
   if(existing.length) return;
@@ -398,6 +417,7 @@ function importBillsFromDOMIfNeeded(month){
   if(!list) return;
 
   const items = Array.from(list.querySelectorAll(":scope > .item"));
+
   const bills = items.map(el => {
     const name = (el.querySelector("div")?.textContent || "Bill").trim();
     const amount = Number(el.dataset.amount || 0);
@@ -419,7 +439,7 @@ function importBillsFromDOMIfNeeded(month){
   setBills(month, bills);
 }
 
-/* ===== BEGIN renderHomeBills (REPLACEMENT) ===== */
+/* Home bills renderer: renders FROM storage, not DOM */
 function renderHomeBills(month){
   const list = document.getElementById("billsList");
   if(!list) return;
@@ -436,30 +456,25 @@ function renderHomeBills(month){
     item.dataset.billId = b.id;
     item.dataset.paid = b.paid ? "true" : "false";
 
+    // Tap row to open confirm bar (reuses your existing toggleConfirm)
     item.onclick = function(){ toggleConfirm(item); };
 
     item.innerHTML = `
       <div>${escapeHtml(b.name)}</div>
       <div>${fmtMoney(b.amount)}</div>
       <div class="confirmBar">
-        <button class="confirmBtn"
-          onclick="toggleBillPaid(event,this)">
+        <button class="confirmBtn" onclick="toggleBillPaid(event,this)">
           ${b.paid ? "↩ MARK UNPAID" : "✔ CONFIRM PAID"}
         </button>
-        <button class="cancelBtn"
-          onclick="cancelConfirm(event,this)">
-          CANCEL
-        </button>
+        <button class="cancelBtn" onclick="cancelConfirm(event,this)">CANCEL</button>
       </div>
     `;
 
     list.appendChild(item);
   });
 }
-/* ===== END renderHomeBills (REPLACEMENT) ===== */
 
-
-// This replaces “confirmPaid” for bills with a reversible toggle.
+/* Reversible toggle: paid <-> unpaid */
 function toggleBillPaid(e, btn){
   e.stopPropagation();
 
@@ -506,7 +521,7 @@ function toggleBillPaid(e, btn){
     updateStatus();
   }
 
-  // Update UI row (no remove!)
+  // Update UI row (no remove)
   item.classList.toggle("paid", !wasPaid);
   item.dataset.paid = (!wasPaid) ? "true" : "false";
   btn.textContent = (!wasPaid) ? "↩ MARK UNPAID" : "✔ CONFIRM PAID";
@@ -515,7 +530,39 @@ function toggleBillPaid(e, btn){
   renderMonthlyBills();
 }
 
+/* Menu drawer monthly bills list: render FROM storage */
+function renderMonthlyBills(){
+  const out = document.getElementById("monthlyBillsList");
+  const sel = document.getElementById("billMonthSelect");
+  if(!out || !sel) return;
+
+  const month = sel.value; // "YYYY-MM"
+
+  // Ensure month is initialized at least once
+  importBillsFromDOMIfNeeded(month);
+
+  const bills = getBills(month).slice().sort((a,b)=>a.date.localeCompare(b.date));
+
+  out.innerHTML = "";
+  bills.forEach(b => {
+    const row = document.createElement("div");
+    row.className = "item";
+    row.style.cursor = "default";
+    row.innerHTML = `<div>${b.date} • ${escapeHtml(b.name)}${b.paid ? " ✅" : ""}</div><div>${fmtMoney(b.amount)}</div>`;
+    out.appendChild(row);
+  });
+
+  if(bills.length === 0){
+    const row = document.createElement("div");
+    row.className = "item";
+    row.innerHTML = `<div>No bills found for ${month}</div><div></div>`;
+    out.appendChild(row);
+  }
+}
+
 /* ===== END MONTHLY BILLS PERSISTENCE (REVERSIBLE) ===== */
+
+
 
 /* ===== BEGIN DEBT PAYMENTS STORAGE ===== */
 const DEBT_PAYMENTS_KEY = "debt_payments_v1";
@@ -786,33 +833,6 @@ function cancelConfirm(e,btn){
   btn.closest(".confirmBar").style.display="none";
 }
 
-function confirmPaid(e,btn){
-  e.stopPropagation();
-  const item = btn.closest(".item");
-  const amt = Number(item.dataset.amount || 0);
-
-  // Read current displayed totals
-  const shouldEl = document.getElementById("shouldHave");
-  const availEl  = document.getElementById("avail");
-
-  let should = parseMoney(shouldEl.textContent);
-  let avail  = parseMoney(availEl.textContent);
-
-  // Logic: paying a bill reduces "You Should Have" and increases "Available for Debt"
-  should = should - amt;
-  avail  = avail + amt;
-
-  // Update UI
-  shouldEl.textContent = fmtMoney(should);
-  availEl.textContent  = fmtMoney(avail);
-
-  updateStatus();
-
-
-  // Animate + remove row
-  item.classList.add("removing");
-  setTimeout(()=>{ item.remove(); },230);
-}
 
 function parseMoney(str){
   return Number(String(str).replace(/[^0-9.-]/g,"")) || 0;
@@ -1063,44 +1083,6 @@ function toggleMenu(){
   }
 }
 
-function renderMonthlyBills(){
-  const out = document.getElementById("monthlyBillsList");
-  const sel = document.getElementById("billMonthSelect");
-  if(!out || !sel) return;
-
-  const month = sel.value; // "YYYY-MM"
-  /* ===== BEGIN FIX: monthly bills selector ===== */
-  const items = Array.from(document.querySelectorAll("#pageHome > .list .item"));
-  /* ===== END FIX: monthly bills selector ===== */
-
-
-
-  const bills = items.map(el => ({
-    name: el.querySelector("div")?.textContent?.trim() || "Bill",
-    amount: parseMoney(el.querySelectorAll("div")[1]?.textContent || el.dataset.amount || "0"),
-    date: String(el.dataset.date || ""),      // "YYYY-MM-DD"
-  }))
-  // keep only selected month if date exists, otherwise show at bottom
-  .filter(b => !b.date || b.date.startsWith(month))
-  .sort((a,b) => (a.date || "9999-99-99").localeCompare(b.date || "9999-99-99"));
-
-  out.innerHTML = "";
-  bills.forEach(b => {
-    const row = document.createElement("div");
-    row.className = "item";
-    row.style.cursor = "default";
-    row.innerHTML = `<div>${b.date ? b.date : "—"} • ${escapeHtml(b.name)}</div><div>${fmtMoney(b.amount)}</div>`;
-    out.appendChild(row);
-  });
-
-  if(bills.length === 0){
-    const row = document.createElement("div");
-    row.className = "item";
-    row.innerHTML = `<div>No bills found for ${month}</div><div></div>`;
-    out.appendChild(row);
-  }
-}
-
 /* ===== END MENU + MONTHLY BILLS ===== */
 
 /* ===== BEGIN NAVIGATION ===== */
@@ -1163,15 +1145,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   updateStatus();
   updateStaleIndicator();
-
-  // Keep the "UPDATED X ago" line fresh automatically
   setInterval(updateStaleIndicator, 60000);
+
+  // Bills: persist + render from storage
+  const month = currentMonthYYYYMM();
+  importBillsFromDOMIfNeeded(month);
+  renderHomeBills(month);
 
   // If we load directly onto the Debt page, initialize snapshot
   if(document.getElementById("pageDebt")?.style.display !== "none"){
     initDebtSnapshot();
   }
 });
+
 
 
 </script>
