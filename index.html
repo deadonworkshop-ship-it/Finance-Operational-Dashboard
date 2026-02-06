@@ -88,7 +88,41 @@ body{margin:0;font-family:-apple-system,system-ui;background:#0b0f14;color:#fff;
 .item{display:flex;justify-content:space-between;padding:14px;border-top:1px solid #1b2533;}
 .item:first-child{border-top:none;}
 .one{color:#f5b942;}
+
+/* ===== BEGIN MOBILE FIX: debt form stacks vertically ===== */
+
+/* Prevent any accidental horizontal scroll */
+html, body { overflow-x: hidden; }
+
+@media (max-width: 520px){
+  #debtForm{
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  #debtCardSelect,
+  #debtAmountInput{
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  #debtForm .confirmBtn,
+  #debtForm .cancelBtn{
+    width: 100%;
+  }
+
+  /* Optional: put ADD/CANCEL on one row instead of full width */
+  /* 
+  #debtForm .confirmBtn, #debtForm .cancelBtn { width: 49%; }
+  #debtForm { flex-direction: column; }
+  */
+}
+/* ===== END MOBILE FIX: debt form stacks vertically ===== */
+
 </style>
+
 </head>
 <body>
 <div class="header">
@@ -295,8 +329,6 @@ body{margin:0;font-family:-apple-system,system-ui;background:#0b0f14;color:#fff;
 
 <script>
 
-<<<<<<< Updated upstream
-=======
 /* ===== BEGIN MONTHLY BILLS PERSISTENCE (REVERSIBLE) ===== */
 
 function monthFromDate(dateStr){
@@ -474,7 +506,6 @@ function setDebtPayments(arr){
 }
 /* ===== END DEBT PAYMENTS STORAGE ===== */
 
->>>>>>> Stashed changes
 /* ===== BEGIN AUTO CURRENCY FORMAT ===== */
 
 // Format while typing (no forced decimals yet)
@@ -1067,33 +1098,6 @@ function navigateTo(dest){
 }
 /* ===== END NAVIGATION ===== */
 
-
-document.addEventListener("DOMContentLoaded", () => {
-  initDebtDropdown();
-<<<<<<< Updated upstream
-  // If this is the first ever load, initialize to "now" so it doesn't show "UPDATED —"
-=======
-  loadDebtPayments();
-
->>>>>>> Stashed changes
-  if(!Number.isFinite(getLastUpdatedMs())) setLastUpdatedNow();
-
-  updateStatus();
-  updateStaleIndicator();
-
-  // Keep the "UPDATED X ago" line fresh automatically
-  setInterval(updateStaleIndicator, 60000);
-
-  // If we load directly onto the Debt page, initialize snapshot
-  if(document.getElementById("pageDebt")?.style.display !== "none"){
-  initDebtSnapshot();
-}
-
-});
-
-<<<<<<< Updated upstream
-
-=======
 function initDebtDropdown(){
   const sel = document.getElementById("debtCardSelect");
   if(!sel) return;
@@ -1106,39 +1110,26 @@ function initDebtDropdown(){
     sel.appendChild(opt);
   });
 }
->>>>>>> Stashed changes
 
-/* ===== BEGIN MOBILE FIX: debt form stacks vertically ===== */
+document.addEventListener("DOMContentLoaded", () => {
+  initDebtDropdown();
+  loadDebtPayments();
 
-/* Prevent any accidental horizontal scroll */
-html, body { overflow-x: hidden; }
-
-@media (max-width: 520px){
-  #debtForm{
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
+  if(!Number.isFinite(getLastUpdatedMs())){
+    setLastUpdatedNow();
   }
 
-  #debtCardSelect,
-  #debtAmountInput{
-    width: 100% !important;
-    box-sizing: border-box;
-  }
+  updateStatus();
+  updateStaleIndicator();
 
-  #debtForm .confirmBtn,
-  #debtForm .cancelBtn{
-    width: 100%;
-  }
+  // Keep the "UPDATED X ago" line fresh automatically
+  setInterval(updateStaleIndicator, 60000);
 
-  /* Optional: put ADD/CANCEL on one row instead of full width */
-  /* 
-  #debtForm .confirmBtn, #debtForm .cancelBtn { width: 49%; }
-  #debtForm { flex-direction: column; }
-  */
-}
-/* ===== END MOBILE FIX: debt form stacks vertically ===== */
+  // If we load directly onto the Debt page, initialize snapshot
+  if(document.getElementById("pageDebt")?.style.display !== "none"){
+    initDebtSnapshot();
+  }
+});
 
 
 </script>
