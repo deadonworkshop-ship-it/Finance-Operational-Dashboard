@@ -151,6 +151,68 @@ html, body { overflow-x: hidden; }
 }
 /* ===== END MOBILE FIX: debt snapshot controls stack vertically ===== */
 
+/* ===== BEGIN MONTHLY BILLS PAGE STYLES ===== */
+.billControls{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+}
+
+.billControls input[type="date"]{
+  background:#0c131d;
+  color:#fff;
+  border:1px solid #1b2533;
+  border-radius:12px;
+  padding:10px 12px;
+  font-size:14px;
+}
+
+.billControls .miniBtn{
+  background:#141a22;
+  color:#9aa7b6;
+  border:1px solid #1b2533;
+  padding:10px 12px;
+  border-radius:12px;
+  font-weight:800;
+}
+
+.billControls label{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  font-weight:800;
+}
+
+@media (max-width: 520px){
+  .billControls{
+    justify-content:space-between;
+  }
+  .billControls input[type="date"]{
+    width: 100%;
+  }
+}
+/* ===== END MONTHLY BILLS PAGE STYLES ===== */
+
+/* ===== BILL PAID TOGGLE BUTTON ===== */
+.billPaidBtn{
+  min-width: 120px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  font-weight: 800;
+  border: 1px solid #1b2533;
+  background: #141a22;
+  color: #fff;
+}
+
+.billPaidBtn.paid{
+  background: #0f141b;
+  color: #9aa7b6;
+  border-color: #2a3443;
+}
+/* ================================= */
+
 
 </style>
 
@@ -364,7 +426,44 @@ html, body { overflow-x: hidden; }
 </div>
 <!-- ===== END DEBT SNAPSHOT PAGE ===== -->
 
+<!-- ===== BEGIN MONTHLY BILLS PAGE ===== -->
+<div class="container page" id="pageBills" style="display:none;">
+
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div style="font-weight:800;">Monthly Bills</div>
+      <button class="cancelBtn" onclick="navigateTo('home')" style="width:auto; padding:10px 12px;">BACK</button>
+    </div>
+
+    <div style="display:flex; gap:10px; align-items:center; margin-top:12px;">
+      <select id="billsPageMonthSelect"
+              style="flex:1; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;">
+      </select>
+
+      <button class="confirmBtn" onclick="renderBillsPage()" style="width:auto;">VIEW</button>
+    </div>
+
+    <div style="font-size:12px;color:#9aa7b6;margin-top:10px;">
+      Toggle paid/unpaid. Set a paid date to override. Clearing paid date marks unpaid.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="list" id="billsPageList"></div>
+  </div>
+
+</div>
+<!-- ===== END MONTHLY BILLS PAGE ===== -->
+
 <script>
+
+function todayISO(){
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,"0");
+  const day = String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${day}`;
+}
 
 /* ===== BEGIN MONTHLY BILLS PERSISTENCE (REVERSIBLE) ===== */
 
@@ -424,14 +523,16 @@ function importBillsFromDOMIfNeeded(month){
     const dateStr = String(el.dataset.date || "");
     const m = monthFromDate(dateStr) || month;
 
-    return {
-      id: billId(name, amount, dateStr || `${m}-01`),
-      name,
-      amount,
-      date: dateStr || `${m}-01`,
-      month: m,
-      paid: false
-    };
+  return {
+    id: billId(name, amount, dateStr || `${m}-01`),
+    name,
+    amount,
+    date: dateStr || `${m}-01`,   // treat as DUE date for now
+    month: m,
+    paid: false,
+    paidAt: null                  // ✅ new
+  };
+
   })
   .filter(b => b.month === month)
   .sort((a,b) => a.date.localeCompare(b.date));
@@ -495,9 +596,20 @@ function toggleBillPaid(e, btn){
   const idx = bills.findIndex(b => b.id === billIdVal);
   if(idx < 0) return;
 
+  if(!("paidAt" in bills[idx])) bills[idx].paidAt = null;
+
   const wasPaid = !!bills[idx].paid;
   bills[idx].paid = !wasPaid;
+
+  // ✅ paid timestamp (posted/paid date)
+  if(!wasPaid){
+    bills[idx].paidAt = todayISO();  // marking paid now
+  } else {
+    bills[idx].paidAt = null;        // marking unpaid clears timestamp
+  }
+
   setBills(month, bills);
+
 
   // Update cockpit totals reversibly
   const shouldEl = document.getElementById("shouldHave");
@@ -548,7 +660,9 @@ function renderMonthlyBills(){
     const row = document.createElement("div");
     row.className = "item";
     row.style.cursor = "default";
-    row.innerHTML = `<div>${b.date} • ${escapeHtml(b.name)}${b.paid ? " ✅" : ""}</div><div>${fmtMoney(b.amount)}</div>`;
+    const paidTag = b.paid ? (b.paidAt ? ` ✅ (${b.paidAt})` : " ✅") : "";
+    row.innerHTML = `<div>${b.date} • ${escapeHtml(b.name)}${paidTag}</div><div>${fmtMoney(b.amount)}</div>`;
+
     out.appendChild(row);
   });
 
@@ -1114,13 +1228,253 @@ function navigateTo(dest){
   }
 
   if(dest === "bills"){
-    // We'll make a pageMonthlyBills next; for now, just open menu bills list or stay home
-    alert("Monthly Bills page next — coming up.");
-    showPage("pageHome");
+    showPage("pageBills");
+    initBillsPage();
     return;
   }
+
 }
 /* ===== END NAVIGATION ===== */
+
+/* ===== BEGIN MONTHLY BILLS PAGE LOGIC ===== */
+
+function todayISO(){
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,"0");
+  const day = String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${day}`;
+}
+
+// Ensure older stored bills don’t break
+function normalizeBill(b){
+  if(!("paid" in b)) b.paid = false;
+  if(!("paidAt" in b)) b.paidAt = null; // new field
+  return b;
+}
+
+// Keep cockpit numbers consistent even when toggling from Bills page
+function applyBillDelta(amount, markingPaid){
+  const shouldEl = document.getElementById("shouldHave");
+  const availEl  = document.getElementById("avail");
+  if(!shouldEl || !availEl) return;
+
+  let should = parseMoney(shouldEl.textContent);
+  let avail  = parseMoney(availEl.textContent);
+
+  if(markingPaid){
+    should = should - amount;
+    avail  = avail + amount;
+  } else {
+    should = should + amount;
+    avail  = avail - amount;
+  }
+
+  shouldEl.textContent = fmtMoney(should);
+  availEl.textContent  = fmtMoney(avail);
+  updateStatus();
+}
+
+function initBillsPage(){
+  const sel = document.getElementById("billsPageMonthSelect");
+  const menuSel = document.getElementById("billMonthSelect");
+  if(!sel) return;
+
+  // Copy month options from the menu dropdown (keeps it simple for now)
+  sel.innerHTML = "";
+  if(menuSel){
+    Array.from(menuSel.options).forEach(opt => {
+      const o = document.createElement("option");
+      o.value = opt.value;
+      o.textContent = opt.textContent;
+      sel.appendChild(o);
+    });
+  }
+
+  // Default to current month; add it if it’s missing
+  const current = currentMonthYYYYMM();
+  if(!Array.from(sel.options).some(o => o.value === current)){
+    const o = document.createElement("option");
+    o.value = current;
+    o.textContent = current;
+    sel.insertBefore(o, sel.firstChild);
+  }
+  sel.value = current;
+
+  renderBillsPage();
+}
+
+function renderBillsPage(){
+  const sel = document.getElementById("billsPageMonthSelect");
+  const out = document.getElementById("billsPageList");
+  if(!sel || !out) return;
+
+  const month = sel.value;
+
+  importBillsFromDOMIfNeeded(month);
+
+  let bills = getBills(month).map(normalizeBill);
+  // persist any normalization upgrades
+  setBills(month, bills);
+
+  bills = bills.slice().sort((a,b)=> (a.date || "").localeCompare(b.date || ""));
+
+  out.innerHTML = "";
+
+  if(bills.length === 0){
+    const row = document.createElement("div");
+    row.className = "item";
+    row.innerHTML = `<div>No bills found for ${month}</div><div></div>`;
+    out.appendChild(row);
+    return;
+  }
+
+  bills.forEach(b => {
+    const row = document.createElement("div");
+    row.className = `item${b.paid ? " paid" : ""}`;
+
+    const paidDateVal = b.paidAt ? b.paidAt : "";
+
+    row.innerHTML = `
+      <div style="flex:1; padding-right:10px;">
+        <div style="font-weight:800;">${escapeHtml(b.name)}</div>
+        <div style="font-size:12px; color:#9aa7b6; margin-top:4px;">
+          Due: ${escapeHtml(b.date || "—")}
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
+        <div style="font-weight:800;">${fmtMoney(Number(b.amount || 0))}</div>
+
+        <div class="billControls">
+          <button class="billPaidBtn ${b.paid ? "paid" : ""}"
+                  onclick="onBillPaidToggle('${b.id}', '${month}', ${!b.paid})">
+            ${b.paid ? "✔ PAID" : "MARK PAID"}
+          </button>
+
+
+          <input type="date" value="${paidDateVal}" onchange="onBillPaidDateChange('${b.id}', '${month}', this.value)">
+          <button class="miniBtn" onclick="clearBillPaidDate(event, '${b.id}', '${month}')">CLEAR</button>
+        </div>
+      </div>
+    `;
+
+    out.appendChild(row);
+  });
+}
+
+function onBillPaidToggle(billIdVal, month, checked){
+  const bills = getBills(month).map(normalizeBill);
+  const idx = bills.findIndex(b => b.id === billIdVal);
+  if(idx < 0) return;
+
+  const wasPaid = !!bills[idx].paid;
+  const amt = Number(bills[idx].amount || 0);
+
+  // If no change, do nothing
+  if(wasPaid === checked) return;
+
+  bills[idx].paid = checked;
+
+  // If toggling paid ON and no paidAt, default to today
+  if(checked && !bills[idx].paidAt){
+    bills[idx].paidAt = todayISO();
+  }
+  // If toggling paid OFF, clear paidAt
+  if(!checked){
+    bills[idx].paidAt = null;
+  }
+
+  setBills(month, bills);
+
+  // Update cockpit numbers
+  applyBillDelta(amt, checked);
+
+  // Refresh views
+  renderBillsPage();
+  renderHomeBills(month);
+  renderMonthlyBills();
+}
+
+function onBillPaidDateChange(billIdVal, month, dateVal){
+  const bills = getBills(month).map(normalizeBill);
+  const idx = bills.findIndex(b => b.id === billIdVal);
+  if(idx < 0) return;
+
+  const prevPaid = !!bills[idx].paid;
+  const amt = Number(bills[idx].amount || 0);
+
+  // Setting a date => Paid
+  if(dateVal){
+    bills[idx].paidAt = dateVal;
+    bills[idx].paid = true;
+
+    // If it was unpaid and now becomes paid, update cockpit
+    if(!prevPaid){
+      applyBillDelta(amt, true);
+    }
+  } else {
+    // Date cleared via picker (rare). Treat as unpaid.
+    bills[idx].paidAt = null;
+    bills[idx].paid = false;
+
+    if(prevPaid){
+      applyBillDelta(amt, false);
+    }
+  }
+
+  setBills(month, bills);
+
+  renderBillsPage();
+  renderHomeBills(month);
+  renderMonthlyBills();
+}
+
+function clearBillPaidDate(e, billIdVal, month){
+  e.stopPropagation();
+
+  const bills = getBills(month).map(normalizeBill);
+  const idx = bills.findIndex(b => b.id === billIdVal);
+  if(idx < 0) return;
+
+  const wasPaid = !!bills[idx].paid;
+  const amt = Number(bills[idx].amount || 0);
+
+  bills[idx].paidAt = null;
+  bills[idx].paid = false;
+  setBills(month, bills);
+
+  if(wasPaid){
+    applyBillDelta(amt, false);
+  }
+
+  renderBillsPage();
+  renderHomeBills(month);
+  renderMonthlyBills();
+}
+
+/* ===== END MONTHLY BILLS PAGE LOGIC ===== */
+
+function restoreCarPaymentLabels(){
+  const month = currentMonthYYYYMM();
+  const bills = getBills(month);
+  let changed = false;
+
+  bills.forEach(b => {
+    if(b.name === "Car Payment"){
+      if(b.amount === 229.03) b.name = "Car Payment - Highlander";
+      if(b.amount === 569.00) b.name = "Car Payment - Tesla";
+      changed = true;
+    }
+  });
+
+  if(changed){
+    setBills(month, bills);
+    renderHomeBills(month);
+    renderBillsPage();
+    renderMonthlyBills();
+  }
+}
 
 function initDebtDropdown(){
   const sel = document.getElementById("debtCardSelect");
