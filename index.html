@@ -21,6 +21,58 @@ body{margin:0;font-family:-apple-system,system-ui;background:#0b0f14;color:#fff;
   margin-top:10px;
 }
 
+#activeMonthSelect{
+  width: 160px;
+  background:#0c131d;
+  color:#fff;
+  border:1px solid #1b2533;
+  border-radius:12px;
+  padding:12px 12px;
+  font-weight:800;
+}
+
+.billControls{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+}
+
+.billControls input[type="date"]{
+  background:#0c131d;
+  color:#fff;
+  border:1px solid #1b2533;
+  border-radius:12px;
+  padding:10px 12px;
+  font-size:14px;
+}
+
+.billControls .miniBtn{
+  background:#141a22;
+  color:#9aa7b6;
+  border:1px solid #1b2533;
+  padding:10px 12px;
+  border-radius:12px;
+  font-weight:800;
+}
+
+.billPaidBtn{
+  min-width: 120px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  font-weight: 800;
+  border: 1px solid #1b2533;
+  background: #141a22;
+  color: #fff;
+}
+.billPaidBtn.paid{
+  background: #0f141b;
+  color: #9aa7b6;
+  border-color: #2a3443;
+}
+
+
 .confirmBar{
   display:none;
   margin-top:12px;
@@ -254,7 +306,6 @@ html, body { overflow-x: hidden; }
   </div>
 </div>
 
-
   <!-- Section: Monthly Bills -->
   <div class="card">
     <div style="font-size:12px;color:#9aa7b6;margin-bottom:10px;">Monthly Bills</div>
@@ -273,6 +324,14 @@ html, body { overflow-x: hidden; }
   </div>
 </div>
 <!-- ===== END MENU DRAWER ===== -->
+
+<div class="card" id="activeMonthCard">
+  <div class="row">
+    <div>ACTIVE MONTH</div>
+    <select id="activeMonthSelect"></select>
+  </div>
+</div>
+
 
 <!-- ===== BEGIN PAGE HOME WRAPPER ===== -->
 <div class="container page" id="pageHome">
@@ -343,31 +402,10 @@ html, body { overflow-x: hidden; }
 
 
 
-<div class="list" id="billsList">
-<div class="item" data-amount="229.03" data-date="2026-02-05" onclick="toggleConfirm(this)">
-
-  <div>Car Payment - Highlander</div>
-  <div>$229.03</div>
-
-  <div class="confirmBar">
-    <button class="confirmBtn" onclick="confirmPaid(event,this)">✔ CONFIRM PAID</button>
-    <button class="cancelBtn" onclick="cancelConfirm(event,this)">CANCEL</button>
-  </div>
-</div>
-
-<div class="item" data-amount="569.00" data-date="2026-02-05" onclick="toggleConfirm(this)">
-  <div>Car Payment - Tesla</div>
-  <div>$569.00</div>
-
-  <div class="confirmBar">
-    <button class="confirmBtn" onclick="confirmPaid(event,this)">✔ CONFIRM PAID</button>
-    <button class="cancelBtn" onclick="cancelConfirm(event,this)">CANCEL</button>
-  </div>
-</div>
+<div class="list" id="billsList"></div>
 
 </div>
 
-</div>
 <!-- ===== END PAGE HOME WRAPPER ===== -->
 
 <!-- ===== BEGIN DEBT SNAPSHOT PAGE ===== -->
@@ -437,43 +475,57 @@ html, body { overflow-x: hidden; }
 
     <div style="display:flex; gap:10px; align-items:center; margin-top:12px;">
       <select id="billsPageMonthSelect"
-              style="flex:1; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;">
-      </select>
-
+              style="flex:1; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;"></select>
       <button class="confirmBtn" onclick="renderBillsPage()" style="width:auto;">VIEW</button>
     </div>
 
-    <div style="font-size:12px;color:#9aa7b6;margin-top:10px;">
-      Toggle paid/unpaid. Set a paid date to override. Clearing paid date marks unpaid.
-    </div>
-
+    <!-- Totals -->
     <div class="row" style="margin-top:14px;">
-      <div>MONTH TOTAL</div>
-      <div id="billsMonthTotal">$0</div>
+      <div>MONTH TOTAL</div><div id="billsMonthTotal">$0</div>
     </div>
-
     <div class="row">
-      <div>MONTH PAID</div>
-      <div id="billsMonthPaid">$0</div>
+      <div>MONTH PAID</div><div id="billsMonthPaid">$0</div>
     </div>
-
     <div class="row">
-      <div>MONTH REMAINING</div>
-      <div id="billsMonthRemaining">$0</div>
+      <div>MONTH REMAINING</div><div id="billsMonthRemaining">$0</div>
     </div>
 
     <div style="border-top:1px solid #1b2533; margin-top:14px; padding-top:14px;"></div>
 
     <div class="row">
-      <div>DEBT PAYMENTS QUEUED</div>
-      <div id="phaseDebtQueued">$0</div>
+      <div>PHASE 1 TOTAL</div><div id="phase1Total">$0</div>
     </div>
+    <div class="row">
+      <div>PHASE 1 PAID</div><div id="phase1Paid">$0</div>
+    </div>
+    <div class="row">
+      <div>PHASE 1 REMAINING</div><div id="phase1Remaining">$0</div>
+    </div>
+
+    <div style="border-top:1px solid #1b2533; margin-top:14px; padding-top:14px;"></div>
 
     <div class="row">
-      <div>PHASE REMAINING</div>
-      <div id="phaseRemaining" style="font-weight:800;">$0</div>
+      <div>PHASE 2 TOTAL</div><div id="phase2Total">$0</div>
+    </div>
+    <div class="row">
+      <div>PHASE 2 PAID</div><div id="phase2Paid">$0</div>
+    </div>
+    <div class="row">
+      <div>PHASE 2 REMAINING</div><div id="phase2Remaining">$0</div>
     </div>
 
+    <div style="border-top:1px solid #1b2533; margin-top:14px; padding-top:14px;"></div>
+
+    <div class="row">
+      <div>DEBT PAYMENTS QUEUED</div><div id="phaseDebtQueued">$0</div>
+    </div>
+    <div class="row">
+      <div>OPERATIONAL REMAINING</div><div id="phaseRemaining" style="font-weight:800;">$0</div>
+    </div>
+
+    <div style="font-size:12px;color:#9aa7b6;margin-top:10px;">
+      Paid date set ⇒ Paid. Paid date cleared ⇒ Unpaid.
+    </div>
   </div>
 
   <div class="card">
@@ -484,6 +536,69 @@ html, body { overflow-x: hidden; }
 <!-- ===== END MONTHLY BILLS PAGE ===== -->
 
 <script>
+
+const ACTIVE_MONTH_KEY = "active_month_v1";
+
+function getActiveMonth(){
+  return localStorage.getItem(ACTIVE_MONTH_KEY) || currentMonthYYYYMM();
+}
+
+function setActiveMonth(month){
+  localStorage.setItem(ACTIVE_MONTH_KEY, month);
+}
+
+function buildMonthOptions(selectEl){
+  // Start from your existing dropdown values if they exist
+  const months = new Set();
+
+  const menuSel = document.getElementById("billMonthSelect");
+  if(menuSel){
+    Array.from(menuSel.options).forEach(o => months.add(o.value));
+  }
+
+  // Always include current month
+  months.add(currentMonthYYYYMM());
+
+  // Sort descending (latest first)
+  const sorted = Array.from(months).sort().reverse();
+
+  selectEl.innerHTML = "";
+  sorted.forEach(m => {
+    const opt = document.createElement("option");
+    opt.value = m;
+    opt.textContent = m;
+    selectEl.appendChild(opt);
+  });
+}
+
+function initActiveMonthUI(){
+  const sel = document.getElementById("activeMonthSelect");
+  if(!sel) return;
+
+  buildMonthOptions(sel);
+
+  sel.value = getActiveMonth();
+
+  sel.onchange = () => {
+    const m = sel.value;
+    setActiveMonth(m);
+
+    // Ensure month bills exist + refresh screens
+    ensureBillsForMonth(m);
+
+    renderHomeBills(m);
+    renderMonthlyBills();      // updates menu list
+    renderBillsAndPhaseTotals(m);
+
+    // If Bills page is open, force it to that month too
+    const billsPageSel = document.getElementById("billsPageMonthSelect");
+    if(billsPageSel){
+      billsPageSel.value = m;
+      renderBillsPage();
+    }
+  };
+}
+
 
 function todayISO(){
   const d = new Date();
@@ -523,6 +638,134 @@ function billsKey(month){
   return `bills_v1_${month}`;
 }
 
+// ===== BEGIN BILL TEMPLATES (PREDETERMINED) =====
+// Phase rule: H1 = day 1–15, H2 = day 16–31
+function phaseFromDay(day){
+  return (Number(day) <= 15) ? "H1" : "H2";
+}
+
+function yyyymmToYearMonth(month){
+  const [y,m] = month.split("-");
+  return { year: Number(y), month: Number(m) };
+}
+
+function dueDateFromMonthAndDay(month, day){
+  const { year, month: mm } = yyyymmToYearMonth(month);
+  const dd = String(day).padStart(2,"0");
+  const m2 = String(mm).padStart(2,"0");
+  return `${year}-${m2}-${dd}`;
+}
+
+// Your predetermined monthly bills.
+// NOTE: I split the two "Car Payment" rows by naming them explicitly.
+// If you want different labels, tell me (Tesla/Highlander already in your app).
+const BILL_TEMPLATES = [
+  { templateId:"xcel_energy_big",  name:"Xcel Energy",          category:"Utilities",             defaultAmount:3442.79, dueDay:2 },
+  { templateId:"land_payment",     name:"Land Payment",         category:"Mortgage",              defaultAmount:907.50,  dueDay:2 },
+  { templateId:"tmobile",          name:"T-Mobile",             category:"Utilities",             defaultAmount:357.34,  dueDay:2 },
+  { templateId:"mortgage",         name:"Mortgage",             category:"Mortgage",              defaultAmount:2406.28, dueDay:2 },
+
+  { templateId:"aafmaa",           name:"AAFMAA",               category:"Insurance",             defaultAmount:33.35,   dueDay:3 },
+  { templateId:"travelers_main",   name:"Travelers Insurance",  category:"Insurance",             defaultAmount:392.75,  dueDay:3 },
+  { templateId:"tricare",          name:"TRICARE",              category:"Insurance",             defaultAmount:286.66,  dueDay:3 },
+  { templateId:"express_scripts",  name:"Express Scripts",      category:"Insurance",             defaultAmount:14.00,   dueDay:4 },
+
+  { templateId:"car_highlander",   name:"Car Payment - Highlander", category:"Car Payment",       defaultAmount:229.03,  dueDay:12 },
+  { templateId:"car_tesla",        name:"Car Payment - Tesla",      category:"Car Payment",       defaultAmount:569.00,  dueDay:12 },
+
+  { templateId:"amelia_529",       name:"Amelia 529",           category:"Investing",             defaultAmount:100.00,  dueDay:22 },
+  { templateId:"julia_529",        name:"Julia 529",            category:"Investing",             defaultAmount:100.00,  dueDay:22 },
+
+  { templateId:"netflix",          name:"Netflix",              category:"Dues and Subscriptions",defaultAmount:27.39,   dueDay:27 },
+  { templateId:"denver_water",     name:"Denver Water",         category:"Utilities",             defaultAmount:61.06,   dueDay:27 },
+
+  { templateId:"travelers_other",  name:"Travelers Insurance",  category:"Insurance",             defaultAmount:378.50,  dueDay:28 },
+
+  { templateId:"xcel_energy_small",name:"Xcel Energy",          category:"Utilities",             defaultAmount:296.05,  dueDay:29 },
+  { templateId:"bam_internet",     name:"BAM Internet",         category:"Utilities",             defaultAmount:80.10,   dueDay:29 },
+];
+
+// Create stable ID based on templateId + dueDate (so the same bill persists for the month)
+function billInstanceId(templateId, dueDate){
+  return `tpl_${templateId}_${dueDate}`;
+}
+
+// Ensures a month has bills. If month is empty, generate from templates.
+// Does NOT overwrite existing month bills (so one-time bills are safe).
+function ensureBillsForMonth(month){
+  const existing = (getBills(month) || []).map(normalizeBill);
+
+  // Index existing bills by id so we can merge safely
+  const byId = new Map(existing.map(b => [b.id, b]));
+
+  let changed = false;
+
+  // Generate the template instances for this month
+  const templateInstances = BILL_TEMPLATES.map(t => {
+    const dueDate = dueDateFromMonthAndDay(month, t.dueDay);
+    const id = billInstanceId(t.templateId, dueDate);
+
+    const base = {
+      id,
+      templateId: t.templateId,
+      name: t.name,
+      category: t.category,
+      amount: Number(t.defaultAmount),
+      date: dueDate,                  // DUE date (kept as "date" for now)
+      month,
+      phase: phaseFromDay(t.dueDay),  // "H1" / "H2"
+      paid: false,
+      paidAt: null,
+      source: "template"
+    };
+
+    const cur = byId.get(id);
+
+    if(cur){
+      // Upgrade existing record in place without overwriting user actions
+      // Keep paid/paidAt if user already set them
+      const upgraded = {
+        ...base,
+        ...cur,
+        // preserve paid state + timestamps
+        paid: !!cur.paid,
+        paidAt: cur.paidAt ?? null,
+        // preserve any manual edits to amount/name/category if you ever add them later
+        name: cur.name || base.name,
+        category: cur.category || base.category,
+        amount: (Number.isFinite(Number(cur.amount)) ? Number(cur.amount) : base.amount),
+        phase: cur.phase || base.phase,
+        source: cur.source || base.source
+      };
+
+      // Detect change
+      if(JSON.stringify(upgraded) !== JSON.stringify(cur)){
+        byId.set(id, upgraded);
+        changed = true;
+      }
+    } else {
+      // Missing template bill for this month -> add it
+      byId.set(id, base);
+      changed = true;
+    }
+  });
+
+  if(!changed){
+    // Still make sure the list exists in storage (normalize writes if needed)
+    if(existing.length === 0){
+      setBills(month, templateInstances.sort((a,b)=>a.date.localeCompare(b.date)));
+    }
+    return;
+  }
+
+  // Write merged list back, preserving any one-time/manual bills that don't match template IDs
+  const merged = Array.from(byId.values()).sort((a,b)=> (a.date||"").localeCompare(b.date||""));
+  setBills(month, merged);
+}
+
+// ===== END BILL TEMPLATES (PREDETERMINED) =====
+
+
 function getBills(month){
   try{
     return JSON.parse(localStorage.getItem(billsKey(month)) || "[]");
@@ -533,39 +776,6 @@ function getBills(month){
 
 function setBills(month, bills){
   localStorage.setItem(billsKey(month), JSON.stringify(bills));
-}
-
-// One-time import: if no stored bills for the month, read your hardcoded Home DOM bills into storage.
-function importBillsFromDOMIfNeeded(month){
-  const existing = getBills(month);
-  if(existing.length) return;
-
-  const list = document.getElementById("billsList");
-  if(!list) return;
-
-  const items = Array.from(list.querySelectorAll(":scope > .item"));
-
-  const bills = items.map(el => {
-    const name = (el.querySelector("div")?.textContent || "Bill").trim();
-    const amount = Number(el.dataset.amount || 0);
-    const dateStr = String(el.dataset.date || "");
-    const m = monthFromDate(dateStr) || month;
-
-  return {
-    id: billId(name, amount, dateStr || `${m}-01`),
-    name,
-    amount,
-    date: dateStr || `${m}-01`,   // treat as DUE date for now
-    month: m,
-    paid: false,
-    paidAt: null                  // ✅ new
-  };
-
-  })
-  .filter(b => b.month === month)
-  .sort((a,b) => a.date.localeCompare(b.date));
-
-  setBills(month, bills);
 }
 
 /* Home bills renderer: renders FROM storage, not DOM */
@@ -684,7 +894,7 @@ function renderMonthlyBills(){
   const month = sel.value; // "YYYY-MM"
 
   // Ensure month is initialized at least once
-  importBillsFromDOMIfNeeded(month);
+  ensureBillsForMonth(month);
 
   const bills = getBills(month).slice().sort((a,b)=>a.date.localeCompare(b.date));
 
@@ -908,8 +1118,6 @@ function editDebtAmount(e, btn){
   }
 
 }
-
-
 
 function confirmDebtPaid(e, btn){
   e.stopPropagation();
@@ -1278,14 +1486,14 @@ function navigateTo(dest){
   if(dest === "debt"){
     showPage("pageDebt");
     // Initialize snapshot if functions exist
-    if(typeof initDebtSnapshot === "function") initDebtSnapshot();
+    try { initDebtSnapshot(); } catch(e){ console.error(e); }
     return;
   }
 
-  if(dest === "bills"){
-    showPage("pageBills");
-    initBillsPage();
-    return;
+if(dest === "bills"){
+  showPage("pageBills");
+  initBillsPage();
+  return;
   }
 
 }
@@ -1300,6 +1508,164 @@ function normalizeBill(b){
   if(!("paidAt" in b)) b.paidAt = null; // new field
   return b;
 }
+
+function initBillsPage(){
+  const sel = document.getElementById("billsPageMonthSelect");
+  const menuSel = document.getElementById("billMonthSelect");
+  if(!sel) return;
+
+  sel.innerHTML = "";
+
+  // Copy from menu month select if present
+  if(menuSel){
+    Array.from(menuSel.options).forEach(opt => {
+      const o = document.createElement("option");
+      o.value = opt.value;
+      o.textContent = opt.textContent;
+      sel.appendChild(o);
+    });
+  }
+
+  // Ensure current month exists
+  const current = currentMonthYYYYMM();
+  if(!Array.from(sel.options).some(o => o.value === current)){
+    const o = document.createElement("option");
+    o.value = current;
+    o.textContent = current;
+    sel.insertBefore(o, sel.firstChild);
+  }
+
+  sel.value = current;
+  renderBillsPage();
+}
+
+function renderBillsPage(){
+  const sel = document.getElementById("billsPageMonthSelect");
+  const out = document.getElementById("billsPageList");
+  if(!sel || !out) return;
+
+  const month = sel.value;
+  ensureBillsForMonth(month);
+
+  // Totals card
+  renderBillsAndPhaseTotals(month);
+
+  const bills = getBills(month).map(normalizeBill).slice()
+    .sort((a,b)=> (a.date||"").localeCompare(b.date||""));
+
+  out.innerHTML = "";
+
+  if(!bills.length){
+    const row = document.createElement("div");
+    row.className = "item";
+    row.innerHTML = `<div>No bills found for ${month}</div><div></div>`;
+    out.appendChild(row);
+    return;
+  }
+
+  bills.forEach(b => {
+    const row = document.createElement("div");
+    row.className = `item${b.paid ? " paid" : ""}`;
+
+    const paidDateVal = b.paidAt ? b.paidAt : "";
+
+    row.innerHTML = `
+      <div style="flex:1; padding-right:10px;">
+        <div style="font-weight:800;">${escapeHtml(b.name)}</div>
+        <div style="font-size:12px; color:#9aa7b6; margin-top:4px;">
+          Due: ${escapeHtml(b.date || "—")} • Phase: ${escapeHtml(b.phase || "—")}
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
+        <div style="font-weight:800;">${fmtMoney(Number(b.amount || 0))}</div>
+
+        <div class="billControls">
+          <button class="billPaidBtn ${b.paid ? "paid" : ""}"
+                  onclick="onBillPaidToggle('${b.id}','${month}', ${!b.paid})">
+            ${b.paid ? "✔ PAID" : "MARK PAID"}
+          </button>
+
+          <input type="date" value="${paidDateVal}"
+                 onchange="onBillPaidDateChange('${b.id}','${month}', this.value)">
+          <button class="miniBtn" onclick="clearBillPaidDate(event,'${b.id}','${month}')">CLEAR</button>
+        </div>
+      </div>
+    `;
+
+    out.appendChild(row);
+  });
+}
+
+function onBillPaidToggle(billIdVal, month, checked){
+  const bills = getBills(month).map(normalizeBill);
+  const idx = bills.findIndex(b => b.id === billIdVal);
+  if(idx < 0) return;
+
+  const wasPaid = !!bills[idx].paid;
+  const amt = Number(bills[idx].amount || 0);
+  if(wasPaid === checked) return;
+
+  bills[idx].paid = checked;
+  if(checked && !bills[idx].paidAt) bills[idx].paidAt = todayISO();
+  if(!checked) bills[idx].paidAt = null;
+
+  setBills(month, bills);
+
+  applyBillDelta(amt, checked);
+
+  renderHomeBills(month);
+  renderBillsPage();
+  renderMonthlyBills();
+}
+
+function onBillPaidDateChange(billIdVal, month, dateVal){
+  const bills = getBills(month).map(normalizeBill);
+  const idx = bills.findIndex(b => b.id === billIdVal);
+  if(idx < 0) return;
+
+  const prevPaid = !!bills[idx].paid;
+  const amt = Number(bills[idx].amount || 0);
+
+  if(dateVal){
+    bills[idx].paidAt = dateVal;
+    bills[idx].paid = true;
+    if(!prevPaid) applyBillDelta(amt, true);
+  } else {
+    bills[idx].paidAt = null;
+    bills[idx].paid = false;
+    if(prevPaid) applyBillDelta(amt, false);
+  }
+
+  setBills(month, bills);
+
+  renderHomeBills(month);
+  renderBillsPage();
+  renderMonthlyBills();
+}
+
+function clearBillPaidDate(e, billIdVal, month){
+  e.stopPropagation();
+
+  const bills = getBills(month).map(normalizeBill);
+  const idx = bills.findIndex(b => b.id === billIdVal);
+  if(idx < 0) return;
+
+  const wasPaid = !!bills[idx].paid;
+  const amt = Number(bills[idx].amount || 0);
+
+  bills[idx].paidAt = null;
+  bills[idx].paid = false;
+
+  setBills(month, bills);
+
+  if(wasPaid) applyBillDelta(amt, false);
+
+  renderHomeBills(month);
+  renderBillsPage();
+  renderMonthlyBills();
+}
+
 
 // Keep cockpit numbers consistent even when toggling from Bills page
 function applyBillDelta(amount, markingPaid){
@@ -1360,7 +1726,8 @@ function renderBillsPage(){
   const month = sel.value;
   renderBillsAndPhaseTotals(month);
 
-  importBillsFromDOMIfNeeded(month);
+  ensureBillsForMonth(month);
+
 
   let bills = getBills(month).map(normalizeBill);
   // persist any normalization upgrades
@@ -1505,21 +1872,39 @@ function clearBillPaidDate(e, billIdVal, month){
 /* ===== END MONTHLY BILLS PAGE LOGIC ===== */
 
 function computeBillsTotals(month){
-  importBillsFromDOMIfNeeded(month);
+  ensureBillsForMonth(month);
   const bills = getBills(month).map(normalizeBill);
 
-  let total = 0;
-  let paid = 0;
+  let total = 0, paid = 0;
+  let p1Total = 0, p1Paid = 0;
+  let p2Total = 0, p2Paid = 0;
 
   bills.forEach(b => {
     const amt = Number(b.amount || 0);
+    const isPaid = !!b.paid;
+    const ph = b.phase || phaseFromDay(Number(String(b.date || "").slice(-2)) || 1);
+
     total += amt;
-    if(b.paid) paid += amt;
+    if(isPaid) paid += amt;
+
+    if(ph === "H1"){
+      p1Total += amt;
+      if(isPaid) p1Paid += amt;
+    } else {
+      p2Total += amt;
+      if(isPaid) p2Paid += amt;
+    }
   });
 
-  const remaining = Math.max(0, total - paid);
-  return { total, paid, remaining };
+  return {
+    total,
+    paid,
+    remaining: Math.max(0, total - paid),
+    phase1: { total: p1Total, paid: p1Paid, remaining: Math.max(0, p1Total - p1Paid) },
+    phase2: { total: p2Total, paid: p2Paid, remaining: Math.max(0, p2Total - p2Paid) },
+  };
 }
+
 
 function computeDebtQueuedTotal(){
   const items = getDebtPayments ? getDebtPayments() : [];
@@ -1527,22 +1912,52 @@ function computeDebtQueuedTotal(){
 }
 
 function renderBillsAndPhaseTotals(month){
+  if(!month) month = currentMonthYYYYMM();
+
+  // Month + phase totals (H1/H2) come from bills
   const t = computeBillsTotals(month);
+
+  // Debt queued total (from your debt payments list)
   const debtQueued = computeDebtQueuedTotal();
-  const phaseRemaining = t.remaining + debtQueued;
 
-  const elTotal = document.getElementById("billsMonthTotal");
-  const elPaid = document.getElementById("billsMonthPaid");
-  const elRem = document.getElementById("billsMonthRemaining");
-  const elDebt = document.getElementById("phaseDebtQueued");
-  const elPhase = document.getElementById("phaseRemaining");
+  // "Phase Remaining" = bills remaining + debt queued
+  const phaseRemaining = (Number(t.remaining) || 0) + (Number(debtQueued) || 0);
 
-  if(elTotal) elTotal.textContent = fmtMoney(t.total);
-  if(elPaid)  elPaid.textContent  = fmtMoney(t.paid);
-  if(elRem)   elRem.textContent   = fmtMoney(t.remaining);
-  if(elDebt)  elDebt.textContent  = fmtMoney(debtQueued);
-  if(elPhase) elPhase.textContent = fmtMoney(phaseRemaining);
+  // --- Month totals ---
+  const elMonthTotal = document.getElementById("billsMonthTotal");
+  const elMonthPaid = document.getElementById("billsMonthPaid");
+  const elMonthRemaining = document.getElementById("billsMonthRemaining");
+
+  if(elMonthTotal) elMonthTotal.textContent = fmtMoney(Number(t.total) || 0);
+  if(elMonthPaid) elMonthPaid.textContent = fmtMoney(Number(t.paid) || 0);
+  if(elMonthRemaining) elMonthRemaining.textContent = fmtMoney(Number(t.remaining) || 0);
+
+  // --- Phase 1 (H1) totals ---
+  const elP1Total = document.getElementById("phase1Total");
+  const elP1Paid = document.getElementById("phase1Paid");
+  const elP1Remaining = document.getElementById("phase1Remaining");
+
+  if(elP1Total) elP1Total.textContent = fmtMoney(Number(t.phase1?.total) || 0);
+  if(elP1Paid) elP1Paid.textContent = fmtMoney(Number(t.phase1?.paid) || 0);
+  if(elP1Remaining) elP1Remaining.textContent = fmtMoney(Number(t.phase1?.remaining) || 0);
+
+  // --- Phase 2 (H2) totals ---
+  const elP2Total = document.getElementById("phase2Total");
+  const elP2Paid = document.getElementById("phase2Paid");
+  const elP2Remaining = document.getElementById("phase2Remaining");
+
+  if(elP2Total) elP2Total.textContent = fmtMoney(Number(t.phase2?.total) || 0);
+  if(elP2Paid) elP2Paid.textContent = fmtMoney(Number(t.phase2?.paid) || 0);
+  if(elP2Remaining) elP2Remaining.textContent = fmtMoney(Number(t.phase2?.remaining) || 0);
+
+  // --- Debt queued + overall phase remaining ---
+  const elDebtQueued = document.getElementById("phaseDebtQueued");
+  const elPhaseRemaining = document.getElementById("phaseRemaining");
+
+  if(elDebtQueued) elDebtQueued.textContent = fmtMoney(Number(debtQueued) || 0);
+  if(elPhaseRemaining) elPhaseRemaining.textContent = fmtMoney(Number(phaseRemaining) || 0);
 }
+
 
 
 function restoreCarPaymentLabels(){
@@ -1582,6 +1997,8 @@ function initDebtDropdown(){
 document.addEventListener("DOMContentLoaded", () => {
   initDebtDropdown();
   loadDebtPayments();
+  initActiveMonthUI();
+
 
   if(!Number.isFinite(getLastUpdatedMs())){
     setLastUpdatedNow();
@@ -1592,9 +2009,11 @@ document.addEventListener("DOMContentLoaded", () => {
   setInterval(updateStaleIndicator, 60000);
 
   // Bills: persist + render from storage
-  const month = currentMonthYYYYMM();
-  importBillsFromDOMIfNeeded(month);
+  const month = getActiveMonth();
+  ensureBillsForMonth(month);
   renderHomeBills(month);
+  renderBillsAndPhaseTotals(month);
+ // LEGACY: remove after old localStorage data ages out
   restoreCarPaymentLabels();
 
 
