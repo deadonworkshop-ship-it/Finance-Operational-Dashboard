@@ -295,6 +295,186 @@ body{margin:0;font-family:-apple-system,system-ui;background:#0b0f14;color:#fff;
 
 <script>
 
+<<<<<<< Updated upstream
+=======
+/* ===== BEGIN MONTHLY BILLS PERSISTENCE (REVERSIBLE) ===== */
+
+function monthFromDate(dateStr){
+  // expects YYYY-MM-DD
+  if(!dateStr || dateStr.length < 7) return "";
+  return dateStr.slice(0,7);
+}
+
+function billId(name, amount, dateStr){
+  // Stable-ish ID: deterministic from fields
+  const key = `${name}|${Number(amount).toFixed(2)}|${dateStr}`;
+  // simple hash
+  let h = 0;
+  for(let i=0;i<key.length;i++){ h = ((h<<5)-h) + key.charCodeAt(i); h |= 0; }
+  return `b_${Math.abs(h)}`;
+}
+
+function billsKey(month){
+  return `bills_v1_${month}`;
+}
+
+function getBills(month){
+  try{
+    return JSON.parse(localStorage.getItem(billsKey(month)) || "[]");
+  }catch{
+    return [];
+  }
+}
+
+function setBills(month, bills){
+  localStorage.setItem(billsKey(month), JSON.stringify(bills));
+}
+
+// One-time import: if no stored bills for month, read your hardcoded DOM bills into storage.
+function importBillsFromDOMIfNeeded(month){
+  const existing = getBills(month);
+  if(existing.length) return;
+
+  const list = document.getElementById("billsList");
+  if(!list) return;
+
+  const items = Array.from(list.querySelectorAll(":scope > .item"));
+  const bills = items.map(el => {
+    const name = (el.querySelector("div")?.textContent || "Bill").trim();
+    const amount = Number(el.dataset.amount || 0);
+    const dateStr = String(el.dataset.date || "");
+    const m = monthFromDate(dateStr) || month;
+
+    return {
+      id: billId(name, amount, dateStr || `${m}-01`),
+      name,
+      amount,
+      date: dateStr || `${m}-01`,
+      month: m,
+      paid: false
+    };
+  })
+  .filter(b => b.month === month)
+  .sort((a,b) => a.date.localeCompare(b.date));
+
+  setBills(month, bills);
+}
+
+/* ===== BEGIN renderHomeBills (REPLACEMENT) ===== */
+function renderHomeBills(month){
+  const list = document.getElementById("billsList");
+  if(!list) return;
+
+  const bills = getBills(month).slice().sort((a,b)=>a.date.localeCompare(b.date));
+
+  list.innerHTML = "";
+
+  bills.forEach(b => {
+    const item = document.createElement("div");
+    item.className = `item${b.paid ? " paid" : ""}`;
+    item.dataset.amount = String(b.amount);
+    item.dataset.date = b.date;
+    item.dataset.billId = b.id;
+    item.dataset.paid = b.paid ? "true" : "false";
+
+    item.onclick = function(){ toggleConfirm(item); };
+
+    item.innerHTML = `
+      <div>${escapeHtml(b.name)}</div>
+      <div>${fmtMoney(b.amount)}</div>
+      <div class="confirmBar">
+        <button class="confirmBtn"
+          onclick="toggleBillPaid(event,this)">
+          ${b.paid ? "↩ MARK UNPAID" : "✔ CONFIRM PAID"}
+        </button>
+        <button class="cancelBtn"
+          onclick="cancelConfirm(event,this)">
+          CANCEL
+        </button>
+      </div>
+    `;
+
+    list.appendChild(item);
+  });
+}
+/* ===== END renderHomeBills (REPLACEMENT) ===== */
+
+
+// This replaces “confirmPaid” for bills with a reversible toggle.
+function toggleBillPaid(e, btn){
+  e.stopPropagation();
+
+  const item = btn.closest(".item");
+  if(!item) return;
+
+  const billIdVal = item.dataset.billId;
+  const amt = Number(item.dataset.amount || 0);
+  const dateStr = String(item.dataset.date || "");
+  const month = monthFromDate(dateStr);
+
+  if(!month){
+    alert("Bill missing data-date (YYYY-MM-DD). Add it so we can file it by month.");
+    return;
+  }
+
+  const bills = getBills(month);
+  const idx = bills.findIndex(b => b.id === billIdVal);
+  if(idx < 0) return;
+
+  const wasPaid = !!bills[idx].paid;
+  bills[idx].paid = !wasPaid;
+  setBills(month, bills);
+
+  // Update cockpit totals reversibly
+  const shouldEl = document.getElementById("shouldHave");
+  const availEl  = document.getElementById("avail");
+  if(shouldEl && availEl){
+    let should = parseMoney(shouldEl.textContent);
+    let avail  = parseMoney(availEl.textContent);
+
+    if(!wasPaid){
+      // marking paid
+      should = should - amt;
+      avail  = avail + amt;
+    } else {
+      // marking unpaid (reverse)
+      should = should + amt;
+      avail  = avail - amt;
+    }
+
+    shouldEl.textContent = fmtMoney(should);
+    availEl.textContent  = fmtMoney(avail);
+    updateStatus();
+  }
+
+  // Update UI row (no remove!)
+  item.classList.toggle("paid", !wasPaid);
+  item.dataset.paid = (!wasPaid) ? "true" : "false";
+  btn.textContent = (!wasPaid) ? "↩ MARK UNPAID" : "✔ CONFIRM PAID";
+
+  // Refresh menu list if visible
+  renderMonthlyBills();
+}
+
+/* ===== END MONTHLY BILLS PERSISTENCE (REVERSIBLE) ===== */
+
+/* ===== BEGIN DEBT PAYMENTS STORAGE ===== */
+const DEBT_PAYMENTS_KEY = "debt_payments_v1";
+
+function getDebtPayments(){
+  try{
+    return JSON.parse(localStorage.getItem(DEBT_PAYMENTS_KEY) || "[]");
+  }catch{
+    return [];
+  }
+}
+
+function setDebtPayments(arr){
+  localStorage.setItem(DEBT_PAYMENTS_KEY, JSON.stringify(arr));
+}
+/* ===== END DEBT PAYMENTS STORAGE ===== */
+
+>>>>>>> Stashed changes
 /* ===== BEGIN AUTO CURRENCY FORMAT ===== */
 
 // Format while typing (no forced decimals yet)
@@ -368,6 +548,8 @@ const DEBT_ACCOUNTS = [
 /* ===== END DEBT DROPDOWN OPTIONS (from your spreadsheet) ===== */
 
 
+/* ===== BEGIN DEBT PAYMENTS (PERSISTENT) ===== */
+
 function showDebtForm(){
   const form = document.getElementById("debtForm");
   if(!form) return;
@@ -383,17 +565,33 @@ function hideDebtForm(){
   if(amt) amt.value = "";
 }
 
-function initDebtDropdown(){
-  const sel = document.getElementById("debtCardSelect");
-  if(!sel) return;
+function loadDebtPayments(){
+  const debtList = document.getElementById("debtList");
+  if(!debtList) return;
 
-  sel.innerHTML = "";
-  DEBT_ACCOUNTS.forEach(name => {
-    const opt = document.createElement("option");
-    opt.value = name;
-    opt.textContent = name;
-    sel.appendChild(opt);
-  });
+  debtList.innerHTML = "";
+  const items = getDebtPayments();
+  items.forEach(p => debtList.appendChild(renderDebtPaymentRow(p)));
+}
+
+function renderDebtPaymentRow(p){
+  const item = document.createElement("div");
+  item.className = "item";
+  item.dataset.amount = String(p.amount);
+  item.dataset.id = String(p.id);
+  item.onclick = function(){ toggleConfirm(item); };
+
+  item.innerHTML = `
+    <div class="debtName">${escapeHtml(p.name)}</div>
+    <div class="debtAmt">${fmtMoney(p.amount)}</div>
+
+    <div class="confirmBar">
+      <button class="confirmBtn" onclick="confirmDebtPaid(event,this)">✔ CONFIRM PAID</button>
+      <button class="editBtn" onclick="editDebtAmount(event,this)">EDIT</button>
+      <button class="cancelBtn" onclick="cancelConfirm(event,this)">CANCEL</button>
+    </div>
+  `;
+  return item;
 }
 
 function addDebtPaymentFromForm(){
@@ -405,32 +603,16 @@ function addDebtPaymentFromForm(){
   const name = sel.value?.trim();
   const amt = parseMoney(amtInput.value);
 
-  if(!name){
-    alert("Pick a card/account.");
-    return;
-  }
-  if(!(amt > 0)){
-    alert("Enter a valid positive amount.");
-    return;
-  }
+  if(!name){ alert("Pick a card/account."); return; }
+  if(!(amt > 0)){ alert("Enter a valid positive amount."); return; }
 
-  const item = document.createElement("div");
-  item.className = "item";
-  item.dataset.amount = String(amt);
-  item.onclick = function(){ toggleConfirm(item); };
+  const payments = getDebtPayments();
+  const p = { id: Date.now(), name, amount: amt };
 
-  item.innerHTML = `
-    <div class="debtName">${escapeHtml(name)}</div>
-    <div class="debtAmt">${fmtMoney(amt)}</div>
+  payments.unshift(p);
+  setDebtPayments(payments);
 
-    <div class="confirmBar">
-      <button class="confirmBtn" onclick="confirmDebtPaid(event,this)">✔ CONFIRM PAID</button>
-      <button class="editBtn" onclick="editDebtAmount(event,this)">EDIT</button>
-      <button class="cancelBtn" onclick="cancelConfirm(event,this)">CANCEL</button>
-    </div>
-  `;
-
-  debtList.prepend(item);
+  debtList.prepend(renderDebtPaymentRow(p));
   hideDebtForm();
 }
 
@@ -440,6 +622,7 @@ function editDebtAmount(e, btn){
   const item = btn.closest(".item");
   if(!item) return;
 
+  const id = Number(item.dataset.id || 0);
   const current = Number(item.dataset.amount || 0);
 
   const nextStr = prompt("Edit payment amount:", fmtMoney(current));
@@ -451,16 +634,16 @@ function editDebtAmount(e, btn){
     return;
   }
 
-  item.dataset.amount = String(next);
+  // update storage
+  const payments = getDebtPayments().map(p => p.id === id ? { ...p, amount: next } : p);
+  setDebtPayments(payments);
 
+  // update UI
+  item.dataset.amount = String(next);
   const amtEl = item.querySelector(".debtAmt");
   if(amtEl) amtEl.textContent = fmtMoney(next);
 }
 
-// Confirming a debt payment:
-// - reduces Available for Debt
-// - reduces Current Balance (keeps STATUS honest)
-// - removes row
 function confirmDebtPaid(e, btn){
   e.stopPropagation();
 
@@ -468,7 +651,9 @@ function confirmDebtPaid(e, btn){
   if(!item) return;
 
   const amt = Number(item.dataset.amount || 0);
+  const id  = Number(item.dataset.id || 0);
 
+  // Update totals (Available for Debt down, Current Balance down)
   const availEl = document.getElementById("avail");
   const balEl   = document.getElementById("currentBalance");
   if(!availEl || !balEl) return;
@@ -476,40 +661,46 @@ function confirmDebtPaid(e, btn){
   let avail = parseMoney(availEl.textContent);
   let bal   = parseMoney(balEl.textContent);
 
-  avail = avail - amt;
-  bal   = bal - amt;
+  avail -= amt;
+  bal   -= amt;
+
 
   availEl.textContent = fmtMoney(avail);
   balEl.textContent   = fmtMoney(bal);
-
   updateStatus();
 
-  /* ===== BEGIN AUTO-APPLY PAYMENT TO DEBT BALANCE ===== */
-if(getAutoApplyEnabled()){
-  const nameEl = item.querySelector(".debtName");
-  const debtName = nameEl ? nameEl.textContent.trim() : "";
+   // Remove from debt payments storage
+  const payments = getDebtPayments().filter(p => p.id !== id);
+  setDebtPayments(payments);
 
-  if(debtName){
-    const balances = getDebtBalances();
-    const currentOwed = Number(balances[debtName] || 0);
-    const nextOwed = Math.max(0, currentOwed - amt);
-    balances[debtName] = nextOwed;
-    setDebtBalances(balances);
+  // Optional: auto-apply to debt snapshot balance (Option C)
+  if(getAutoApplyEnabled()){
+    const nameEl = item.querySelector(".debtName");
+    const debtName = nameEl ? nameEl.textContent.trim() : "";
 
-    // If you're currently on the Debt page, refresh it
-    const debtPage = document.getElementById("pageDebt");
-    if(debtPage && debtPage.style.display !== "none"){
-      renderDebtSnapshotList();
-      syncDebtSnapshotInput();
+    if(debtName){
+      const balances = getDebtBalances();
+      const currentOwed = Number(balances[debtName] || 0);
+      const nextOwed = Math.max(0, currentOwed - amt);
+      balances[debtName] = nextOwed;
+      setDebtBalances(balances);
+
+      // If you're currently on the Debt page, refresh it
+      const debtPage = document.getElementById("pageDebt");
+      if(debtPage && debtPage.style.display !== "none"){
+        renderDebtSnapshotList();
+        syncDebtSnapshotInput();
+      }
     }
   }
-}
-/* ===== END AUTO-APPLY PAYMENT TO DEBT BALANCE ===== */
 
-
+  // Animate + remove row
   item.classList.add("removing");
   setTimeout(()=>{ item.remove(); },230);
 }
+
+/* ===== END DEBT PAYMENTS (PERSISTENT) ===== */
+
 
 // Tiny helper so user-entered names can’t break your HTML
 function escapeHtml(str){
@@ -879,7 +1070,12 @@ function navigateTo(dest){
 
 document.addEventListener("DOMContentLoaded", () => {
   initDebtDropdown();
+<<<<<<< Updated upstream
   // If this is the first ever load, initialize to "now" so it doesn't show "UPDATED —"
+=======
+  loadDebtPayments();
+
+>>>>>>> Stashed changes
   if(!Number.isFinite(getLastUpdatedMs())) setLastUpdatedNow();
 
   updateStatus();
@@ -895,7 +1091,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
+<<<<<<< Updated upstream
 
+=======
+function initDebtDropdown(){
+  const sel = document.getElementById("debtCardSelect");
+  if(!sel) return;
+
+  sel.innerHTML = "";
+  DEBT_ACCOUNTS.forEach(name => {
+    const opt = document.createElement("option");
+    opt.value = name;
+    opt.textContent = name;
+    sel.appendChild(opt);
+  });
+}
+>>>>>>> Stashed changes
 
 </script>
 
