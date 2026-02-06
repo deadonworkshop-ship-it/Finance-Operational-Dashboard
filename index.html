@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bills Checking Ops</title>
-<link rel="manifest" href="manifest.json">
+<!-- <link rel="manifest" href="manifest.json"> -->
 <style>
 body{margin:0;font-family:-apple-system,system-ui;background:#0b0f14;color:#fff;}
 
@@ -19,6 +19,16 @@ body{margin:0;font-family:-apple-system,system-ui;background:#0b0f14;color:#fff;
   width:100%;
   min-height:64px;
   margin-top:10px;
+}
+
+.btnSmall{
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid #1b2533;
+  background: #0c131d;
+  color: #fff;
+  font-weight: 700;
+  font-size: 12px;
 }
 
 #activeMonthSelect{
@@ -317,80 +327,85 @@ html, body { overflow-x: hidden; }
 </div>
 
 
-<!-- ===== BEGIN PAGE HOME WRAPPER ===== -->
+<!-- ===== BEGIN PAGE HOME WRAPPER (v2) ===== -->
 <div class="container page" id="pageHome">
 
-<div class="card">
-<div style="font-size:12px;color:#9aa7b6;">YOU SHOULD HAVE</div>
-<div class="big" id="shouldHave">$546.56</div>
+  <!-- ===== Cockpit Card ===== -->
+  <div class="card">
 
-<div style="margin-top:14px;">
-  <div style="font-size:12px;color:#9aa7b6;">CURRENT BALANCE</div>
+    <div id="shouldHaveLabel" style="font-size:12px;color:#9aa7b6;">YOU SHOULD HAVE</div>
 
-  <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:10px;">
-    <div style="text-align:left;padding-right:18px;">
-      <div id="currentBalance" style="font-size:26px;font-weight:800;">$1,344.59</div>
-      <div id="updatedAgo" style="font-size:13px;color:#f5b942;margin-top:4px;">UPDATED —</div>
+    <div class="big" id="shouldHave">$0.00</div>
 
+    <div style="margin-top:14px;">
+      <div style="font-size:12px;color:#9aa7b6;">CURRENT BALANCE</div>
+
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:10px;">
+        <div style="text-align:left;padding-right:18px;">
+          <div id="currentBalance" style="font-size:26px;font-weight:800;">$0.00</div>
+          <div id="updatedAgo" style="font-size:13px;color:#f5b942;margin-top:4px;">UPDATED —</div>
+        </div>
+
+        <button class="btn" onclick="updateBalance()" style="margin-left:10px;">
+          UPDATE
+        </button>
+      </div>
     </div>
 
-    <button class="btn" onclick="updateBalance()" style="margin-left:10px;">
-      UPDATE
-    </button>
-  </div>
-</div>
+    <div class="row">
+      <div>AVAILABLE FOR DEBT</div>
+      <div id="avail">$0.00</div>
+    </div>
 
-<div class="row">
-<div>AVAILABLE FOR DEBT</div>
-<div id="avail">$798.03</div>
-</div>
+    <div class="row">
+      <div>STATUS</div>
+      <div id="statusText" style="color:#9aa7b6;">—</div>
+    </div>
 
-<div class="row">
-  <div>STATUS</div>
-  <div id="statusText" style="color:#9aa7b6;">—</div>
-</div>
-
-</div>
-
-<div class="card">
-  <div style="font-size:12px;color:#9aa7b6;margin-bottom:10px;">Quick Actions</div>
-  <button class="btn" onclick="showDebtForm()">Add Debt Payment</button>
-  <button class="btn">Add One-Time Bill</button>
-  <button class="btn">Flip Phase</button>
-</div>
-
-<!-- ===== BEGIN DEBT PAYMENTS LIST ===== -->
-<div class="card">
-  <div style="font-size:12px;color:#9aa7b6;margin-bottom:10px;">Debt Payments</div>
-
-  <!-- Inline add form (hidden until you tap Add Debt Payment) -->
-  <div id="debtForm" style="display:none; gap:10px; align-items:center; margin-bottom:12px;">
-    <select id="debtCardSelect" style="flex:1; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;">
-      <!-- options populated by JS -->
-    </select>
-
-    <input id="debtAmountInput"
-       inputmode="decimal"
-       placeholder="$0.00"
-       oninput="autoFormatCurrencyInput(this)"
-       onblur="finalizeCurrencyInput(this)"
-       style="width:140px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
-
-    <button class="confirmBtn" onclick="addDebtPaymentFromForm()">ADD</button>
-    <button class="cancelBtn" onclick="hideDebtForm()">CANCEL</button>
   </div>
 
-  <div class="list" id="debtList"></div>
+  <!-- ===== Quick Actions ===== -->
+  <div class="card">
+    <div style="font-size:12px;color:#9aa7b6;margin-bottom:10px;">Quick Actions</div>
+
+    <button class="btn" onclick="showDebtForm()">Add Debt Payment</button>
+    <button class="btn" onclick="openOneTimeBillModal()">Add One-Time Bill</button>
+    <button class="btn" onclick="toggleBillsEditMode()">Edit Bills</button>
+
+  </div>
+
+  <!-- ===== Debt Payments ===== -->
+  <div class="card">
+    <div style="font-size:12px;color:#9aa7b6;margin-bottom:10px;">Debt Payments</div>
+
+    <!-- Inline add form (hidden until you tap Add Debt Payment) -->
+    <div id="debtForm" style="display:none; gap:10px; align-items:center; margin-bottom:12px; flex-wrap:wrap;">
+      <select id="debtCardSelect" style="flex:1; min-width:220px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;">
+        <!-- options populated by JS -->
+      </select>
+
+      <input id="debtAmountInput"
+        inputmode="decimal"
+        placeholder="$0.00"
+        oninput="autoFormatCurrencyInput(this)"
+        onblur="finalizeCurrencyInput(this)"
+        style="width:140px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
+
+      <button class="confirmBtn" onclick="addDebtPaymentFromForm()">ADD</button>
+      <button class="cancelBtn" onclick="hideDebtForm()">CANCEL</button>
+    </div>
+
+    <div class="list" id="debtList"></div>
+  </div>
+
+  <!-- ===== Bills (Home) ===== -->
+  <div class="card" id="homeBillsCard">
+    <div style="font-size:12px;color:#9aa7b6;margin-bottom:10px;">Bills</div>
+    <div class="list" id="billsList"></div>
+  </div>
+
 </div>
-<!-- ===== END DEBT PAYMENTS LIST ===== -->
-
-
-
-<div class="list" id="billsList"></div>
-
-</div>
-
-<!-- ===== END PAGE HOME WRAPPER ===== -->
+<!-- ===== END PAGE HOME WRAPPER (v2) ===== -->
 
 <!-- ===== BEGIN DEBT SNAPSHOT PAGE ===== -->
 <div class="container page" id="pageDebt" style="display:none;">
@@ -532,16 +547,25 @@ function setActiveMonth(month){
 }
 
 function buildMonthOptions(selectEl){
-  // Start from your existing dropdown values if they exist
   const months = new Set();
 
-  const menuSel = document.getElementById("billMonthSelect");
-  if(menuSel){
-    Array.from(menuSel.options).forEach(o => months.add(o.value));
-  }
-
-  // Always include current month
+  // 1) Include current month
   months.add(currentMonthYYYYMM());
+
+  // 2) Include the month currently saved as active (if any)
+  const saved = localStorage.getItem(ACTIVE_MONTH_KEY);
+  if(saved) months.add(saved);
+
+  // 3) Include any months that exist in localStorage as bills_v1_YYYY-MM
+  for(let i = 0; i < localStorage.length; i++){
+    const k = localStorage.key(i);
+    if(!k) continue;
+    if(k.startsWith("bills_v1_")){
+      const m = k.replace("bills_v1_", "");
+      // basic YYYY-MM sanity check
+      if(/^\d{4}-\d{2}$/.test(m)) months.add(m);
+    }
+  }
 
   // Sort descending (latest first)
   const sorted = Array.from(months).sort().reverse();
@@ -554,6 +578,7 @@ function buildMonthOptions(selectEl){
     selectEl.appendChild(opt);
   });
 }
+
 
 function initActiveMonthUI(){
   const sel = document.getElementById("activeMonthSelect");
@@ -571,7 +596,7 @@ function initActiveMonthUI(){
     ensureBillsForMonth(m);
 
     renderHomeBills(m);
-    renderMonthlyBills();      // updates menu list
+          // updates menu list
     renderBillsAndPhaseTotals(m);
 
     // If Bills page is open, force it to that month too
@@ -625,8 +650,9 @@ function billsKey(month){
 // ===== BEGIN BILL TEMPLATES (PREDETERMINED) =====
 // Phase rule: H1 = day 1–15, H2 = day 16–31
 function phaseFromDay(day){
-  return (Number(day) <= 15) ? "H1" : "H2";
+  return (Number(day) <= 15) ? 1 : 2;
 }
+
 
 function yyyymmToYearMonth(month){
   const [y,m] = month.split("-");
@@ -644,30 +670,33 @@ function dueDateFromMonthAndDay(month, day){
 // NOTE: I split the two "Car Payment" rows by naming them explicitly.
 // If you want different labels, tell me (Tesla/Highlander already in your app).
 const BILL_TEMPLATES = [
-  { templateId:"xcel_energy_big",  name:"Xcel Energy",          category:"Utilities",             defaultAmount:3442.79, dueDay:2 },
-  { templateId:"land_payment",     name:"Land Payment",         category:"Mortgage",              defaultAmount:907.50,  dueDay:2 },
-  { templateId:"tmobile",          name:"T-Mobile",             category:"Utilities",             defaultAmount:357.34,  dueDay:2 },
-  { templateId:"mortgage",         name:"Mortgage",             category:"Mortgage",              defaultAmount:2406.28, dueDay:2 },
+  // Phase 1
+  { templateId:"land_payment",     name:"Land Payment",             category:"Mortgage",               defaultAmount:907.50,  dueDay:2,  phase:1 },
+  { templateId:"tmobile",          name:"T-Mobile",                 category:"Utilities",              defaultAmount:357.34,  dueDay:2,  phase:1 },
+  { templateId:"mortgage",         name:"Mortgage",                 category:"Mortgage",               defaultAmount:2406.28, dueDay:2,  phase:1 },
 
-  { templateId:"aafmaa",           name:"AAFMAA",               category:"Insurance",             defaultAmount:33.35,   dueDay:3 },
-  { templateId:"travelers_main",   name:"Travelers Insurance",  category:"Insurance",             defaultAmount:392.75,  dueDay:3 },
-  { templateId:"tricare",          name:"TRICARE",              category:"Insurance",             defaultAmount:286.66,  dueDay:3 },
-  { templateId:"express_scripts",  name:"Express Scripts",      category:"Insurance",             defaultAmount:14.00,   dueDay:4 },
+  { templateId:"aafmaa",           name:"AAFMAA",                   category:"Insurance",              defaultAmount:33.35,   dueDay:3,  phase:1 },
+  { templateId:"travelers_main",   name:"Travelers Insurance",      category:"Insurance",              defaultAmount:392.75,  dueDay:3,  phase:1 },
+  { templateId:"tricare",          name:"TRICARE",                  category:"Insurance",              defaultAmount:286.66,  dueDay:3,  phase:1 },
 
-  { templateId:"car_highlander",   name:"Car Payment - Highlander", category:"Car Payment",       defaultAmount:229.03,  dueDay:12 },
-  { templateId:"car_tesla",        name:"Car Payment - Tesla",      category:"Car Payment",       defaultAmount:569.00,  dueDay:12 },
+  { templateId:"express_scripts",  name:"Express Scripts",          category:"Insurance",              defaultAmount:14.00,   dueDay:4,  phase:1 },
 
-  { templateId:"amelia_529",       name:"Amelia 529",           category:"Investing",             defaultAmount:100.00,  dueDay:22 },
-  { templateId:"julia_529",        name:"Julia 529",            category:"Investing",             defaultAmount:100.00,  dueDay:22 },
+  { templateId:"car_highlander",   name:"Car Payment - Highlander", category:"Car Payment",            defaultAmount:229.03,  dueDay:12, phase:1 },
+  { templateId:"car_tesla",        name:"Car Payment - Tesla",      category:"Car Payment",            defaultAmount:569.00,  dueDay:12, phase:1 },
 
-  { templateId:"netflix",          name:"Netflix",              category:"Dues and Subscriptions",defaultAmount:27.39,   dueDay:27 },
-  { templateId:"denver_water",     name:"Denver Water",         category:"Utilities",             defaultAmount:61.06,   dueDay:27 },
+  // Phase 2
+  { templateId:"amelia_529",       name:"Amelia 529",               category:"Investing",              defaultAmount:100.00,  dueDay:22, phase:2 },
+  { templateId:"julia_529",        name:"Julia 529",                category:"Investing",              defaultAmount:100.00,  dueDay:22, phase:2 },
 
-  { templateId:"travelers_other",  name:"Travelers Insurance",  category:"Insurance",             defaultAmount:378.50,  dueDay:28 },
+  { templateId:"netflix",          name:"Netflix",                  category:"Dues and Subscriptions", defaultAmount:27.39,   dueDay:27, phase:2 },
+  { templateId:"denver_water",     name:"Denver Water",             category:"Utilities",              defaultAmount:61.06,   dueDay:27, phase:2 },
 
-  { templateId:"xcel_energy_small",name:"Xcel Energy",          category:"Utilities",             defaultAmount:296.05,  dueDay:29 },
-  { templateId:"bam_internet",     name:"BAM Internet",         category:"Utilities",             defaultAmount:80.10,   dueDay:29 },
+  { templateId:"travelers_other",  name:"Travelers Insurance",      category:"Insurance",              defaultAmount:378.50,  dueDay:28, phase:2 },
+
+  { templateId:"xcel_energy_small",name:"Xcel Energy",              category:"Utilities",              defaultAmount:296.05,  dueDay:29, phase:2 },
+  { templateId:"bam_internet",     name:"BAM Internet",             category:"Utilities",              defaultAmount:80.10,   dueDay:29, phase:2 },
 ];
+
 
 // Create stable ID based on templateId + dueDate (so the same bill persists for the month)
 function billInstanceId(templateId, dueDate){
@@ -697,7 +726,8 @@ function ensureBillsForMonth(month){
       amount: Number(t.defaultAmount),
       date: dueDate,                  // DUE date (kept as "date" for now)
       month,
-      phase: phaseFromDay(t.dueDay),  // "H1" / "H2"
+      phase: Number(t.phase) || phaseFromDay(t.dueDay), // template phase (1/2), fallback if missing
+      phaseLocked: true,
       paid: false,
       paidAt: null,
       source: "template"
@@ -718,8 +748,10 @@ function ensureBillsForMonth(month){
         name: cur.name || base.name,
         category: cur.category || base.category,
         amount: (Number.isFinite(Number(cur.amount)) ? Number(cur.amount) : base.amount),
-        phase: cur.phase || base.phase,
+        phaseLocked: (cur.phaseLocked === true) ? true : base.phaseLocked,
+        phase: (cur.phaseLocked === true) ? (cur.phase ?? base.phase) : base.phase,
         source: cur.source || base.source
+
       };
 
       // Detect change
@@ -762,13 +794,20 @@ function setBills(month, bills){
   localStorage.setItem(billsKey(month), JSON.stringify(bills));
 }
 
-/* Home bills renderer: renders FROM storage, not DOM */
 function renderHomeBills(month){
   const list = document.getElementById("billsList");
   if(!list) return;
 
-  const bills = getBills(month).slice().sort((a,b)=>a.date.localeCompare(b.date));
+  if(!month) month = currentMonthYYYYMM();
 
+  // Ensure month bills exist and are normalized
+  ensureBillsForMonth(month);
+  const bills = getBills(month)
+    .map(normalizeBill)
+    .slice()
+    .sort((a,b)=>String(a.date||"").localeCompare(String(b.date||"")));
+
+  // Render list
   list.innerHTML = "";
 
   bills.forEach(b => {
@@ -782,6 +821,10 @@ function renderHomeBills(month){
     // Tap row to open confirm bar (reuses your existing toggleConfirm)
     item.onclick = function(){ toggleConfirm(item); };
 
+    const flipBtn = (window.BILLS_EDIT_MODE === true)
+      ? `<button class="btnSmall" onclick="flipBillPhase(event,this)">FLIP PHASE</button>`
+      : "";
+
     item.innerHTML = `
       <div>${escapeHtml(b.name)}</div>
       <div>${fmtMoney(b.amount)}</div>
@@ -789,115 +832,78 @@ function renderHomeBills(month){
         <button class="confirmBtn" onclick="toggleBillPaid(event,this)">
           ${b.paid ? "↩ MARK UNPAID" : "✔ CONFIRM PAID"}
         </button>
+        ${flipBtn}
         <button class="cancelBtn" onclick="cancelConfirm(event,this)">CANCEL</button>
       </div>
     `;
 
     list.appendChild(item);
   });
+
+  // Cockpit recompute: show totals for "today phase"
+  const t = computeBillsTotals(month);
+  const phase = getTodayPhase(); // 1 or 2
+
+  const should = (phase === 1) ? (Number(t.p1Unpaid) || 0) : (Number(t.p2Unpaid) || 0);
+
+  const balEl = document.getElementById("currentBalance");
+  const shouldEl = document.getElementById("shouldHave");
+  const availEl = document.getElementById("avail");
+
+  const bal = balEl ? parseMoney(balEl.textContent) : 0;
+  const avail = bal - should;
+
+  if(shouldEl) shouldEl.textContent = fmtMoney(should);
+  if(availEl) availEl.textContent = fmtMoney(avail);
+
+  // Optional label update (if you add the id in HTML)
+  const lbl = document.getElementById("shouldHaveLabel");
+  if(lbl) lbl.textContent = `YOU SHOULD HAVE (PHASE ${phase})`;
+
+  if(typeof updateStatus === "function") updateStatus();
 }
+
 
 /* Reversible toggle: paid <-> unpaid */
 function toggleBillPaid(e, btn){
-  e.stopPropagation();
+  if(e) e.preventDefault();
+  if(e) e.stopPropagation();
 
+  // Find the bill row element created in renderHomeBills()
   const item = btn.closest(".item");
   if(!item) return;
 
-  const billIdVal = item.dataset.billId;
-  const amt = Number(item.dataset.amount || 0);
-  const dateStr = String(item.dataset.date || "");
-  const month = monthFromDate(dateStr);
+  // Month source of truth: dropdown if present, else currentMonthYYYYMM()
+  const month =
+    document.querySelector("select")?.value ||
+    (typeof currentMonthYYYYMM === "function" ? currentMonthYYYYMM() : null);
 
-  if(!month){
-    alert("Bill missing data-date (YYYY-MM-DD). Add it so we can file it by month.");
-    return;
-  }
+  if(!month) return;
 
-  const bills = getBills(month);
-  const idx = bills.findIndex(b => b.id === billIdVal);
-  if(idx < 0) return;
+  const id = item.dataset.billId;
+  if(!id) return;
 
-  if(!("paidAt" in bills[idx])) bills[idx].paidAt = null;
-
-  const wasPaid = !!bills[idx].paid;
-  bills[idx].paid = !wasPaid;
-
-  // ✅ paid timestamp (posted/paid date)
-  if(!wasPaid){
-    bills[idx].paidAt = todayISO();  // marking paid now
-  } else {
-    bills[idx].paidAt = null;        // marking unpaid clears timestamp
-  }
-
-  setBills(month, bills);
-
-
-  // Update cockpit totals reversibly
-  const shouldEl = document.getElementById("shouldHave");
-  const availEl  = document.getElementById("avail");
-  if(shouldEl && availEl){
-    let should = parseMoney(shouldEl.textContent);
-    let avail  = parseMoney(availEl.textContent);
-
-    if(!wasPaid){
-      // marking paid
-      should = should - amt;
-      avail  = avail + amt;
-    } else {
-      // marking unpaid (reverse)
-      should = should + amt;
-      avail  = avail - amt;
-    }
-
-    shouldEl.textContent = fmtMoney(should);
-    availEl.textContent  = fmtMoney(avail);
-    updateStatus();
-  }
-
-  // Update UI row (no remove)
-  item.classList.toggle("paid", !wasPaid);
-  item.dataset.paid = (!wasPaid) ? "true" : "false";
-  btn.textContent = (!wasPaid) ? "↩ MARK UNPAID" : "✔ CONFIRM PAID";
-
-  // Refresh menu list if visible
-  renderMonthlyBills();
-
-  // refresh phase totals if Bills page is visible
-  if(document.getElementById("pageBills")?.style.display !== "none"){
-    renderBillsAndPhaseTotals(month);
-  }
-}
-
-/* Menu drawer monthly bills list: render FROM storage */
-function renderMonthlyBills(){
-  const out = document.getElementById("monthlyBillsList");
-  const sel = document.getElementById("billMonthSelect");
-  if(!out || !sel) return;
-
-  const month = sel.value; // "YYYY-MM"
-
-  // Ensure month is initialized at least once
   ensureBillsForMonth(month);
 
-  const bills = getBills(month).slice().sort((a,b)=>a.date.localeCompare(b.date));
+  // Load + normalize
+  const bills = getBills(month).map(normalizeBill);
 
-  out.innerHTML = "";
-  bills.forEach(b => {
-    const row = document.createElement("div");
-    row.className = "item";
-    row.style.cursor = "default";
-    const paidTag = b.paid ? (b.paidAt ? ` ✅ (${b.paidAt})` : " ✅") : "";
-    row.innerHTML = `<div>${b.date} • ${escapeHtml(b.name)}${paidTag}</div><div>${fmtMoney(b.amount)}</div>`;
+  // Find bill by id
+  const idx = bills.findIndex(b => String(b.id) === String(id));
+  if(idx === -1) return;
 
-    out.appendChild(row);
-  });
+  // Toggle paid state
+  const today = new Date().toISOString().slice(0,10);
+  bills[idx].paid = !bills[idx].paid;
+  bills[idx].paidAt = bills[idx].paid ? today : null;
 
-  if(bills.length === 0){
-    const row = document.createElement("div");
-    row.className = "item";
-    row.innerHTML = `<div>No bills found for ${month}</div><div></div>`;
-    out.appendChild(row);
+  // Save
+  setBills(month, bills);
+
+  // Re-render from source of truth (prevents Should Have drift)
+  renderHomeBills(month);
+  if(typeof renderBillsAndPhaseTotals === "function") {
+    renderBillsAndPhaseTotals(month);
   }
 }
 
@@ -1488,9 +1494,24 @@ if(dest === "bills"){
 
 // Ensure older stored bills don’t break
 function normalizeBill(b){
-  if(!("paid" in b)) b.paid = false;
-  if(!("paidAt" in b)) b.paidAt = null; // new field
-  return b;
+  const bill = { ...b };
+
+  // ----- Amount -----
+  bill.amount = Number(bill.amount);
+  if (!Number.isFinite(bill.amount)) bill.amount = 0;
+
+  // ----- Phase (support legacy "H1"/"H2" AND numeric 1/2) -----
+  if (bill.phase === "H1") bill.phase = 1;
+  if (bill.phase === "H2") bill.phase = 2;
+
+  const p = Number(bill.phase);
+  bill.phase = (p === 1 || p === 2) ? p : 1;
+
+  // ----- Paid state -----
+  bill.paid = bill.paid === true;
+  bill.paidAt = bill.paid ? (bill.paidAt || null) : null;
+
+  return bill;
 }
 
 function initBillsPage(){
@@ -1600,7 +1621,7 @@ function onBillPaidToggle(billIdVal, month, checked){
 
   renderHomeBills(month);
   renderBillsPage();
-  renderMonthlyBills();
+  
 }
 
 function onBillPaidDateChange(billIdVal, month, dateVal){
@@ -1625,7 +1646,7 @@ function onBillPaidDateChange(billIdVal, month, dateVal){
 
   renderHomeBills(month);
   renderBillsPage();
-  renderMonthlyBills();
+  
 }
 
 function clearBillPaidDate(e, billIdVal, month){
@@ -1647,7 +1668,7 @@ function clearBillPaidDate(e, billIdVal, month){
 
   renderHomeBills(month);
   renderBillsPage();
-  renderMonthlyBills();
+  
 }
 
 
@@ -1793,7 +1814,7 @@ function onBillPaidToggle(billIdVal, month, checked){
   // Refresh views
   renderBillsPage();
   renderHomeBills(month);
-  renderMonthlyBills();
+  
 }
 
 function onBillPaidDateChange(billIdVal, month, dateVal){
@@ -1827,7 +1848,7 @@ function onBillPaidDateChange(billIdVal, month, dateVal){
 
   renderBillsPage();
   renderHomeBills(month);
-  renderMonthlyBills();
+  
 }
 
 function clearBillPaidDate(e, billIdVal, month){
@@ -1850,7 +1871,7 @@ function clearBillPaidDate(e, billIdVal, month){
 
   renderBillsPage();
   renderHomeBills(month);
-  renderMonthlyBills();
+  
 }
 
 /* ===== END MONTHLY BILLS PAGE LOGIC ===== */
@@ -1864,14 +1885,23 @@ function computeBillsTotals(month){
   let p2Total = 0, p2Paid = 0;
 
   bills.forEach(b => {
-    const amt = Number(b.amount || 0);
-    const isPaid = !!b.paid;
-    const ph = b.phase || phaseFromDay(Number(String(b.date || "").slice(-2)) || 1);
+    const amt = Number(b.amount) || 0;
+    const isPaid = b.paid === true;
+
+    // ALWAYS numeric 1/2
+    let ph = Number(b.phase);
+
+    // fallback only if phase missing/invalid
+    if(!(ph === 1 || ph === 2)){
+      const day = Number(String(b.dueDate || b.date || "").slice(-2)) || 1;
+    ph = phaseFromDay(day); // now returns 1/2
+
+    }
 
     total += amt;
     if(isPaid) paid += amt;
 
-    if(ph === "H1"){
+    if(ph === 1){
       p1Total += amt;
       if(isPaid) p1Paid += amt;
     } else {
@@ -1883,9 +1913,17 @@ function computeBillsTotals(month){
   return {
     total,
     paid,
-    remaining: Math.max(0, total - paid),
-    phase1: { total: p1Total, paid: p1Paid, remaining: Math.max(0, p1Total - p1Paid) },
-    phase2: { total: p2Total, paid: p2Paid, remaining: Math.max(0, p2Total - p2Paid) },
+    unpaid: total - paid,
+
+    p1Total,
+    p1Paid,
+    p1Unpaid: p1Total - p1Paid,
+
+    p2Total,
+    p2Paid,
+    p2Unpaid: p2Total - p2Paid,
+
+    billsCount: bills.length
   };
 }
 
@@ -1898,14 +1936,16 @@ function computeDebtQueuedTotal(){
 function renderBillsAndPhaseTotals(month){
   if(!month) month = currentMonthYYYYMM();
 
-  // Month + phase totals (H1/H2) come from bills
   const t = computeBillsTotals(month);
 
   // Debt queued total (from your debt payments list)
   const debtQueued = computeDebtQueuedTotal();
 
-  // "Phase Remaining" = bills remaining + debt queued
-  const phaseRemaining = (Number(t.remaining) || 0) + (Number(debtQueued) || 0);
+  // Month unpaid + (optional) queued debt
+  const monthUnpaid = Number(t.unpaid) || 0;
+
+  // If you want "Operational Remaining" to mean Phase 1 unpaid + queued debt:
+  const phaseRemaining = (Number(t.p1Unpaid) || 0) + (Number(debtQueued) || 0);
 
   // --- Month totals ---
   const elMonthTotal = document.getElementById("billsMonthTotal");
@@ -1914,25 +1954,25 @@ function renderBillsAndPhaseTotals(month){
 
   if(elMonthTotal) elMonthTotal.textContent = fmtMoney(Number(t.total) || 0);
   if(elMonthPaid) elMonthPaid.textContent = fmtMoney(Number(t.paid) || 0);
-  if(elMonthRemaining) elMonthRemaining.textContent = fmtMoney(Number(t.remaining) || 0);
+  if(elMonthRemaining) elMonthRemaining.textContent = fmtMoney(monthUnpaid);
 
-  // --- Phase 1 (H1) totals ---
+  // --- Phase 1 totals ---
   const elP1Total = document.getElementById("phase1Total");
   const elP1Paid = document.getElementById("phase1Paid");
   const elP1Remaining = document.getElementById("phase1Remaining");
 
-  if(elP1Total) elP1Total.textContent = fmtMoney(Number(t.phase1?.total) || 0);
-  if(elP1Paid) elP1Paid.textContent = fmtMoney(Number(t.phase1?.paid) || 0);
-  if(elP1Remaining) elP1Remaining.textContent = fmtMoney(Number(t.phase1?.remaining) || 0);
+  if(elP1Total) elP1Total.textContent = fmtMoney(Number(t.p1Total) || 0);
+  if(elP1Paid) elP1Paid.textContent = fmtMoney(Number(t.p1Paid) || 0);
+  if(elP1Remaining) elP1Remaining.textContent = fmtMoney(Number(t.p1Unpaid) || 0);
 
-  // --- Phase 2 (H2) totals ---
+  // --- Phase 2 totals ---
   const elP2Total = document.getElementById("phase2Total");
   const elP2Paid = document.getElementById("phase2Paid");
   const elP2Remaining = document.getElementById("phase2Remaining");
 
-  if(elP2Total) elP2Total.textContent = fmtMoney(Number(t.phase2?.total) || 0);
-  if(elP2Paid) elP2Paid.textContent = fmtMoney(Number(t.phase2?.paid) || 0);
-  if(elP2Remaining) elP2Remaining.textContent = fmtMoney(Number(t.phase2?.remaining) || 0);
+  if(elP2Total) elP2Total.textContent = fmtMoney(Number(t.p2Total) || 0);
+  if(elP2Paid) elP2Paid.textContent = fmtMoney(Number(t.p2Paid) || 0);
+  if(elP2Remaining) elP2Remaining.textContent = fmtMoney(Number(t.p2Unpaid) || 0);
 
   // --- Debt queued + overall phase remaining ---
   const elDebtQueued = document.getElementById("phaseDebtQueued");
@@ -1941,7 +1981,6 @@ function renderBillsAndPhaseTotals(month){
   if(elDebtQueued) elDebtQueued.textContent = fmtMoney(Number(debtQueued) || 0);
   if(elPhaseRemaining) elPhaseRemaining.textContent = fmtMoney(Number(phaseRemaining) || 0);
 }
-
 
 
 function restoreCarPaymentLabels(){
@@ -1961,7 +2000,7 @@ function restoreCarPaymentLabels(){
     setBills(month, bills);
     renderHomeBills(month);
     renderBillsPage();
-    renderMonthlyBills();
+    
   }
 }
 
@@ -1977,6 +2016,53 @@ function initDebtDropdown(){
     sel.appendChild(opt);
   });
 }
+
+function openOneTimeBillModal(){
+  alert("One-Time Bill modal coming next.");
+}
+
+function getTodayPhase(){
+  return (new Date().getDate() <= 15) ? 1 : 2;
+}
+
+window.BILLS_EDIT_MODE = false;
+
+function toggleBillsEditMode(){
+  window.BILLS_EDIT_MODE = !window.BILLS_EDIT_MODE;
+  const month = document.querySelector("select")?.value || currentMonthYYYYMM();
+  renderHomeBills(month);
+}
+
+function flipBillPhase(e, btn){
+  e.stopPropagation();
+
+  const item = btn.closest(".item");
+  if(!item) return;
+
+  const month = document.querySelector("select")?.value || currentMonthYYYYMM();
+  const id = item.dataset.billId;
+  if(!id) return;
+
+  ensureBillsForMonth(month);
+  const bills = getBills(month).map(normalizeBill);
+
+  const idx = bills.findIndex(b => b.id === id);
+  if(idx === -1) return;
+
+  bills[idx].phase = (Number(bills[idx].phase) === 1) ? 2 : 1;
+
+  setBills(month, bills);
+
+  // Re-render home + totals UI
+  renderHomeBills(month);
+  if(typeof renderBillsAndPhaseTotals === "function") renderBillsAndPhaseTotals(month);
+}
+
+
+function flipActivePhase(){
+  alert("Flip Phase behavior coming next.");
+}
+
 
 document.addEventListener("DOMContentLoaded", () => {
   initDebtDropdown();
