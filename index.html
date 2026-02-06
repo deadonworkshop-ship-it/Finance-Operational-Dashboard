@@ -549,26 +549,31 @@ function setActiveMonth(month){
 function buildMonthOptions(selectEl){
   const months = new Set();
 
-  // 1) Include current month
-  months.add(currentMonthYYYYMM());
+  const current = currentMonthYYYYMM();
+  const prev = shiftMonth(current, -1);
+  const next = shiftMonth(current, 1);
 
-  // 2) Include the month currently saved as active (if any)
+  // Always ensure these three exist
+  [prev, current, next].forEach(m => {
+    ensureBillsForMonth(m);
+    months.add(m);
+  });
+
+  // Include saved active month (if different)
   const saved = localStorage.getItem(ACTIVE_MONTH_KEY);
   if(saved) months.add(saved);
 
-  // 3) Include any months that exist in localStorage as bills_v1_YYYY-MM
+  // Include any months already in storage
   for(let i = 0; i < localStorage.length; i++){
     const k = localStorage.key(i);
-    if(!k) continue;
-    if(k.startsWith("bills_v1_")){
+    if(k && k.startsWith("bills_v1_")){
       const m = k.replace("bills_v1_", "");
-      // basic YYYY-MM sanity check
       if(/^\d{4}-\d{2}$/.test(m)) months.add(m);
     }
   }
 
-  // Sort descending (latest first)
-  const sorted = Array.from(months).sort().reverse();
+  // Sort chronologically
+  const sorted = Array.from(months).sort();
 
   selectEl.innerHTML = "";
   sorted.forEach(m => {
@@ -578,6 +583,7 @@ function buildMonthOptions(selectEl){
     selectEl.appendChild(opt);
   });
 }
+
 
 
 function initActiveMonthUI(){
@@ -2023,6 +2029,14 @@ function openOneTimeBillModal(){
 
 function getTodayPhase(){
   return (new Date().getDate() <= 15) ? 1 : 2;
+}
+
+function shiftMonth(yyyyMM, delta){
+  const [y, m] = yyyyMM.split("-").map(Number);
+  const d = new Date(y, m - 1 + delta, 1);
+  const yy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  return `${yy}-${mm}`;
 }
 
 window.BILLS_EDIT_MODE = false;
