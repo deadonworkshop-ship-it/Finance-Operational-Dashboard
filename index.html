@@ -1520,35 +1520,6 @@ function normalizeBill(b){
   return bill;
 }
 
-function initBillsPage(){
-  const sel = document.getElementById("billsPageMonthSelect");
-  const menuSel = document.getElementById("billMonthSelect");
-  if(!sel) return;
-
-  sel.innerHTML = "";
-
-  // Copy from menu month select if present
-  if(menuSel){
-    Array.from(menuSel.options).forEach(opt => {
-      const o = document.createElement("option");
-      o.value = opt.value;
-      o.textContent = opt.textContent;
-      sel.appendChild(o);
-    });
-  }
-
-  // Ensure current month exists
-  const current = currentMonthYYYYMM();
-  if(!Array.from(sel.options).some(o => o.value === current)){
-    const o = document.createElement("option");
-    o.value = current;
-    o.textContent = current;
-    sel.insertBefore(o, sel.firstChild);
-  }
-
-  sel.value = current;
-  renderBillsPage();
-}
 
 function renderBillsPage(){
   const sel = document.getElementById("billsPageMonthSelect");
@@ -1702,29 +1673,14 @@ function applyBillDelta(amount, markingPaid){
 
 function initBillsPage(){
   const sel = document.getElementById("billsPageMonthSelect");
-  const menuSel = document.getElementById("billMonthSelect");
   if(!sel) return;
 
-  // Copy month options from the menu dropdown (keeps it simple for now)
-  sel.innerHTML = "";
-  if(menuSel){
-    Array.from(menuSel.options).forEach(opt => {
-      const o = document.createElement("option");
-      o.value = opt.value;
-      o.textContent = opt.textContent;
-      sel.appendChild(o);
-    });
-  }
+  buildMonthOptions(sel);
 
-  // Default to current month; add it if it’s missing
-  const current = currentMonthYYYYMM();
-  if(!Array.from(sel.options).some(o => o.value === current)){
-    const o = document.createElement("option");
-    o.value = current;
-    o.textContent = current;
-    sel.insertBefore(o, sel.firstChild);
-  }
-  sel.value = current;
+  const active = getActiveMonth();
+  sel.value = Array.from(sel.options).some(o => o.value === active)
+    ? active
+    : currentMonthYYYYMM();
 
   renderBillsPage();
 }
@@ -2081,7 +2037,13 @@ function flipActivePhase(){
 document.addEventListener("DOMContentLoaded", () => {
   initDebtDropdown();
   loadDebtPayments();
+
+  // Ensure prev/current/next exist in storage BEFORE building month dropdowns
+  const cur = currentMonthYYYYMM();
+  [shiftMonth(cur, -1), cur, shiftMonth(cur, 1)].forEach(m => ensureBillsForMonth(m));
+
   initActiveMonthUI();
+
 
 
   if(!Number.isFinite(getLastUpdatedMs())){
