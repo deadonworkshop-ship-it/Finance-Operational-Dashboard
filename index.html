@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bills Checking Ops</title>
+<link rel="manifest" href="manifest.json">
+<style>
+body{margin:0;font-family:-apple-system,system-ui;background:#0b0f14;color:#fff;}
+
+.btn{
+  border:1px solid #2aa6ff;
+  background:#0c131d;
+  color:white;
+  padding:18px 16px;
+  border-radius:14px;
+  font-size:18px;
+  font-weight:800;
+  width:100%;
+  min-height:64px;
+  margin-top:10px;
+}
+
+.confirmBar{
+  display:none;
+  margin-top:12px;
+  padding-top:12px;
+  border-top:1px solid #1b2533;
+}
+
+.confirmBtn{
+  background:#18232f;
+  color:white;
+  border:1px solid #2aa6ff55;
+  padding:14px;
+  border-radius:12px;
+  font-weight:800;
+  width:60%;
+  margin-right:8px;
+}
+
+/* Slide-left + fade out (checklist clear) */
+.item.removing{
+  animation: slideOut 220ms ease-in forwards;
+}
+
+@keyframes slideOut{
+  from { transform: translateX(0); opacity:1; }
+  to   { transform: translateX(-22px); opacity:0; }
+}
+
+.cancelBtn{
+  background:#141a22;
+  color:#9aa7b6;
+  border:1px solid #1b2533;
+  padding:14px;
+  border-radius:12px;
+  width:35%;
+}
+
+/* ===== BEGIN EDIT BUTTON ===== */
+.editBtn{
+  background:#141a22;
+  color:#c6d0db;
+  border:1px solid #1b2533;
+  padding:14px;
+  border-radius:12px;
+  width:35%;
+}
+/* ===== END EDIT BUTTON ===== */
+
+.item .confirmBar{
+  animation: dropIn 160ms ease-out;
+}
+
+@keyframes dropIn{
+  from { transform: translateY(-6px); opacity:0; }
+  to   { transform: translateY(0); opacity:1; }
+}
+
+.header{display:flex;align-items:center;padding:14px;border-bottom:1px solid #1b2533;}
+.menu{font-size:22px;margin-right:12px;}
+.container{padding:18px;}
+.card{background:#101722;border:1px solid #1b2533;border-radius:14px;padding:18px;margin-bottom:14px;}
+.big{font-size:42px;font-weight:800;}
+.row{display:flex;justify-content:space-between;margin-top:12px;font-size:16px;}
+.list{background:#101722;border:1px solid #1b2533;border-radius:14px;}
+.item{display:flex;justify-content:space-between;padding:14px;border-top:1px solid #1b2533;}
+.item:first-child{border-top:none;}
+.one{color:#f5b942;}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="menu" id="menuBtn" onclick="toggleMenu()">☰</div>
+  <div>Phase 1 Bills Checking (v2)</div>
+</div>
+
+<!-- ===== BEGIN MENU DRAWER ===== -->
+<div id="menuBackdrop" onclick="toggleMenu()" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:50;"></div>
+
+<div id="menuDrawer" style="
+  display:none;
+  position:fixed; top:0; left:0; height:100vh; width:min(360px, 86vw);
+  background:#0c131d; border-right:1px solid #1b2533;
+  z-index:60; padding:14px; overflow:auto;
+">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+    <div style="font-weight:800;">MENU</div>
+    <button class="cancelBtn" onclick="toggleMenu()" style="width:auto; padding:10px 12px;">CLOSE</button>
+  </div>
+
+  <!-- Section: Debt Snapshot -->
+  <div class="card" style="margin-bottom:14px;">
+    <div style="font-size:12px;color:#9aa7b6;margin-bottom:10px;">Debt Snapshot</div>
+
+    <div style="display:flex; gap:10px; align-items:center; margin-bottom:12px;">
+      <select id="debtSnapshotSelect" style="flex:1; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;"></select>
+
+      <input id="debtSnapshotInput"
+             inputmode="decimal"
+             placeholder="$0.00"
+             oninput="autoFormatCurrencyInput(this)"
+             onblur="finalizeCurrencyInput(this)"
+             style="width:160px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
+
+      <button class="confirmBtn" onclick="saveDebtSnapshotValue()" style="width:auto;">SAVE</button>
+    </div>
+
+    <div class="list" id="debtSnapshotList"></div>
+  </div>
+
+  <!-- Section: Monthly Bills -->
+  <div class="card">
+    <div style="font-size:12px;color:#9aa7b6;margin-bottom:10px;">Monthly Bills</div>
+
+    <div style="display:flex; gap:10px; align-items:center; margin-bottom:12px;">
+      <select id="billMonthSelect" style="flex:1; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;">
+        <option value="2026-02">2026-02</option>
+        <option value="2026-01">2026-01</option>
+        <option value="2025-12">2025-12</option>
+      </select>
+
+      <button class="confirmBtn" onclick="renderMonthlyBills()" style="width:auto;">VIEW</button>
+    </div>
+
+    <div class="list" id="monthlyBillsList"></div>
+  </div>
+</div>
+<!-- ===== END MENU DRAWER ===== -->
+
+
+<div class="container">
+
+<div class="card">
+<div style="font-size:12px;color:#9aa7b6;">YOU SHOULD HAVE</div>
+<div class="big" id="shouldHave">$546.56</div>
+
+<div style="margin-top:14px;">
+  <div style="font-size:12px;color:#9aa7b6;">CURRENT BALANCE</div>
+
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:10px;">
+    <div style="text-align:left;padding-right:18px;">
+      <div id="currentBalance" style="font-size:26px;font-weight:800;">$1,344.59</div>
+      <div id="updatedAgo" style="font-size:13px;color:#f5b942;margin-top:4px;">UPDATED —</div>
+
+    </div>
+
+    <button class="btn" onclick="updateBalance()" style="margin-left:10px;">
+      UPDATE
+    </button>
+  </div>
+</div>
+
+<div class="row">
+<div>AVAILABLE FOR DEBT</div>
+<div id="avail">$798.03</div>
+</div>
+
+<div class="row">
+  <div>STATUS</div>
+  <div id="statusText" style="color:#9aa7b6;">—</div>
+</div>
+
+</div>
+
+<div class="card">
+  <div style="font-size:12px;color:#9aa7b6;margin-bottom:10px;">Quick Actions</div>
+  <button class="btn" onclick="showDebtForm()">Add Debt Payment</button>
+  <button class="btn">Add One-Time Bill</button>
+  <button class="btn">Flip Phase</button>
+</div>
+
+<!-- ===== BEGIN DEBT PAYMENTS LIST ===== -->
+<div class="card">
+  <div style="font-size:12px;color:#9aa7b6;margin-bottom:10px;">Debt Payments</div>
+
+  <!-- Inline add form (hidden until you tap Add Debt Payment) -->
+  <div id="debtForm" style="display:none; gap:10px; align-items:center; margin-bottom:12px;">
+    <select id="debtCardSelect" style="flex:1; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;">
+      <!-- options populated by JS -->
+    </select>
+
+    <input id="debtAmountInput"
+       inputmode="decimal"
+       placeholder="$0.00"
+       oninput="autoFormatCurrencyInput(this)"
+       onblur="finalizeCurrencyInput(this)"
+       style="width:140px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
+
+    <button class="confirmBtn" onclick="addDebtPaymentFromForm()">ADD</button>
+    <button class="cancelBtn" onclick="hideDebtForm()">CANCEL</button>
+  </div>
+
+  <div class="list" id="debtList"></div>
+</div>
+<!-- ===== END DEBT PAYMENTS LIST ===== -->
+
+
+
+<div class="list">
+<div class="item" data-amount="229.03" data-date="2026-02-05" onclick="toggleConfirm(this)">
+
+  <div>Car Payment</div>
+  <div>$229.03</div>
+
+  <div class="confirmBar">
+    <button class="confirmBtn" onclick="confirmPaid(event,this)">✔ CONFIRM PAID</button>
+    <button class="cancelBtn" onclick="cancelConfirm(event,this)">CANCEL</button>
+  </div>
+</div>
+
+<div class="item" data-amount="569.00" data-date="2026-02-05" onclick="toggleConfirm(this)">
+  <div>Car Payment</div>
+  <div>$569.00</div>
+
+  <div class="confirmBar">
+    <button class="confirmBtn" onclick="confirmPaid(event,this)">✔ CONFIRM PAID</button>
+    <button class="cancelBtn" onclick="cancelConfirm(event,this)">CANCEL</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+
+/* ===== BEGIN AUTO CURRENCY FORMAT ===== */
+
+// Format while typing (no forced decimals yet)
+function autoFormatCurrencyInput(input){
+  let raw = input.value;
+
+  // Strip everything except digits and decimal
+  raw = raw.replace(/[^0-9.]/g, "");
+
+  // Prevent more than one decimal
+  const parts = raw.split(".");
+  if(parts.length > 2){
+    raw = parts[0] + "." + parts.slice(1).join("");
+  }
+
+  // Format integer part with commas
+  const [intPart, decPart] = raw.split(".");
+  const intFormatted = intPart
+    ? Number(intPart).toLocaleString()
+    : "";
+
+  input.value = decPart !== undefined
+    ? `$${intFormatted}.${decPart}`
+    : intFormatted ? `$${intFormatted}` : "";
+}
+
+// Finalize on blur (force 2 decimals)
+function finalizeCurrencyInput(input){
+  const num = parseMoney(input.value);
+  if(!(num > 0)){
+    input.value = "";
+    return;
+  }
+  input.value = fmtMoney(num);
+}
+
+/* ===== END AUTO CURRENCY FORMAT ===== */
+
+
+function updateBalance(){
+  let val = prompt("Enter new balance:");
+  if(!val) return;
+
+  // Allow user to type with or without $ and commas
+  const num = parseMoney(val);
+  const balEl = document.getElementById("currentBalance");
+  if(!balEl) return;
+
+  balEl.textContent = fmtMoney(num);
+
+  setLastUpdatedNow();
+  updateStaleIndicator();
+
+updateStatus();
+
+}
+/* ===== BEGIN DEBT PAYMENTS (DROPDOWN + EDIT AMOUNT) ===== */
+
+// 1) Put your card list here (copy names from your spreadsheet)
+// Replace these placeholders with YOUR actual card names:
+/* ===== BEGIN DEBT DROPDOWN OPTIONS (from your spreadsheet) ===== */
+const DEBT_ACCOUNTS = [
+  "USAA Signature Credit Card",
+  "USAA Platinum Credit Card",
+  "Amazon Prime Credit Card",
+  "AMEX Platinum Card",
+  "AMEX Blue Cash Credit Card",
+  "AMEX Delta Credit Card",
+  "AMEX Bonvoy Card",
+  "Amazon Prime Business Credit Card",
+];
+/* ===== END DEBT DROPDOWN OPTIONS (from your spreadsheet) ===== */
+
+
+function showDebtForm(){
+  const form = document.getElementById("debtForm");
+  if(!form) return;
+  form.style.display = "flex";
+  document.getElementById("debtAmountInput")?.focus();
+}
+
+function hideDebtForm(){
+  const form = document.getElementById("debtForm");
+  if(!form) return;
+  form.style.display = "none";
+  const amt = document.getElementById("debtAmountInput");
+  if(amt) amt.value = "";
+}
+
+function initDebtDropdown(){
+  const sel = document.getElementById("debtCardSelect");
+  if(!sel) return;
+
+  sel.innerHTML = "";
+  DEBT_ACCOUNTS.forEach(name => {
+    const opt = document.createElement("option");
+    opt.value = name;
+    opt.textContent = name;
+    sel.appendChild(opt);
+  });
+}
+
+function addDebtPaymentFromForm(){
+  const sel = document.getElementById("debtCardSelect");
+  const amtInput = document.getElementById("debtAmountInput");
+  const debtList = document.getElementById("debtList");
+  if(!sel || !amtInput || !debtList) return;
+
+  const name = sel.value?.trim();
+  const amt = parseMoney(amtInput.value);
+
+  if(!name){
+    alert("Pick a card/account.");
+    return;
+  }
+  if(!(amt > 0)){
+    alert("Enter a valid positive amount.");
+    return;
+  }
+
+  const item = document.createElement("div");
+  item.className = "item";
+  item.dataset.amount = String(amt);
+  item.onclick = function(){ toggleConfirm(item); };
+
+  item.innerHTML = `
+    <div class="debtName">${escapeHtml(name)}</div>
+    <div class="debtAmt">${fmtMoney(amt)}</div>
+
+    <div class="confirmBar">
+      <button class="confirmBtn" onclick="confirmDebtPaid(event,this)">✔ CONFIRM PAID</button>
+      <button class="editBtn" onclick="editDebtAmount(event,this)">EDIT</button>
+      <button class="cancelBtn" onclick="cancelConfirm(event,this)">CANCEL</button>
+    </div>
+  `;
+
+  debtList.prepend(item);
+  hideDebtForm();
+}
+
+function editDebtAmount(e, btn){
+  e.stopPropagation();
+
+  const item = btn.closest(".item");
+  if(!item) return;
+
+  const current = Number(item.dataset.amount || 0);
+
+  const nextStr = prompt("Edit payment amount:", fmtMoney(current));
+  if(!nextStr) return;
+
+  const next = parseMoney(nextStr);
+  if(!(next > 0)){
+    alert("Enter a valid positive amount.");
+    return;
+  }
+
+  item.dataset.amount = String(next);
+
+  const amtEl = item.querySelector(".debtAmt");
+  if(amtEl) amtEl.textContent = fmtMoney(next);
+}
+
+// Confirming a debt payment:
+// - reduces Available for Debt
+// - reduces Current Balance (keeps STATUS honest)
+// - removes row
+function confirmDebtPaid(e, btn){
+  e.stopPropagation();
+
+  const item = btn.closest(".item");
+  if(!item) return;
+
+  const amt = Number(item.dataset.amount || 0);
+
+  const availEl = document.getElementById("avail");
+  const balEl   = document.getElementById("currentBalance");
+  if(!availEl || !balEl) return;
+
+  let avail = parseMoney(availEl.textContent);
+  let bal   = parseMoney(balEl.textContent);
+
+  avail = avail - amt;
+  bal   = bal - amt;
+
+  availEl.textContent = fmtMoney(avail);
+  balEl.textContent   = fmtMoney(bal);
+
+  updateStatus();
+
+  item.classList.add("removing");
+  setTimeout(()=>{ item.remove(); },230);
+}
+
+// Tiny helper so user-entered names can’t break your HTML
+function escapeHtml(str){
+  return String(str)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#39;");
+}
+
+/* ===== END DEBT PAYMENTS (DROPDOWN + EDIT AMOUNT) ===== */
+
+
+function toggleConfirm(el){
+  let bar = el.querySelector(".confirmBar");
+  if(bar.style.display === "block") return;
+  document.querySelectorAll(".confirmBar").forEach(b => b.style.display = "none");
+  bar.style.display = "block";
+}
+
+function cancelConfirm(e,btn){
+  e.stopPropagation();
+  btn.closest(".confirmBar").style.display="none";
+}
+
+function confirmPaid(e,btn){
+  e.stopPropagation();
+  const item = btn.closest(".item");
+  const amt = Number(item.dataset.amount || 0);
+
+  // Read current displayed totals
+  const shouldEl = document.getElementById("shouldHave");
+  const availEl  = document.getElementById("avail");
+
+  let should = parseMoney(shouldEl.textContent);
+  let avail  = parseMoney(availEl.textContent);
+
+  // Logic: paying a bill reduces "You Should Have" and increases "Available for Debt"
+  should = should - amt;
+  avail  = avail + amt;
+
+  // Update UI
+  shouldEl.textContent = fmtMoney(should);
+  availEl.textContent  = fmtMoney(avail);
+
+  updateStatus();
+
+
+  // Animate + remove row
+  item.classList.add("removing");
+  setTimeout(()=>{ item.remove(); },230);
+}
+
+function parseMoney(str){
+  return Number(String(str).replace(/[^0-9.-]/g,"")) || 0;
+}
+function fmtMoney(n){
+  return n.toLocaleString(undefined,{style:"currency", currency:"USD"});
+}
+
+/* ===== BEGIN STATUS (SAFE/SHORTFALL) + DELTA ===== */
+function updateStatus(){
+  const shouldEl  = document.getElementById("shouldHave");
+  const balEl     = document.getElementById("currentBalance");
+  const statusEl  = document.getElementById("statusText");
+  if(!shouldEl || !balEl || !statusEl) return;
+
+  const should = parseMoney(shouldEl.textContent);
+  const bal    = parseMoney(balEl.textContent);
+  const delta  = bal - should;
+
+  if(delta >= 0){
+    statusEl.textContent = `SAFE (+${fmtMoney(delta)})`;
+    statusEl.style.color = "#2bd576";
+  } else {
+    statusEl.textContent = `SHORTFALL (-${fmtMoney(Math.abs(delta))})`;
+    statusEl.style.color = "#ff5c5c";
+  }
+}
+/* ===== END STATUS (SAFE/SHORTFALL) + DELTA ===== */
+
+
+/* ===== BEGIN STALE BALANCE (UPDATED X AGO) ===== */
+const LAST_UPDATED_KEY = "bills_lastUpdatedMs";
+const STALE_HOURS = 6; // change this if you want (e.g., 12)
+
+function setLastUpdatedNow(){
+  localStorage.setItem(LAST_UPDATED_KEY, String(Date.now()));
+}
+
+function getLastUpdatedMs(){
+  const raw = localStorage.getItem(LAST_UPDATED_KEY);
+  const ms = raw ? Number(raw) : NaN;
+  return Number.isFinite(ms) ? ms : NaN;
+}
+
+function formatAge(msAgo){
+  const mins = Math.floor(msAgo / 60000);
+  if(mins < 1) return "just now";
+  if(mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if(hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  return `${days}d ago`;
+}
+
+function updateStaleIndicator(){
+  const el = document.getElementById("updatedAgo");
+  if(!el) return;
+
+  const last = getLastUpdatedMs();
+  if(!Number.isFinite(last)){
+    el.textContent = "UPDATED —";
+    el.style.color = "#9aa7b6";
+    return;
+  }
+
+  const ageMs = Date.now() - last;
+  const ageText = formatAge(ageMs);
+
+  const stale = ageMs >= STALE_HOURS * 3600000;
+  el.textContent = stale ? `UPDATED ${ageText} ⚠️` : `UPDATED ${ageText}`;
+  el.style.color = stale ? "#f5b942" : "#9aa7b6";
+}
+/* ===== END STALE BALANCE (UPDATED X AGO) ===== */
+
+/* ===== BEGIN MENU + MONTHLY BILLS ===== */
+
+function toggleMenu(){
+  const drawer = document.getElementById("menuDrawer");
+  const back = document.getElementById("menuBackdrop");
+  if(!drawer || !back) return;
+
+  const open = drawer.style.display === "block";
+  drawer.style.display = open ? "none" : "block";
+  back.style.display = open ? "none" : "block";
+
+  if(!open){
+    // When opening, refresh snapshot + bills view
+    if(typeof initDebtSnapshot === "function") initDebtSnapshot();
+    renderMonthlyBills();
+  }
+}
+
+function renderMonthlyBills(){
+  const out = document.getElementById("monthlyBillsList");
+  const sel = document.getElementById("billMonthSelect");
+  if(!out || !sel) return;
+
+  const month = sel.value; // "YYYY-MM"
+  const items = Array.from(document.querySelectorAll(".container > .list .item"));
+
+  const bills = items.map(el => ({
+    name: el.querySelector("div")?.textContent?.trim() || "Bill",
+    amount: parseMoney(el.querySelectorAll("div")[1]?.textContent || el.dataset.amount || "0"),
+    date: String(el.dataset.date || ""),      // "YYYY-MM-DD"
+  }))
+  // keep only selected month if date exists, otherwise show at bottom
+  .filter(b => !b.date || b.date.startsWith(month))
+  .sort((a,b) => (a.date || "9999-99-99").localeCompare(b.date || "9999-99-99"));
+
+  out.innerHTML = "";
+  bills.forEach(b => {
+    const row = document.createElement("div");
+    row.className = "item";
+    row.style.cursor = "default";
+    row.innerHTML = `<div>${b.date ? b.date : "—"} • ${escapeHtml(b.name)}</div><div>${fmtMoney(b.amount)}</div>`;
+    out.appendChild(row);
+  });
+
+  if(bills.length === 0){
+    const row = document.createElement("div");
+    row.className = "item";
+    row.innerHTML = `<div>No bills found for ${month}</div><div></div>`;
+    out.appendChild(row);
+  }
+}
+
+/* ===== END MENU + MONTHLY BILLS ===== */
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  initDebtDropdown();
+  // If this is the first ever load, initialize to "now" so it doesn't show "UPDATED —"
+  if(!Number.isFinite(getLastUpdatedMs())) setLastUpdatedNow();
+
+  updateStatus();
+  updateStaleIndicator();
+
+  // Keep the "UPDATED X ago" line fresh automatically
+  setInterval(updateStaleIndicator, 60000);
+});
+
+
+
+</script>
+
+</body>
+</html>
