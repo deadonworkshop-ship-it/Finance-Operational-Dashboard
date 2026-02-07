@@ -41,48 +41,6 @@ body{margin:0;font-family:-apple-system,system-ui;background:#0b0f14;color:#fff;
   font-weight:800;
 }
 
-.billControls{
-  display:flex;
-  gap:10px;
-  align-items:center;
-  justify-content:flex-end;
-  flex-wrap:wrap;
-}
-
-.billControls input[type="date"]{
-  background:#0c131d;
-  color:#fff;
-  border:1px solid #1b2533;
-  border-radius:12px;
-  padding:10px 12px;
-  font-size:14px;
-}
-
-.billControls .miniBtn{
-  background:#141a22;
-  color:#9aa7b6;
-  border:1px solid #1b2533;
-  padding:10px 12px;
-  border-radius:12px;
-  font-weight:800;
-}
-
-.billPaidBtn{
-  min-width: 120px;
-  padding: 14px 16px;
-  border-radius: 14px;
-  font-weight: 800;
-  border: 1px solid #1b2533;
-  background: #141a22;
-  color: #fff;
-}
-.billPaidBtn.paid{
-  background: #0f141b;
-  color: #9aa7b6;
-  border-color: #2a3443;
-}
-
-
 .confirmBar{
   display:none;
   margin-top:12px;
@@ -175,7 +133,8 @@ html, body { overflow-x: hidden; }
   }
 
   #debtCardSelect,
-#debtAmountInput{
+  #debtAmountInput,
+  #debtDateInput{
   width: 100% !important;
   min-width: 0 !important;   /* override inline min-width:220px */
   font-size: 16px;           /* prevents iOS zoom */
@@ -201,6 +160,12 @@ html, body { overflow-x: hidden; }
   #debtSnapshotControls{
     flex-direction: column;
     align-items: stretch;
+  }
+
+  #debtPaymentsMonthSelect{
+    width: 100% !important;
+    box-sizing: border-box;
+    font-size: 16px;
   }
 
   #debtSnapshotSelect,
@@ -438,8 +403,11 @@ html, body { overflow-x: hidden; }
         placeholder="$0.00"
         oninput="autoFormatCurrencyInput(this)"
         onblur="finalizeCurrencyInput(this)"
-        style="width:140px; font-size:16px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;"
+        style="width:140px; font-size:16px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
 
+     <input id="debtDateInput"
+       type="date"
+       style="width:160px; font-size:16px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
 
       <button class="confirmBtn" onclick="addDebtPaymentFromForm()">ADD</button>
       <button class="cancelBtn" onclick="hideDebtForm()">CANCEL</button>
@@ -506,6 +474,28 @@ html, body { overflow-x: hidden; }
     </div>
 
     <div class="list" id="debtSnapshotList"></div>
+  </div>
+
+  <div class="card">
+    <div style="font-size:12px;color:#9aa7b6;margin-bottom:10px;">Debt Payments Posted</div>
+
+    <div style="display:flex; gap:10px; align-items:center; margin-bottom:12px; flex-wrap:wrap;">
+      <select id="debtPaymentsMonthSelect"
+              style="flex:1; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;"></select>
+
+      <button class="confirmBtn"
+              onclick="renderDebtPaymentsHistory(document.getElementById('debtPaymentsMonthSelect')?.value)"
+              style="width:auto;">
+        VIEW
+      </button>
+    </div>
+
+    <div class="row" style="margin-top:8px;">
+      <div>MONTHLY DEBT PAID</div>
+      <div id="debtPaymentsHistoryTotal" style="font-weight:800;">$0</div>
+    </div>
+
+    <div class="list" id="debtPaymentsHistoryList" style="margin-top:12px;"></div>
   </div>
 
 </div>
@@ -1064,6 +1054,23 @@ function getDebtPayments(){
 function setDebtPayments(arr){
   localStorage.setItem(DEBT_PAYMENTS_KEY, JSON.stringify(arr));
 }
+
+/* ===== BEGIN DEBT PAYMENTS HISTORY STORAGE ===== */
+const DEBT_PAYMENT_HISTORY_KEY = "debt_payment_history_v1";
+
+function getDebtPaymentHistory(){
+  try{
+    return JSON.parse(localStorage.getItem(DEBT_PAYMENT_HISTORY_KEY) || "[]");
+  }catch{
+    return [];
+  }
+}
+
+function setDebtPaymentHistory(arr){
+  localStorage.setItem(DEBT_PAYMENT_HISTORY_KEY, JSON.stringify(arr));
+}
+/* ===== END DEBT PAYMENTS HISTORY STORAGE ===== */
+
 /* ===== END DEBT PAYMENTS STORAGE ===== */
 
 /* ===== BEGIN AUTO CURRENCY FORMAT ===== */
@@ -1144,9 +1151,17 @@ const DEBT_ACCOUNTS = [
 function showDebtForm(){
   const form = document.getElementById("debtForm");
   if(!form) return;
+
   form.style.display = "flex";
+
+  const d = document.getElementById("debtDateInput");
+  if(d && !d.value){
+    d.value = new Date().toISOString().slice(0,10);
+  }
+
   document.getElementById("debtAmountInput")?.focus();
 }
+
 
 function hideDebtForm(){
   const form = document.getElementById("debtForm");
@@ -1198,7 +1213,12 @@ function addDebtPaymentFromForm(){
   if(!(amt > 0)){ alert("Enter a valid positive amount."); return; }
 
   const payments = getDebtPayments();
-  const p = { id: Date.now(), name, amount: amt };
+  const dateEl = document.getElementById("debtDateInput");
+const postedDate = (dateEl && dateEl.value) ? dateEl.value : new Date().toISOString().slice(0,10);
+const month = getActiveMonth();
+
+const p = { id: Date.now(), name, amount: amt, month, postedDate };
+
 
   payments.unshift(p);
   setDebtPayments(payments);
@@ -1273,9 +1293,18 @@ function confirmDebtPaid(e, btn){
   balEl.textContent   = fmtMoney(bal);
   updateStatus();
 
-   // Remove from debt payments storage
-  const payments = getDebtPayments().filter(p => p.id !== id);
-  setDebtPayments(payments);
+     // Move from queue -> posted history
+  const payments = getDebtPayments();
+  const match = payments.find(p => p.id === id);
+  const remaining = payments.filter(p => p.id !== id);
+  setDebtPayments(remaining);
+
+  if(match){
+       const history = getDebtPaymentHistory();
+       history.unshift({ ...match, confirmedAt: Date.now() });
+       setDebtPaymentHistory(history);
+      }
+
 
   // Optional: auto-apply to debt snapshot balance (Option C)
   if(getAutoApplyEnabled()){
@@ -1431,6 +1460,40 @@ function renderTotalDebtOwed(){
   el.textContent = fmtMoney(computeTotalDebtOwed());
 }
 
+function renderDebtPaymentsHistory(month){
+  const m = month || getActiveMonth();
+
+  const totalEl = document.getElementById("debtPaymentsHistoryTotal");
+  const listEl  = document.getElementById("debtPaymentsHistoryList");
+  if(!totalEl || !listEl) return;
+
+  const items = getDebtPaymentHistory()
+    .filter(p => p.month === m)
+    .sort((a,b) => (b.confirmedAt||0) - (a.confirmedAt||0));
+
+  const total = items.reduce((s,p) => s + (Number(p.amount)||0), 0);
+  totalEl.textContent = fmtMoney(total);
+
+  if(items.length === 0){
+    listEl.innerHTML = `<div style="padding:14px; color:#9aa7b6;">No posted debt payments for this month.</div>`;
+    return;
+  }
+
+  listEl.innerHTML = "";
+  items.forEach(p => {
+    const row = document.createElement("div");
+    row.className = "item";
+    row.innerHTML = `
+      <div>
+        <div style="font-weight:800;">${escapeHtml(p.name || "")}</div>
+        <div style="font-size:12px;color:#9aa7b6;margin-top:3px;">${escapeHtml(p.postedDate || "")}</div>
+      </div>
+      <div style="font-weight:800;">${fmtMoney(Number(p.amount)||0)}</div>
+    `;
+    listEl.appendChild(row);
+  });
+}
+
 
 /* ===== BEGIN DEBT SNAPSHOT PAGE LOGIC ===== */
 
@@ -1467,6 +1530,15 @@ function initDebtSnapshot(){
   renderDebtSnapshotList();
   renderTotalDebtOwed();
   syncDebtSnapshotInput();
+
+  // Debt payments history UI
+  const mSel = document.getElementById("debtPaymentsMonthSelect");
+  if(mSel){
+    buildMonthOptions(mSel);
+    mSel.value = getActiveMonth();
+    renderDebtPaymentsHistory(mSel.value);
+  }
+
 }
 
 function onToggleAutoApply(checked){
