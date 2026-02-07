@@ -2030,7 +2030,8 @@ function computeBillsTotals(month){
     p2Paid,
     p2Unpaid: p2Total - p2Paid,
 
-    billsCount: bills.length
+    billsCount: bills.filter(b => !b.suppressed).length
+
   };
 }
 
