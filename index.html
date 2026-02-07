@@ -109,7 +109,20 @@ body{margin:0;font-family:-apple-system,system-ui;background:#0b0f14;color:#fff;
   to   { transform: translateY(0); opacity:1; }
 }
 
-.header{display:flex;align-items:center;padding:14px;border-bottom:1px solid #1b2533;}
+.header{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:14px;
+  border-bottom:1px solid #1b2533;
+  position:relative;
+}
+
+.header .menu{
+  position:absolute;
+  left:14px;
+}
+
 .menu{font-size:22px;margin-right:12px;}
 .container{padding:18px;}
 .card{background:#101722;border:1px solid #1b2533;border-radius:14px;padding:18px;margin-bottom:14px;}
@@ -323,6 +336,16 @@ html, body { overflow-x: hidden; }
   }
 }
 
+.header > div:not(.menu){
+  font-size:22px;
+  font-weight:900;
+}
+
+@media (max-width: 520px){
+  .header > div:not(.menu){
+    font-size:20px;
+  }
+}
 
 </style>
 
@@ -330,7 +353,7 @@ html, body { overflow-x: hidden; }
 <body>
 <div class="header">
   <div class="menu" id="menuBtn" onclick="toggleMenu()">☰</div>
-  <div>Phase 1 Bills Checking (v2)</div>
+  <div>Ryan's Finance Dashboard</div>
 </div>
 
 <!-- ===== BEGIN MENU DRAWER ===== -->
@@ -372,7 +395,12 @@ html, body { overflow-x: hidden; }
     <div>ACTIVE MONTH</div>
     <select id="activeMonthSelect"></select>
   </div>
+
+  <div id="currentPhaseLabel"
+       style="margin-top:6px; font-size:13px; color:#9aa7b6; font-weight:700;">
+  </div>
 </div>
+
 
 
 <!-- ===== BEGIN PAGE HOME WRAPPER (v2) ===== -->
@@ -693,6 +721,7 @@ function getActiveMonth(){
 
 function setActiveMonth(month){
   localStorage.setItem(ACTIVE_MONTH_KEY, month);
+  updateCurrentPhaseLabel();
 }
 
 function buildMonthOptions(selectEl){
@@ -744,6 +773,7 @@ function initActiveMonthUI(){
   sel.onchange = () => {
     const m = sel.value;
     setActiveMonth(m);
+    updateCurrentPhaseLabel();
 
     // Ensure month bills exist + refresh screens
     ensureBillsForMonth(m);
@@ -2471,6 +2501,19 @@ function getTodayPhase(){
   return (new Date().getDate() <= 15) ? 1 : 2;
 }
 
+function updateCurrentPhaseLabel(){
+  const el = document.getElementById("currentPhaseLabel");
+  if(!el) return;
+
+  const phase = getTodayPhase();
+
+  if(phase === 1){
+    el.textContent = "Phase 1 – Bills Checking";
+  } else {
+    el.textContent = "Phase 2 – Bills Checking";
+  }
+}
+
 function shiftMonth(yyyyMM, delta){
   const [y, m] = yyyyMM.split("-").map(Number);
   const d = new Date(y, m - 1 + delta, 1);
@@ -2527,8 +2570,7 @@ document.addEventListener("DOMContentLoaded", () => {
   [shiftMonth(cur, -1), cur, shiftMonth(cur, 1)].forEach(m => ensureBillsForMonth(m));
 
   initActiveMonthUI();
-
-
+  updateCurrentPhaseLabel();
 
   if(!Number.isFinite(getLastUpdatedMs())){
     setLastUpdatedNow();
