@@ -534,6 +534,56 @@ html, body { overflow-x: hidden; }
 </div>
 <!-- ===== END MONTHLY BILLS PAGE ===== -->
 
+<!-- ===== BEGIN ONE-TIME BILL MODAL ===== -->
+<div id="otbBackdrop" onclick="closeOneTimeBillModal()"
+     style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:90;"></div>
+
+<div id="otbModal"
+     style="display:none; position:fixed; inset:0; z-index:100; padding:16px; align-items:center; justify-content:center;">
+  <div style="
+    width:100%;
+    max-width:420px;
+    background:#101722;
+    border:1px solid #1b2533;
+    border-radius:14px;
+    box-shadow:0 10px 30px rgba(0,0,0,.35);
+    overflow:hidden;
+  ">
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 16px; border-bottom:1px solid #1b2533;">
+      <div style="font-weight:900;">Add One-Time Bill</div>
+      <button class="cancelBtn" onclick="closeOneTimeBillModal()" style="width:auto; padding:10px 12px;">CLOSE</button>
+    </div>
+
+    <div style="padding:14px 16px;">
+      <div style="font-size:12px; color:#9aa7b6; margin-bottom:10px;" id="otbMonthHint">Month: —</div>
+
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <input id="otbName" placeholder="Name (e.g., Car registration)"
+               style="background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px; font-size:16px;" />
+
+        <input id="otbAmount" inputmode="decimal" placeholder="$0.00"
+               oninput="autoFormatCurrencyInput(this)" onblur="finalizeCurrencyInput(this)"
+               style="background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px; font-size:16px;" />
+
+        <label style="display:flex; flex-direction:column; gap:6px; font-weight:800;">
+          <span style="font-size:12px; color:#9aa7b6; font-weight:800;">Due date (optional)</span>
+          <input id="otbDueDate" type="date"
+                 style="background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:12px 12px; font-size:14px;" />
+        </label>
+
+        <div id="otbErr" style="display:none; font-size:13px; color:#ff5c5c; font-weight:800;"></div>
+
+        <div style="display:flex; gap:10px; margin-top:6px;">
+          <button class="cancelBtn" onclick="closeOneTimeBillModal()" style="width:40%;">CANCEL</button>
+          <button class="confirmBtn" onclick="saveOneTimeBillFromModal()" style="width:60%;">SAVE</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ===== END ONE-TIME BILL MODAL ===== -->
+
+
 <script>
 
 const ACTIVE_MONTH_KEY = "active_month_v1";
@@ -831,8 +881,13 @@ function renderHomeBills(month){
       ? `<button class="btnSmall" onclick="flipBillPhase(event,this)">FLIP PHASE</button>`
       : "";
 
-    item.innerHTML = `
-      <div>${escapeHtml(b.name)}</div>
+const badge = (b.source === "oneTime")
+  ? `<span style="font-size:11px; font-weight:900; margin-left:8px; padding:3px 8px; border:1px solid #2aa6ff55; border-radius:999px; color:#9aa7b6;">ONE-TIME</span>`
+  : "";
+
+item.innerHTML = `
+  <div>${escapeHtml(b.name)}${badge}</div>
+
       <div>${fmtMoney(b.amount)}</div>
       <div class="confirmBar">
         <button class="confirmBtn" onclick="toggleBillPaid(event,this)">
@@ -1609,7 +1664,13 @@ function renderBillsPage(){
 
     row.innerHTML = `
       <div style="flex:1; padding-right:10px;">
-        <div style="font-weight:800;">${escapeHtml(b.name)}</div>
+        ${(() => {
+  const badge = (b.source === "oneTime")
+    ? `<span style="font-size:11px; font-weight:900; margin-left:8px; padding:3px 8px; border:1px solid #2aa6ff55; border-radius:999px; color:#9aa7b6;">ONE-TIME</span>`
+    : "";
+  return `<div style="font-weight:800;">${escapeHtml(b.name)}${badge}</div>`;
+})()}
+
         <div style="font-size:12px; color:#9aa7b6; margin-top:4px;">
           Due: ${escapeHtml(b.date || "—")}
         </div>
@@ -1869,8 +1930,104 @@ function initDebtDropdown(){
 }
 
 function openOneTimeBillModal(){
-  alert("One-Time Bill modal coming next.");
+  const month = getActiveMonth();              // month-aware: uses your Active Month selector
+  ensureBillsForMonth(month);                 // make sure month exists
+
+  const modal = document.getElementById("otbModal");
+  const back  = document.getElementById("otbBackdrop");
+  if(!modal || !back) return;
+
+  // clear fields
+  document.getElementById("otbName").value = "";
+  document.getElementById("otbAmount").value = "";
+  document.getElementById("otbDueDate").value = "";
+  const err = document.getElementById("otbErr");
+  if(err){ err.style.display = "none"; err.textContent = ""; }
+
+  // show month hint + store month on modal
+  const hint = document.getElementById("otbMonthHint");
+  if(hint) hint.textContent = `Month: ${month}`;
+  modal.dataset.month = month;
+
+  back.style.display = "block";
+  modal.style.display = "flex";
+
+  setTimeout(()=>document.getElementById("otbName")?.focus(), 0);
 }
+
+function closeOneTimeBillModal(){
+  const modal = document.getElementById("otbModal");
+  const back  = document.getElementById("otbBackdrop");
+  if(back) back.style.display = "none";
+  if(modal) modal.style.display = "none";
+}
+
+function saveOneTimeBillFromModal(){
+  const modal = document.getElementById("otbModal");
+  const month = modal?.dataset?.month || getActiveMonth();
+
+  const name = (document.getElementById("otbName")?.value || "").trim();
+  const amt  = parseMoney(document.getElementById("otbAmount")?.value || "");
+  const due  = document.getElementById("otbDueDate")?.value || ""; // YYYY-MM-DD or ""
+
+  const err = document.getElementById("otbErr");
+  const showErr = (msg) => {
+    if(!err) return;
+    err.textContent = msg;
+    err.style.display = "block";
+  };
+
+  if(!name) return showErr("Name is required.");
+  if(!(amt > 0)) return showErr("Amount must be greater than 0.");
+
+  ensureBillsForMonth(month);
+
+  // If user picked a due date in a DIFFERENT month, honor that month (prevents silent mistakes)
+  const targetMonth = due ? monthFromDate(due) : month;
+
+  ensureBillsForMonth(targetMonth);
+
+  const bills = getBills(targetMonth).map(normalizeBill);
+
+  // Default due date: if none provided, use the 15th of that month (keeps phase predictable)
+  const defaultDue = due || `${targetMonth}-15`;
+  const dueDay = Number(defaultDue.slice(-2)) || 15;
+
+  const oneTime = {
+    id: `ot_${Date.now()}_${Math.random().toString(16).slice(2,6)}`,
+    name,
+    category: "One-Time",
+    amount: Math.round(amt * 100) / 100,
+    date: defaultDue,                 // uses your existing "date" field as due date
+    month: targetMonth,
+    phase: phaseFromDay(dueDay),      // auto phase based on due day
+    phaseLocked: true,                // keep it stable unless you decide otherwise later
+    paid: false,
+    paidAt: null,
+    source: "oneTime"
+  };
+
+  bills.push(oneTime);
+  bills.sort((a,b)=>(a.date||"").localeCompare(b.date||""));
+  setBills(targetMonth, bills);
+
+  closeOneTimeBillModal();
+
+  // Refresh UI everywhere it matters
+  renderHomeBills(getActiveMonth());
+  renderBillsAndPhaseTotals(getActiveMonth());
+
+  // If Bills page is open, update it too
+  if(document.getElementById("pageBills")?.style.display !== "none"){
+    const sel = document.getElementById("billsPageMonthSelect");
+    if(sel){
+      buildMonthOptions(sel);
+      sel.value = targetMonth;
+    }
+    renderBillsPage();
+  }
+}
+
 
 function getTodayPhase(){
   return (new Date().getDate() <= 15) ? 1 : 2;
