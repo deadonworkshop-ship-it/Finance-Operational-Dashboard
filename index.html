@@ -306,6 +306,23 @@ html, body { overflow-x: hidden; }
   background:#2aa6ff;
 }
 
+/* ===== FORCE ACTIVE MONTH to stack + full width on mobile ===== */
+@media (max-width: 520px){
+  #activeMonthCard .row{
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+  }
+
+  #activeMonthSelect{
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+}
+
 
 </style>
 
