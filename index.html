@@ -396,9 +396,14 @@ html, body { overflow-x: hidden; }
     <select id="activeMonthSelect"></select>
   </div>
 
-  <div id="currentPhaseLabel"
-       style="margin-top:6px; font-size:13px; color:#9aa7b6; font-weight:700;">
+    <div style="margin-top:12px; font-size:12px; color:#9aa7b6; font-weight:700;">
+    ACTIVE PHASE
   </div>
+
+  <div id="currentPhaseValue"
+       style="margin-top:4px; font-size:18px; font-weight:800; color:#fff;">
+  </div>
+
 </div>
 
 
@@ -2502,17 +2507,13 @@ function getTodayPhase(){
 }
 
 function updateCurrentPhaseLabel(){
-  const el = document.getElementById("currentPhaseLabel");
+  const el = document.getElementById("currentPhaseValue");
   if(!el) return;
 
   const phase = getTodayPhase();
-
-  if(phase === 1){
-    el.textContent = "Phase 1 – Bills Checking";
-  } else {
-    el.textContent = "Phase 2 – Bills Checking";
-  }
+  el.textContent = `Phase ${phase}`;
 }
+
 
 function shiftMonth(yyyyMM, delta){
   const [y, m] = yyyyMM.split("-").map(Number);
