@@ -1659,6 +1659,11 @@ function initBillsPage(){
   const hasActive = Array.from(sel.options).some(o => o.value === active);
   sel.value = hasActive ? active : currentMonthYYYYMM();
 
+      const showHiddenToggle = document.getElementById("showHiddenBillsToggle");
+      if(showHiddenToggle){
+        showHiddenToggle.checked = getShowHiddenBills();
+      }
+
   // Change handler
   sel.onchange = () => {
     const m = sel.value;
@@ -1704,12 +1709,6 @@ function renderBillsPage(){
     out.appendChild(row);
     return;
   }
-
-      const showHiddenToggle = document.getElementById("showHiddenBillsToggle");
-      if(showHiddenToggle){
-        showHiddenToggle.checked = getShowHiddenBills();
-      }
-
 
   bills.forEach(b => {
     const row = document.createElement("div");
