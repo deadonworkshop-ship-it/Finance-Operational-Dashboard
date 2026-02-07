@@ -275,6 +275,9 @@ html, body { overflow-x: hidden; }
 }
 /* ================================= */
 
+.item.suppressed{
+  opacity: 0.45;
+}
 
 </style>
 
@@ -488,6 +491,14 @@ html, body { overflow-x: hidden; }
               style="flex:1; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;"></select>
       <button class="confirmBtn" onclick="renderBillsPage()" style="width:auto;">VIEW</button>
     </div>
+
+<div class="row" style="margin-top:12px;">
+  <div>SHOW HIDDEN</div>
+  <label style="display:flex;align-items:center;gap:10px;">
+    <input id="showHiddenBillsToggle" type="checkbox" onchange="onToggleShowHiddenBills(this.checked)" />
+    <span style="color:#9aa7b6;font-size:13px;">ON/OFF</span>
+  </label>
+</div>
 
     <!-- Totals -->
     <div class="row" style="margin-top:14px;">
@@ -1620,6 +1631,22 @@ function applyBillDelta(amount, markingPaid){
   updateStatus();
 }
 
+const SHOW_HIDDEN_BILLS_KEY = "show_hidden_bills_v1";
+
+function getShowHiddenBills(){
+  return localStorage.getItem(SHOW_HIDDEN_BILLS_KEY) === "true";
+}
+
+function setShowHiddenBills(enabled){
+  localStorage.setItem(SHOW_HIDDEN_BILLS_KEY, enabled ? "true" : "false");
+}
+
+function onToggleShowHiddenBills(checked){
+  setShowHiddenBills(checked);
+  renderBillsPage();
+}
+
+
 function initBillsPage(){
   const sel = document.getElementById("billsPageMonthSelect");
   if(!sel) return;
@@ -1663,9 +1690,10 @@ function renderBillsPage(){
   // persist any normalization upgrades
   setBills(month, bills);
 
-  bills = bills.slice().sort((a,b)=> (a.date || "").localeCompare(b.date || ""));
-      bills = bills.filter(b => !b.suppressed);
-
+  const showHidden = getShowHiddenBills();
+  if(!showHidden){
+    bills = bills.filter(b => !b.suppressed);
+  }
 
   out.innerHTML = "";
 
@@ -1677,9 +1705,16 @@ function renderBillsPage(){
     return;
   }
 
+      const showHiddenToggle = document.getElementById("showHiddenBillsToggle");
+      if(showHiddenToggle){
+        showHiddenToggle.checked = getShowHiddenBills();
+      }
+
+
   bills.forEach(b => {
     const row = document.createElement("div");
-    row.className = `item${b.paid ? " paid" : ""}`;
+    row.className = `item${b.paid ? " paid" : ""}${b.suppressed ? " suppressed" : ""}`;
+
 
     const paidDateVal = b.paidAt ? b.paidAt : "";
 
@@ -1724,8 +1759,11 @@ function renderBillsPage(){
               onclick="deleteBill('${month}', '${b.id}')">DELETE</button>
     `
     : `
-      <button class="miniBtn"
-              onclick="toggleSuppressBill('${month}', '${b.id}')">HIDE</button>
+    <button class="miniBtn"
+        onclick="toggleSuppressBill('${month}', '${b.id}')">
+  ${b.suppressed ? "UNHIDE" : "HIDE"}
+</button>
+
     `
   }
 </div>
