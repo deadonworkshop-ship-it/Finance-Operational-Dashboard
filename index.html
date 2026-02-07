@@ -32,13 +32,14 @@ body{margin:0;font-family:-apple-system,system-ui;background:#0b0f14;color:#fff;
 }
 
 #activeMonthSelect{
-  width: 160px;
+  width: 200px;
   background:#0c131d;
   color:#fff;
   border:1px solid #1b2533;
-  border-radius:12px;
-  padding:12px 12px;
-  font-weight:800;
+  border-radius:14px;
+  padding:14px 16px;
+  font-size:18px;
+  font-weight:900;
 }
 
 .confirmBar{
@@ -160,6 +161,12 @@ html, body { overflow-x: hidden; }
   #debtSnapshotControls{
     flex-direction: column;
     align-items: stretch;
+  }
+
+  #activeMonthSelect{
+    width: 100% !important;
+    font-size: 18px;
+    padding: 16px 18px;
   }
 
   #debtPaymentsMonthSelect{
@@ -1191,11 +1198,13 @@ function renderDebtPaymentRow(p){
     <div class="debtName">${escapeHtml(p.name)}</div>
     <div class="debtAmt">${fmtMoney(p.amount)}</div>
 
-    <div class="confirmBar">
-      <button class="confirmBtn" onclick="confirmDebtPaid(event,this)">✔ CONFIRM PAID</button>
-      <button class="editBtn" onclick="editDebtAmount(event,this)">EDIT</button>
-      <button class="cancelBtn" onclick="cancelConfirm(event,this)">CANCEL</button>
-    </div>
+      <div class="confirmBar">
+    <button class="confirmBtn" onclick="confirmDebtPaid(event,this)">✔ CONFIRM PAID</button>
+    <button class="editBtn" onclick="editDebtAmount(event,this)">EDIT</button>
+    <button class="cancelBtn" onclick="cancelConfirm(event,this)">CANCEL</button>
+    <button class="cancelBtn" onclick="deleteDebtPayment(event,this)" style="width:auto;">DELETE</button>
+  </div>
+
   `;
   return item;
 }
@@ -1339,6 +1348,32 @@ if(document.getElementById("pageBills")?.style.display !== "none"){
   item.classList.add("removing");
   setTimeout(()=>{ item.remove(); },230);
 }
+
+function deleteDebtPayment(e, btn){
+  e.stopPropagation();
+
+  const item = btn.closest(".item");
+  if(!item) return;
+
+  const id = Number(item.dataset.id || 0);
+  if(!id) return;
+
+  if(!confirm("Delete this debt payment?")) return;
+
+  const remaining = getDebtPayments().filter(p => Number(p.id) !== id);
+  setDebtPayments(remaining);
+
+  // Update Bills page totals if visible
+  if(document.getElementById("pageBills")?.style.display !== "none"){
+    const m = document.getElementById("billsPageMonthSelect")?.value || currentMonthYYYYMM();
+    renderBillsAndPhaseTotals(m);
+  }
+
+  // Remove UI row with same animation style
+  item.classList.add("removing");
+  setTimeout(()=>{ item.remove(); },230);
+}
+
 
 /* ===== END DEBT PAYMENTS (PERSISTENT) ===== */
 
