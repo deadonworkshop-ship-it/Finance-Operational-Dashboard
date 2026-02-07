@@ -410,22 +410,9 @@ html, body { overflow-x: hidden; }
 <!-- ===== BEGIN DEBT SNAPSHOT PAGE ===== -->
 <div class="container page" id="pageDebt" style="display:none;">
 
-  <div class="card">
-   <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
-  <div style="font-weight:800;">Monthly Bills</div>
-
-  <div style="display:flex; gap:8px;">
-    <button class="miniBtn"
-            onclick="resetBillsForMonth(document.getElementById('billsPageMonthSelect')?.value)">
-      RESET MONTH
-    </button>
-
-    <button class="cancelBtn"
-            onclick="navigateTo('home')"
-            style="width:auto; padding:10px 12px;">
-      BACK
-    </button>
-  </div>
+<div style="display:flex; justify-content:space-between; align-items:center;">
+  <div style="font-weight:800;">Debt Snapshot</div>
+  <button class="cancelBtn" onclick="navigateTo('home')" style="width:auto; padding:10px 12px;">BACK</button>
 </div>
 
     <div style="font-size:12px;color:#9aa7b6;margin-top:6px;">
@@ -444,8 +431,6 @@ html, body { overflow-x: hidden; }
   <div>TOTAL DEBT OWED</div>
   <div id="totalDebtOwed" style="font-weight:800;">$0</div>
 </div>
-
-  </div>
 
 
   <div class="card">
@@ -480,10 +465,23 @@ html, body { overflow-x: hidden; }
 <div class="container page" id="pageBills" style="display:none;">
 
   <div class="card">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-      <div style="font-weight:800;">Monthly Bills</div>
-      <button class="cancelBtn" onclick="navigateTo('home')" style="width:auto; padding:10px 12px;">BACK</button>
-    </div>
+   <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+  <div style="font-weight:800;">Monthly Bills</div>
+
+  <div style="display:flex; gap:8px;">
+    <button class="btnSmall"
+            onclick="resetBillsForMonth(document.getElementById('billsPageMonthSelect')?.value)">
+      RESET MONTH
+    </button>
+
+    <button class="cancelBtn"
+            onclick="navigateTo('home')"
+            style="width:auto; padding:10px 12px;">
+      BACK
+    </button>
+  </div>
+</div>
+
 
     <div style="display:flex; gap:10px; align-items:center; margin-top:12px;">
       <select id="billsPageMonthSelect"
