@@ -1521,132 +1521,7 @@ function normalizeBill(b){
 }
 
 
-function renderBillsPage(){
-  const sel = document.getElementById("billsPageMonthSelect");
-  const out = document.getElementById("billsPageList");
-  if(!sel || !out) return;
 
-  const month = sel.value;
-  ensureBillsForMonth(month);
-
-  // Totals card
-  renderBillsAndPhaseTotals(month);
-
-  const bills = getBills(month).map(normalizeBill).slice()
-    .sort((a,b)=> (a.date||"").localeCompare(b.date||""));
-
-  out.innerHTML = "";
-
-  if(!bills.length){
-    const row = document.createElement("div");
-    row.className = "item";
-    row.innerHTML = `<div>No bills found for ${month}</div><div></div>`;
-    out.appendChild(row);
-    return;
-  }
-
-  bills.forEach(b => {
-    const row = document.createElement("div");
-    row.className = `item${b.paid ? " paid" : ""}`;
-
-    const paidDateVal = b.paidAt ? b.paidAt : "";
-
-    row.innerHTML = `
-      <div style="flex:1; padding-right:10px;">
-        <div style="font-weight:800;">${escapeHtml(b.name)}</div>
-        <div style="font-size:12px; color:#9aa7b6; margin-top:4px;">
-          Due: ${escapeHtml(b.date || "—")} • Phase: ${escapeHtml(b.phase || "—")}
-        </div>
-      </div>
-
-      <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
-        <div style="font-weight:800;">${fmtMoney(Number(b.amount || 0))}</div>
-
-        <div class="billControls">
-          <button class="billPaidBtn ${b.paid ? "paid" : ""}"
-                  onclick="onBillPaidToggle('${b.id}','${month}', ${!b.paid})">
-            ${b.paid ? "✔ PAID" : "MARK PAID"}
-          </button>
-
-          <input type="date" value="${paidDateVal}"
-                 onchange="onBillPaidDateChange('${b.id}','${month}', this.value)">
-          <button class="miniBtn" onclick="clearBillPaidDate(event,'${b.id}','${month}')">CLEAR</button>
-        </div>
-      </div>
-    `;
-
-    out.appendChild(row);
-  });
-}
-
-function onBillPaidToggle(billIdVal, month, checked){
-  const bills = getBills(month).map(normalizeBill);
-  const idx = bills.findIndex(b => b.id === billIdVal);
-  if(idx < 0) return;
-
-  const wasPaid = !!bills[idx].paid;
-  const amt = Number(bills[idx].amount || 0);
-  if(wasPaid === checked) return;
-
-  bills[idx].paid = checked;
-  if(checked && !bills[idx].paidAt) bills[idx].paidAt = todayISO();
-  if(!checked) bills[idx].paidAt = null;
-
-  setBills(month, bills);
-
-  applyBillDelta(amt, checked);
-
-  renderHomeBills(month);
-  renderBillsPage();
-  
-}
-
-function onBillPaidDateChange(billIdVal, month, dateVal){
-  const bills = getBills(month).map(normalizeBill);
-  const idx = bills.findIndex(b => b.id === billIdVal);
-  if(idx < 0) return;
-
-  const prevPaid = !!bills[idx].paid;
-  const amt = Number(bills[idx].amount || 0);
-
-  if(dateVal){
-    bills[idx].paidAt = dateVal;
-    bills[idx].paid = true;
-    if(!prevPaid) applyBillDelta(amt, true);
-  } else {
-    bills[idx].paidAt = null;
-    bills[idx].paid = false;
-    if(prevPaid) applyBillDelta(amt, false);
-  }
-
-  setBills(month, bills);
-
-  renderHomeBills(month);
-  renderBillsPage();
-  
-}
-
-function clearBillPaidDate(e, billIdVal, month){
-  e.stopPropagation();
-
-  const bills = getBills(month).map(normalizeBill);
-  const idx = bills.findIndex(b => b.id === billIdVal);
-  if(idx < 0) return;
-
-  const wasPaid = !!bills[idx].paid;
-  const amt = Number(bills[idx].amount || 0);
-
-  bills[idx].paidAt = null;
-  bills[idx].paid = false;
-
-  setBills(month, bills);
-
-  if(wasPaid) applyBillDelta(amt, false);
-
-  renderHomeBills(month);
-  renderBillsPage();
-  
-}
 
 
 // Keep cockpit numbers consistent even when toggling from Bills page
@@ -1675,13 +1550,27 @@ function initBillsPage(){
   const sel = document.getElementById("billsPageMonthSelect");
   if(!sel) return;
 
+  // ALWAYS rebuild month options when opening Bills page
   buildMonthOptions(sel);
 
+  // Default to active month if available
   const active = getActiveMonth();
-  sel.value = Array.from(sel.options).some(o => o.value === active)
-    ? active
-    : currentMonthYYYYMM();
+  const hasActive = Array.from(sel.options).some(o => o.value === active);
+  sel.value = hasActive ? active : currentMonthYYYYMM();
 
+  // Change handler
+  sel.onchange = () => {
+    const m = sel.value;
+    setActiveMonth(m);
+
+    ensureBillsForMonth(m);
+
+    renderHomeBills(m);
+    renderBillsAndPhaseTotals(m);
+    renderBillsPage();
+  };
+
+  // Initial render
   renderBillsPage();
 }
 
