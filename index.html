@@ -492,13 +492,16 @@ html, body { overflow-x: hidden; }
       <button class="confirmBtn" onclick="renderBillsPage()" style="width:auto;">VIEW</button>
     </div>
 
-<div class="row" style="margin-top:12px;">
-  <div>SHOW HIDDEN</div>
-  <label style="display:flex;align-items:center;gap:10px;">
-    <input id="showHiddenBillsToggle" type="checkbox" onchange="onToggleShowHiddenBills(this.checked)" />
-    <span style="color:#9aa7b6;font-size:13px;">ON/OFF</span>
-  </label>
-</div>
+    <div class="row" style="margin-top:12px;">
+      <div>SHOW HIDDEN</div>
+      <label style="display:flex;align-items:center;gap:10px;">
+        <input id="showHiddenBillsToggle"
+           type="checkbox"
+           onchange="onToggleShowHiddenBills(this.checked)" />
+        <span style="color:#9aa7b6;font-size:13px;">ON/OFF</span>
+    </label>
+   </div>  
+
 
     <!-- Totals -->
     <div class="row" style="margin-top:14px;">
