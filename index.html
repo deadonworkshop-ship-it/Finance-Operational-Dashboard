@@ -935,9 +935,8 @@ function toggleBillPaid(e, btn){
   if(!item) return;
 
   // Month source of truth: dropdown if present, else currentMonthYYYYMM()
-  const month =
-    document.querySelector("select")?.value ||
-    (typeof currentMonthYYYYMM === "function" ? currentMonthYYYYMM() : null);
+ const month = getActiveMonth();
+
 
   if(!month) return;
 
@@ -1266,8 +1265,10 @@ function parseMoney(str){
   return Number(String(str).replace(/[^0-9.-]/g,"")) || 0;
 }
 function fmtMoney(n){
-  return n.toLocaleString(undefined,{style:"currency", currency:"USD"});
+  const x = Number(n) || 0;
+  return x.toLocaleString(undefined,{style:"currency", currency:"USD"});
 }
+
 
 /* ===== BEGIN STATUS (SAFE/SHORTFALL) + DELTA ===== */
 function updateStatus(){
@@ -2045,7 +2046,7 @@ window.BILLS_EDIT_MODE = false;
 
 function toggleBillsEditMode(){
   window.BILLS_EDIT_MODE = !window.BILLS_EDIT_MODE;
-  const month = document.querySelector("select")?.value || currentMonthYYYYMM();
+  const month = getActiveMonth();
   renderHomeBills(month);
 }
 
@@ -2055,7 +2056,7 @@ function flipBillPhase(e, btn){
   const item = btn.closest(".item");
   if(!item) return;
 
-  const month = document.querySelector("select")?.value || currentMonthYYYYMM();
+  const month = getActiveMonth();
   const id = item.dataset.billId;
   if(!id) return;
 
