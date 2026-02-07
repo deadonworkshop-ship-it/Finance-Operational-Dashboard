@@ -634,8 +634,6 @@ function buildMonthOptions(selectEl){
   });
 }
 
-
-
 function initActiveMonthUI(){
   const sel = document.getElementById("activeMonthSelect");
   if(!sel) return;
@@ -701,6 +699,123 @@ function billId(name, amount, dateStr){
 
 function billsKey(month){
   return `bills_v1_${month}`;
+}
+
+function deleteBill(month, billIdVal){
+  const bills = getBills(month).map(normalizeBill);
+  const idx = bills.findIndex(b => b.id === billIdVal);
+  if(idx < 0) return;
+
+  // Only truly delete one-time bills
+  if(bills[idx].source === "oneTime"){
+    bills.splice(idx, 1);
+  } else {
+    // Template bill: suppress for this month (so templates don't re-add it)
+    bills[idx].suppressed = true;
+  }
+
+  setBills(month, bills);
+
+  // Refresh UI + totals
+  renderBillsPage();
+  renderHomeBills(getActiveMonth());
+  renderBillsAndPhaseTotals(getActiveMonth());
+}
+
+function toggleSuppressBill(month, billIdVal){
+  const bills = getBills(month).map(normalizeBill);
+  const idx = bills.findIndex(b => b.id === billIdVal);
+  if(idx < 0) return;
+
+  bills[idx].suppressed = !bills[idx].suppressed;
+  setBills(month, bills);
+
+  renderBillsPage();
+  renderHomeBills(getActiveMonth());
+  renderBillsAndPhaseTotals(getActiveMonth());
+}
+
+function editBillAmount(month, billIdVal){
+  const bills = getBills(month).map(normalizeBill);
+  const idx = bills.findIndex(b => b.id === billIdVal);
+  if(idx < 0) return;
+
+  const cur = Number(bills[idx].amount || 0);
+  const nextStr = prompt("Edit bill amount:", fmtMoney(cur));
+  if(!nextStr) return;
+
+  const next = parseMoney(nextStr);
+  if(!(next >= 0)){
+    alert("Enter a valid amount (0 or higher).");
+    return;
+  }
+
+  bills[idx].amount = Math.round(next * 100) / 100;
+  setBills(month, bills);
+
+  renderBillsPage();
+  renderHomeBills(getActiveMonth());
+  renderBillsAndPhaseTotals(getActiveMonth());
+}
+
+function editOneTimeDueDate(month, billIdVal){
+  const bills = getBills(month).map(normalizeBill);
+  const idx = bills.findIndex(b => b.id === billIdVal);
+  if(idx < 0) return;
+
+  const b = bills[idx];
+  if(b.source !== "oneTime"){
+    alert("Due date changes are only allowed for one-time bills (templates are fixed).");
+    return;
+  }
+
+  const next = prompt("Enter new due date (YYYY-MM-DD):", b.date || "");
+  if(!next) return;
+
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(next)){
+    alert("Format must be YYYY-MM-DD.");
+    return;
+  }
+
+  const targetMonth = monthFromDate(next);
+  if(!targetMonth){
+    alert("Invalid date.");
+    return;
+  }
+
+  // If month changed, move the bill
+  if(targetMonth !== month){
+    // remove from current month
+    bills.splice(idx, 1);
+    setBills(month, bills);
+
+    ensureBillsForMonth(targetMonth);
+    const dest = getBills(targetMonth).map(normalizeBill);
+
+    b.date = next;
+    b.month = targetMonth;
+    b.phase = phaseFromDay(Number(next.slice(-2)) || 15);
+
+    dest.push(b);
+    dest.sort((a,c)=>(a.date||"").localeCompare(c.date||""));
+    setBills(targetMonth, dest);
+
+    // switch Bills page to that month if open
+    const sel = document.getElementById("billsPageMonthSelect");
+    if(sel){
+      buildMonthOptions(sel);
+      sel.value = targetMonth;
+    }
+  } else {
+    b.date = next;
+    b.phase = phaseFromDay(Number(next.slice(-2)) || 15);
+    bills[idx] = b;
+    setBills(month, bills);
+  }
+
+  renderBillsPage();
+  renderHomeBills(getActiveMonth());
+  renderBillsAndPhaseTotals(getActiveMonth());
 }
 
 // ===== BEGIN BILL TEMPLATES (PREDETERMINED) =====
@@ -858,10 +973,11 @@ function renderHomeBills(month){
 
   // Ensure month bills exist and are normalized
   ensureBillsForMonth(month);
-  const bills = getBills(month)
-    .map(normalizeBill)
-    .slice()
-    .sort((a,b)=>String(a.date||"").localeCompare(String(b.date||"")));
+   const bills = getBills(month)
+        .map(normalizeBill)
+        .filter(b => !b.suppressed)
+        .slice()
+        .sort((a,b)=>String(a.date||"").localeCompare(String(b.date||"")));
 
   // Render list
   list.innerHTML = "";
@@ -1573,6 +1689,9 @@ function normalizeBill(b){
   bill.paid = bill.paid === true;
   bill.paidAt = bill.paid ? (bill.paidAt || null) : null;
 
+   // ----- Suppressed (hidden for this month) -----
+     bill.suppressed = bill.suppressed === true;
+
   return bill;
 }
 
@@ -1646,6 +1765,8 @@ function renderBillsPage(){
   setBills(month, bills);
 
   bills = bills.slice().sort((a,b)=> (a.date || "").localeCompare(b.date || ""));
+      bills = bills.filter(b => !b.suppressed);
+
 
   out.innerHTML = "";
 
@@ -1681,15 +1802,35 @@ function renderBillsPage(){
         <div style="font-weight:800;">${fmtMoney(Number(b.amount || 0))}</div>
 
         <div class="billControls">
-          <button class="billPaidBtn ${b.paid ? "paid" : ""}"
-                  onclick="onBillPaidToggle('${b.id}', '${month}', ${!b.paid})">
-            ${b.paid ? "✔ PAID" : "MARK PAID"}
-          </button>
+  <button class="billPaidBtn ${b.paid ? "paid" : ""}"
+          onclick="onBillPaidToggle('${b.id}', '${month}', ${!b.paid})">
+    ${b.paid ? "✔ PAID" : "MARK PAID"}
+  </button>
 
+  <input type="date"
+         value="${paidDateVal}"
+         onchange="onBillPaidDateChange('${b.id}', '${month}', this.value)">
 
-          <input type="date" value="${paidDateVal}" onchange="onBillPaidDateChange('${b.id}', '${month}', this.value)">
-          <button class="miniBtn" onclick="clearBillPaidDate(event, '${b.id}', '${month}')">CLEAR</button>
-        </div>
+  <button class="miniBtn"
+          onclick="clearBillPaidDate(event, '${b.id}', '${month}')">CLEAR</button>
+
+  <button class="miniBtn"
+          onclick="editBillAmount('${month}', '${b.id}')">EDIT $</button>
+
+  ${b.source === "oneTime"
+    ? `
+      <button class="miniBtn"
+              onclick="editOneTimeDueDate('${month}', '${b.id}')">DUE</button>
+      <button class="miniBtn"
+              onclick="deleteBill('${month}', '${b.id}')">DELETE</button>
+    `
+    : `
+      <button class="miniBtn"
+              onclick="toggleSuppressBill('${month}', '${b.id}')">HIDE</button>
+    `
+  }
+</div>
+
       </div>
     `;
 
@@ -1787,6 +1928,124 @@ function clearBillPaidDate(e, billIdVal, month){
   
 }
 
+/* ===== BEGIN BILL ADJUSTMENT ACTIONS ===== */
+
+function deleteBill(month, billIdVal){
+  const bills = getBills(month).map(normalizeBill);
+  const idx = bills.findIndex(b => b.id === billIdVal);
+  if(idx < 0) return;
+
+  // One-time bills: real delete
+  if(bills[idx].source === "oneTime"){
+    bills.splice(idx, 1);
+  } else {
+    // Template bills: hide for this month
+    bills[idx].suppressed = true;
+  }
+
+  setBills(month, bills);
+  renderBillsPage();
+  renderHomeBills(getActiveMonth());
+  renderBillsAndPhaseTotals(getActiveMonth());
+}
+
+function toggleSuppressBill(month, billIdVal){
+  const bills = getBills(month).map(normalizeBill);
+  const idx = bills.findIndex(b => b.id === billIdVal);
+  if(idx < 0) return;
+
+  bills[idx].suppressed = !bills[idx].suppressed;
+  setBills(month, bills);
+
+  renderBillsPage();
+  renderHomeBills(getActiveMonth());
+  renderBillsAndPhaseTotals(getActiveMonth());
+}
+
+function editBillAmount(month, billIdVal){
+  const bills = getBills(month).map(normalizeBill);
+  const idx = bills.findIndex(b => b.id === billIdVal);
+  if(idx < 0) return;
+
+  const cur = Number(bills[idx].amount || 0);
+  const nextStr = prompt("Edit bill amount:", fmtMoney(cur));
+  if(!nextStr) return;
+
+  const next = parseMoney(nextStr);
+  if(!(next >= 0)){
+    alert("Enter a valid amount.");
+    return;
+  }
+
+  bills[idx].amount = Math.round(next * 100) / 100;
+  setBills(month, bills);
+
+  renderBillsPage();
+  renderHomeBills(getActiveMonth());
+  renderBillsAndPhaseTotals(getActiveMonth());
+}
+
+function editOneTimeDueDate(month, billIdVal){
+  const bills = getBills(month).map(normalizeBill);
+  const idx = bills.findIndex(b => b.id === billIdVal);
+  if(idx < 0) return;
+
+  const b = bills[idx];
+  if(b.source !== "oneTime"){
+    alert("Due date edits are only allowed for one-time bills.");
+    return;
+  }
+
+  const next = prompt("New due date (YYYY-MM-DD):", b.date || "");
+  if(!next) return;
+
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(next)){
+    alert("Format must be YYYY-MM-DD.");
+    return;
+  }
+
+  const targetMonth = monthFromDate(next);
+  if(!targetMonth){
+    alert("Invalid date.");
+    return;
+  }
+
+  // Move bill if month changed
+  if(targetMonth !== month){
+    bills.splice(idx, 1);
+    setBills(month, bills);
+
+    ensureBillsForMonth(targetMonth);
+    const dest = getBills(targetMonth).map(normalizeBill);
+
+    b.date = next;
+    b.month = targetMonth;
+    b.phase = phaseFromDay(Number(next.slice(-2)) || 15);
+
+    dest.push(b);
+    dest.sort((a,c)=>(a.date||"").localeCompare(c.date||""));
+    setBills(targetMonth, dest);
+
+    const sel = document.getElementById("billsPageMonthSelect");
+    if(sel){
+      buildMonthOptions(sel);
+      sel.value = targetMonth;
+    }
+  } else {
+    b.date = next;
+    b.phase = phaseFromDay(Number(next.slice(-2)) || 15);
+    bills[idx] = b;
+    setBills(month, bills);
+  }
+
+  renderBillsPage();
+  renderHomeBills(getActiveMonth());
+  renderBillsAndPhaseTotals(getActiveMonth());
+}
+
+/* ===== END BILL ADJUSTMENT ACTIONS ===== */
+
+
 /* ===== END MONTHLY BILLS PAGE LOGIC ===== */
 
 function computeBillsTotals(month){
@@ -1797,9 +2056,12 @@ function computeBillsTotals(month){
   let p1Total = 0, p1Paid = 0;
   let p2Total = 0, p2Paid = 0;
 
-  bills.forEach(b => {
+    bills.forEach(b => {
+    if(b.suppressed) return;
+
     const amt = Number(b.amount) || 0;
     const isPaid = b.paid === true;
+
 
     // ALWAYS numeric 1/2
     let ph = Number(b.phase);
