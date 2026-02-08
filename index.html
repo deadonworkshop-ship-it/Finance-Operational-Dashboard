@@ -457,7 +457,17 @@ html, body { overflow-x: hidden; }
 
   <!-- ===== Debt Payments ===== -->
   <div class="card">
-    <div style="font-size:12px;color:#9aa7b6;margin-bottom:10px;">Debt Payments</div>
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px;">
+  <div style="font-size:12px;color:#9aa7b6;">Debt Payments</div>
+
+  <button id="debtShowAllBtn"
+          class="btn"
+          onclick="toggleDebtShowAll()"
+          style="margin-top:0; padding:10px 12px; font-size:12px; font-weight:900;">
+    SHOW ALL: OFF
+  </button>
+</div>
+
 
     <!-- Inline add form (hidden until you tap Add Debt Payment) -->
     <div id="debtForm" style="display:none; gap:10px; align-items:center; margin-bottom:12px; flex-wrap:wrap;">
@@ -479,6 +489,12 @@ html, body { overflow-x: hidden; }
       <button class="confirmBtn" onclick="addDebtPaymentFromForm()">ADD</button>
       <button class="cancelBtn" onclick="hideDebtForm()">CANCEL</button>
     </div>
+
+<div id="debtHangWarn"
+     onclick="revealHangingDebt()"
+     style="display:none; margin:10px 0 12px; padding:12px 12px; border-radius:12px; border:1px solid #3a2b12; background:rgba(255,180,70,0.12); color:#ffd7a1; font-weight:900; font-size:13px; line-height:1.25; cursor:pointer;">
+</div>
+
 
     <div class="list" id="debtList"></div>
   </div>
@@ -666,6 +682,97 @@ html, body { overflow-x: hidden; }
 </div>
 <!-- ===== END MONTHLY BILLS PAGE ===== -->
 
+<!-- ===== BEGIN BALANCE UPDATE MODAL ===== -->
+<div id="balBackdrop" onclick="closeBalanceModal()"
+     style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:90;"></div>
+
+<div id="balModal"
+     style="display:none; position:fixed; inset:0; z-index:100; padding:16px; align-items:center; justify-content:center;">
+  <div style="
+    width:100%;
+    max-width:420px;
+    background:#101722;
+    border:1px solid #1b2533;
+    border-radius:14px;
+    box-shadow:0 10px 30px rgba(0,0,0,.35);
+    overflow:hidden;
+  ">
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 16px; border-bottom:1px solid #1b2533;">
+      <div style="font-weight:900;">Update Current Balance</div>
+      <button class="cancelBtn" onclick="closeBalanceModal()" style="padding:10px 12px;">CLOSE</button>
+    </div>
+
+    <div style="padding:14px 16px;">
+      <div style="font-size:12px;color:#9aa7b6;margin-bottom:8px;">Enter your latest checking balance.</div>
+
+      <input id="balInput" type="text" inputmode="decimal"
+             placeholder="5195.91"
+             style="
+               width:100%;
+               padding:16px 14px;
+               border-radius:12px;
+               border:1px solid #1b2533;
+               background:#0b0f14;
+               color:#fff;
+               font-size:18px;
+               font-weight:800;
+               box-sizing:border-box;
+             " />
+
+      <div id="balErr" style="display:none; margin-top:10px; color:#ff5c5c; font-size:13px; font-weight:800;"></div>
+
+      <div style="display:flex; gap:10px; margin-top:14px;">
+        <button class="btn" onclick="saveBalanceFromModal()" style="flex:1; margin-top:0;">SAVE</button>
+        <button class="btn" onclick="closeBalanceModal()" style="flex:1; margin-top:0; border-color:#1b2533;">CANCEL</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ===== END BALANCE UPDATE MODAL ===== -->
+
+<!-- ===== BEGIN UNPOSTED DEBT MODAL ===== -->
+<div id="unpostedDebtBackdrop" onclick="closeUnpostedDebtModal()"
+     style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:90;"></div>
+
+<div id="unpostedDebtModal"
+     style="display:none; position:fixed; inset:0; z-index:100; padding:16px; align-items:center; justify-content:center;">
+  <div style="
+    width:100%;
+    max-width:520px;
+    background:#101722;
+    border:1px solid #1b2533;
+    border-radius:14px;
+    box-shadow:0 10px 30px rgba(0,0,0,.35);
+    overflow:hidden;
+  ">
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 16px; border-bottom:1px solid #1b2533;">
+      <div style="font-weight:900;">Unposted Debt Summary</div>
+      <button class="cancelBtn" onclick="closeUnpostedDebtModal()" style="padding:10px 12px;">CLOSE</button>
+    </div>
+
+    <div style="padding:14px 16px;">
+      <div style="font-size:12px;color:#9aa7b6;margin-bottom:10px;">
+        Review queued debt payments across months. Tap a month to jump.
+      </div>
+
+      <div id="unpostedDebtList"></div>
+
+      <div style="display:flex; gap:10px; margin-top:14px;">
+        <button class="btn" onclick="setDebtShowAll(true); syncDebtShowAllBtn(); loadDebtPayments(getActiveMonth()); updateHangingDebtWarning(getActiveMonth()); closeUnpostedDebtModal();"
+                style="flex:1; margin-top:0;">
+          SHOW ALL ON
+        </button>
+        <button class="btn" onclick="closeUnpostedDebtModal()"
+                style="flex:1; margin-top:0; border-color:#1b2533;">
+          DONE
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ===== END UNPOSTED DEBT MODAL ===== -->
+
+
 <!-- ===== BEGIN ONE-TIME BILL MODAL ===== -->
 <div id="otbBackdrop" onclick="closeOneTimeBillModal()"
      style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:90;"></div>
@@ -773,27 +880,50 @@ function initActiveMonthUI(){
 
   buildMonthOptions(sel);
 
-  sel.value = getActiveMonth();
+    sel.onchange = () => {
+    const prev = getActiveMonth();
+    const next = sel.value;
 
-  sel.onchange = () => {
-    const m = sel.value;
-    setActiveMonth(m);
-    updateCurrentPhaseLabel();
-
-    // Ensure month bills exist + refresh screens
-    ensureBillsForMonth(m);
-
-    renderHomeBills(m);
-          // updates menu list
-    renderBillsAndPhaseTotals(m);
-
-    // If Bills page is open, force it to that month too
-    const billsPageSel = document.getElementById("billsPageMonthSelect");
-    if(billsPageSel){
-      billsPageSel.value = m;
-      renderBillsPage();
+    // If SHOW ALL is OFF and switching would hide queued debt in other months, confirm
+    if(!getDebtShowAll()){
+      const hanging = countHangingDebtForMonth(next);
+      if(hanging > 0){
+        const ok = confirm(
+          `Heads up — you have ${hanging} queued debt payment${hanging===1?"":"s"} in other months.\n\nSwitch months anyway?`
+        );
+        if(!ok){
+          // revert dropdown selection
+          sel.value = prev;
+          return;
+        }
+      }
     }
+
+    applyActiveMonthChange(next);
   };
+
+}
+
+function applyActiveMonthChange(m){
+  setActiveMonth(m);
+  updateCurrentPhaseLabel();
+
+  // Ensure month bills exist + refresh screens
+  ensureBillsForMonth(m);
+
+  renderHomeBills(m);
+  loadDebtPayments(m);
+  updateHangingDebtWarning(m);
+
+  // updates menu list / totals
+  renderBillsAndPhaseTotals(m);
+
+  // If Bills page is open, force it to that month too
+  const billsPageSel = document.getElementById("billsPageMonthSelect");
+  if(billsPageSel){
+    billsPageSel.value = m;
+    renderBillsPage();
+  }
 }
 
 
@@ -1182,21 +1312,69 @@ function finalizeCurrencyInput(input){
 
 
 function updateBalance(){
-  let val = prompt("Enter new balance:");
-  if(!val) return;
+  openBalanceModal();
+}
 
-  // Allow user to type with or without $ and commas
-  const num = parseMoney(val);
+function openBalanceModal(){
+  const modal = document.getElementById("balModal");
+  const back  = document.getElementById("balBackdrop");
+  const input = document.getElementById("balInput");
+  const err   = document.getElementById("balErr");
+  if(!modal || !back || !input) return;
+
+  // Prefill with current value (no $ / commas)
+  const cur = parseMoney(document.getElementById("currentBalance")?.textContent || "$0");
+  input.value = String(cur.toFixed(2));
+
+  if(err){ err.style.display = "none"; err.textContent = ""; }
+
+  back.style.display = "block";
+  modal.style.display = "flex";
+
+  // Focus for quick entry (mobile friendly)
+  setTimeout(() => input.focus(), 0);
+}
+
+function closeBalanceModal(){
+  const modal = document.getElementById("balModal");
+  const back  = document.getElementById("balBackdrop");
+  if(back) back.style.display = "none";
+  if(modal) modal.style.display = "none";
+}
+
+function saveBalanceFromModal(){
+  const input = document.getElementById("balInput");
+  const err   = document.getElementById("balErr");
   const balEl = document.getElementById("currentBalance");
-  if(!balEl) return;
+  if(!input || !balEl) return;
 
+  const num = parseMoney(input.value);
+
+  if(!Number.isFinite(num)){
+    if(err){
+      err.textContent = "Please enter a valid number (example: 5195.91).";
+      err.style.display = "block";
+    }
+    return;
+  }
+
+  // Persist + update UI
+  setStoredBalance(num);
   balEl.textContent = fmtMoney(num);
 
+  // Update timestamps + status + derived fields
   setLastUpdatedNow();
   updateStaleIndicator();
   updateStatus();
 
+  // Recompute avail/should-have using your existing logic for the active month
+  const month = getActiveMonth();
+  ensureBillsForMonth(month);
+  renderHomeBills(month);
+
+  closeBalanceModal();
 }
+
 /* ===== BEGIN DEBT PAYMENTS (DROPDOWN + EDIT AMOUNT) ===== */
 
 // 1) Put your card list here (copy names from your spreadsheet)
@@ -1240,14 +1418,36 @@ function hideDebtForm(){
   if(amt) amt.value = "";
 }
 
-function loadDebtPayments(){
+function loadDebtPayments(month){
   const debtList = document.getElementById("debtList");
   if(!debtList) return;
 
+  const m = month || getActiveMonth();
+
   debtList.innerHTML = "";
-  const items = getDebtPayments();
+
+  const showAll = getDebtShowAll();
+
+  const items = getDebtPayments()
+    .filter(p => {
+      // If SHOW ALL is ON, include everything
+      if(showAll) return true;
+
+      // Otherwise month-scope
+      if(p && p.month) return p.month === m;
+
+      // Backward-compat: if an old entry lacks month, show it only for the active month
+      return m === getActiveMonth();
+    });
+
+  if(items.length === 0){
+    debtList.innerHTML = `<div style="padding:14px; color:#9aa7b6;">No queued debt payments for this month.</div>`;
+    return;
+  }
+
   items.forEach(p => debtList.appendChild(renderDebtPaymentRow(p)));
 }
+
 
 function renderDebtPaymentRow(p){
   const item = document.createElement("div");
@@ -1296,6 +1496,8 @@ const p = { id: Date.now(), name, amount: amt, month, postedDate };
 
   debtList.prepend(renderDebtPaymentRow(p));
   hideDebtForm();
+  updateHangingDebtWarning(getActiveMonth());
+
 
   if(document.getElementById("pageBills")?.style.display !== "none"){
     const m = document.getElementById("billsPageMonthSelect")?.value || currentMonthYYYYMM();
@@ -1406,6 +1608,9 @@ if(document.getElementById("pageBills")?.style.display !== "none"){
   renderBillsAndPhaseTotals(m);
 }
 
+  updateHangingDebtWarning(getActiveMonth());
+
+
   // Animate + remove row
   item.classList.add("removing");
   setTimeout(()=>{ item.remove(); },230);
@@ -1430,6 +1635,8 @@ function deleteDebtPayment(e, btn){
     const m = document.getElementById("billsPageMonthSelect")?.value || currentMonthYYYYMM();
     renderBillsAndPhaseTotals(m);
   }
+
+ updateHangingDebtWarning(getActiveMonth());
 
   // Remove UI row with same animation style
   item.classList.add("removing");
@@ -1701,6 +1908,210 @@ function renderDebtSnapshotList(){
 
 /* ===== BEGIN STALE BALANCE (UPDATED X AGO) ===== */
 const LAST_UPDATED_KEY = "bills_lastUpdatedMs";
+
+// ===== BEGIN PERSISTENT CURRENT BALANCE =====
+const BALANCE_KEY = "bills_currentBalance_v1";
+
+function getStoredBalance(){
+  const raw = localStorage.getItem(BALANCE_KEY);
+  const num = raw ? Number(raw) : NaN;
+  return Number.isFinite(num) ? num : NaN;
+}
+
+function setStoredBalance(num){
+  const n = Number(num);
+  localStorage.setItem(BALANCE_KEY, String(Number.isFinite(n) ? n : 0));
+}
+
+function loadStoredBalanceToUI(){
+  const balEl = document.getElementById("currentBalance");
+  if(!balEl) return;
+
+  const stored = getStoredBalance();
+
+  // If we have a stored number, trust it
+  if(Number.isFinite(stored)){
+    balEl.textContent = fmtMoney(stored);
+    return;
+  }
+
+  // Otherwise initialize storage from whatever is currently on-screen
+  const cur = parseMoney(balEl.textContent);
+  setStoredBalance(cur);
+  balEl.textContent = fmtMoney(cur);
+}
+// ===== END PERSISTENT CURRENT BALANCE =====
+
+// ===== BEGIN DEBT SHOW-ALL TOGGLE =====
+const DEBT_SHOW_ALL_KEY = "debt_showAll_v1";
+
+function getDebtShowAll(){
+  return localStorage.getItem(DEBT_SHOW_ALL_KEY) === "1";
+}
+
+function setDebtShowAll(on){
+  localStorage.setItem(DEBT_SHOW_ALL_KEY, on ? "1" : "0");
+}
+
+function syncDebtShowAllBtn(){
+  const btn = document.getElementById("debtShowAllBtn");
+  if(!btn) return;
+
+  const on = getDebtShowAll();
+  btn.textContent = on ? "SHOW ALL: ON" : "SHOW ALL: OFF";
+
+  // Optional: subtle visual cue without changing your global theme
+  btn.style.opacity = on ? "1" : "0.85";
+}
+
+function toggleDebtShowAll(){
+  const next = !getDebtShowAll();
+  setDebtShowAll(next);
+  syncDebtShowAllBtn();
+
+  // Refresh the queued debt list using the ACTIVE month (or all months if toggled)
+  loadDebtPayments(getActiveMonth());
+ updateHangingDebtWarning(getActiveMonth());
+
+}
+// ===== END DEBT SHOW-ALL TOGGLE =====
+
+function countHangingDebtForMonth(targetMonth){
+  const items = (typeof getDebtPayments === "function") ? getDebtPayments() : [];
+  const m = targetMonth || getActiveMonth();
+
+  // Hanging = queued items explicitly tagged to some OTHER month
+  return items.filter(p => p && p.month && p.month !== m).length;
+}
+
+
+// ===== BEGIN HANGING DEBT WARNING =====
+function updateHangingDebtWarning(activeMonth){
+  const warn = document.getElementById("debtHangWarn");
+  if(!warn) return;
+
+  const m = activeMonth || getActiveMonth();
+
+  // If SHOW ALL is ON, user can already see everything -> no warning needed
+  if(typeof getDebtShowAll === "function" && getDebtShowAll()){
+    warn.style.display = "none";
+    warn.textContent = "";
+    return;
+  }
+
+  const items = (typeof getDebtPayments === "function") ? getDebtPayments() : [];
+
+  // Count payments that are explicitly tagged to a different month
+  const hanging = items.filter(p => p && p.month && p.month !== m);
+
+  if(hanging.length === 0){
+    warn.style.display = "none";
+    warn.textContent = "";
+    return;
+  }
+
+  const n = hanging.length;
+  warn.textContent = `⚠️ You have ${n} queued debt payment${n===1?"":"s"} in other months. Turn on SHOW ALL to review.`;
+  warn.style.display = "block";
+}
+// ===== END HANGING DEBT WARNING =====
+
+function revealHangingDebt(){
+  // If already showing all, open the summary modal instead (nice UX)
+  if(getDebtShowAll()){
+    openUnpostedDebtModal();
+    return;
+  }
+
+  // Turn SHOW ALL on and refresh list
+  setDebtShowAll(true);
+  syncDebtShowAllBtn();
+  loadDebtPayments(getActiveMonth());
+  updateHangingDebtWarning(getActiveMonth());
+}
+
+function openUnpostedDebtModal(){
+  const modal = document.getElementById("unpostedDebtModal");
+  const back  = document.getElementById("unpostedDebtBackdrop");
+  if(!modal || !back) return;
+
+  renderUnpostedDebtList();
+
+  back.style.display = "block";
+  modal.style.display = "flex";
+}
+
+function closeUnpostedDebtModal(){
+  const modal = document.getElementById("unpostedDebtModal");
+  const back  = document.getElementById("unpostedDebtBackdrop");
+  if(back) back.style.display = "none";
+  if(modal) modal.style.display = "none";
+}
+
+function renderUnpostedDebtList(){
+  const host = document.getElementById("unpostedDebtList");
+  if(!host) return;
+
+  const items = (typeof getDebtPayments === "function") ? getDebtPayments() : [];
+  if(items.length === 0){
+    host.innerHTML = `<div style="padding:12px; color:#9aa7b6;">No queued debt payments.</div>`;
+    return;
+  }
+
+  // Group by month
+  const groups = {};
+  for(const p of items){
+    const m = (p && p.month) ? p.month : "Unassigned";
+    if(!groups[m]) groups[m] = [];
+    groups[m].push(p);
+  }
+
+  const months = Object.keys(groups).sort(); // YYYY-MM sorts naturally
+  const active = getActiveMonth();
+
+  host.innerHTML = months.map(m => {
+    const arr = groups[m];
+    const total = arr.reduce((s, x) => s + Math.max(0, Number(x.amount || 0)), 0);
+    const isActive = (m === active);
+
+    const rows = arr.map(p => `
+      <div style="display:flex; justify-content:space-between; gap:10px; padding:10px 0; border-top:1px solid #1b2533;">
+        <div style="min-width:0;">
+          <div style="font-weight:900; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(p.name || "Debt")}</div>
+          <div style="font-size:12px; color:#9aa7b6;">${escapeHtml(p.postedDate || "")}</div>
+        </div>
+        <div style="font-weight:900;">${fmtMoney(Number(p.amount||0))}</div>
+      </div>
+    `).join("");
+
+    const jumpBtn = (m !== "Unassigned")
+      ? `<button class="btn" onclick="jumpToDebtMonth('${m}')" style="margin-top:0; padding:10px 12px; font-size:12px; font-weight:900;">${isActive ? "ACTIVE" : "GO"}</button>`
+      : "";
+
+    return `
+      <div style="border:1px solid #1b2533; border-radius:12px; margin-bottom:12px; overflow:hidden;">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; padding:12px; background:rgba(255,255,255,0.02);">
+          <div>
+            <div style="font-weight:900;">${m}${isActive ? " (Active)" : ""}</div>
+            <div style="font-size:12px; color:#9aa7b6;">${arr.length} item${arr.length===1?"":"s"} • Total ${fmtMoney(total)}</div>
+          </div>
+          ${jumpBtn}
+        </div>
+        <div style="padding:0 12px 12px;">${rows}</div>
+      </div>
+    `;
+  }).join("");
+}
+
+function jumpToDebtMonth(m){
+  const sel = document.getElementById("activeMonthSelect");
+  if(sel) sel.value = m;
+  applyActiveMonthChange(m);
+  closeUnpostedDebtModal();
+}
+
+
+
 const STALE_HOURS = 6; // change this if you want (e.g., 12)
 
 function setLastUpdatedNow(){
@@ -1888,15 +2299,13 @@ function initBillsPage(){
 
   // Change handler
   sel.onchange = () => {
-    const m = sel.value;
-    setActiveMonth(m);
+  const m = sel.value;
 
-    ensureBillsForMonth(m);
+  ensureBillsForMonth(m);
+  renderBillsAndPhaseTotals(m);
+  renderBillsPage();
+};
 
-    renderHomeBills(m);
-    renderBillsAndPhaseTotals(m);
-    renderBillsPage();
-  };
 
   // Initial render
   renderBillsPage();
@@ -2038,12 +2447,13 @@ function onBillPaidToggle(billIdVal, month, checked){
 
   setBills(month, bills);
 
-  // Update cockpit numbers
-  applyBillDelta(amt, checked);
-
   // Refresh views
   renderBillsPage();
-  renderHomeBills(month);
+
+  // Recompute cockpit from source-of-truth for the ACTIVE month
+  const active = getActiveMonth();
+  ensureBillsForMonth(active);
+  renderHomeBills(active);
   
 }
 
@@ -2059,25 +2469,23 @@ function onBillPaidDateChange(billIdVal, month, dateVal){
   if(dateVal){
     bills[idx].paidAt = dateVal;
     bills[idx].paid = true;
-
-    // If it was unpaid and now becomes paid, update cockpit
-    if(!prevPaid){
-      applyBillDelta(amt, true);
-    }
+    
   } else {
     // Date cleared via picker (rare). Treat as unpaid.
     bills[idx].paidAt = null;
     bills[idx].paid = false;
-
-    if(prevPaid){
-      applyBillDelta(amt, false);
-    }
+  
   }
 
   setBills(month, bills);
 
   renderBillsPage();
-  renderHomeBills(month);
+
+  // Recompute cockpit from source-of-truth for the ACTIVE month
+  const active = getActiveMonth();
+  ensureBillsForMonth(active);
+  renderHomeBills(active);
+
   
 }
 
@@ -2095,12 +2503,13 @@ function clearBillPaidDate(e, billIdVal, month){
   bills[idx].paid = false;
   setBills(month, bills);
 
-  if(wasPaid){
-    applyBillDelta(amt, false);
-  }
-
   renderBillsPage();
-  renderHomeBills(month);
+
+  // Recompute cockpit from source-of-truth for the ACTIVE month
+  const active = getActiveMonth();
+  ensureBillsForMonth(active);
+  renderHomeBills(active);
+
   
 }
 
@@ -2313,10 +2722,21 @@ function computeBillsTotals(month){
 }
 
 
-function computeDebtQueuedTotal(){
+function computeDebtQueuedTotal(month){
   const items = getDebtPayments ? getDebtPayments() : [];
-  return items.reduce((sum, p) => sum + Math.max(0, Number(p.amount || 0)), 0);
+  const m = month || getActiveMonth();
+
+  return items
+    .filter(p => {
+      // Prefer explicit month tagging
+      if(p && p.month) return p.month === m;
+
+      // Backward-compat: if an old entry lacks month, count it ONLY for the active month
+      return m === getActiveMonth();
+    })
+    .reduce((sum, p) => sum + Math.max(0, Number(p.amount || 0)), 0);
 }
+
 
 function renderBillsAndPhaseTotals(month){
   if(!month) month = currentMonthYYYYMM();
@@ -2324,7 +2744,7 @@ function renderBillsAndPhaseTotals(month){
   const t = computeBillsTotals(month);
 
   // Debt queued total (from your debt payments list)
-  const debtQueued = computeDebtQueuedTotal();
+  const debtQueued = computeDebtQueuedTotal(month);
 
   // Month unpaid + (optional) queued debt
   const monthUnpaid = Number(t.unpaid) || 0;
@@ -2564,7 +2984,10 @@ function flipActivePhase(){
 
 document.addEventListener("DOMContentLoaded", () => {
   initDebtDropdown();
-  loadDebtPayments();
+  loadDebtPayments(getActiveMonth());
+     syncDebtShowAllBtn();
+  updateHangingDebtWarning(getActiveMonth());
+
 
   // Ensure prev/current/next exist in storage BEFORE building month dropdowns
   const cur = currentMonthYYYYMM();
@@ -2576,6 +2999,8 @@ document.addEventListener("DOMContentLoaded", () => {
   if(!Number.isFinite(getLastUpdatedMs())){
     setLastUpdatedNow();
   }
+
+loadStoredBalanceToUI();
 
   updateStatus();
   updateStaleIndicator();
