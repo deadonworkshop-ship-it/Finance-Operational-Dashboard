@@ -195,3 +195,41 @@ Open that URL on iPhone Safari, then tap **Share → Add to Home Screen**.
 
 ## Native iPhone app path (next)
 When you're ready, wrap this with Capacitor to ship as a real iOS app for yourself while reusing the existing UI/business logic.
+
+
+## If GitHub says this PR has conflicts
+If you see **"This branch has conflicts that must be resolved"**, it usually means `main` changed after this branch was created.
+
+### Option A (recommended): update your branch locally
+From this repo folder:
+
+```bash
+git checkout work
+# if your default branch is main, use main; if master, use master
+git merge main
+```
+
+If Git reports conflicts, open each conflicted file and look for markers like:
+
+```text
+<<<<<<< HEAD
+...your branch...
+=======
+...main branch...
+>>>>>>> main
+```
+
+Keep the content you want, remove the markers, then run:
+
+```bash
+git add .
+git commit -m "Resolve merge conflicts with main"
+```
+
+Push the branch again and GitHub will re-check mergeability.
+
+### Option B: use GitHub conflict editor
+On the PR page, click **Resolve conflicts**, edit the file in-browser, then mark as resolved and commit.
+
+---
+
