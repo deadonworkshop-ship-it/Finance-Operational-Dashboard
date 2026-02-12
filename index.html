@@ -2,11 +2,22 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0b0f14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BillsOps">
 <title>Bills Checking Ops</title>
 <link rel="manifest" href="manifest.json">
 <style>
-body{margin:0;font-family:-apple-system,system-ui;background:#0b0f14;color:#fff;}
+body{
+  margin:0;
+  font-family:-apple-system,system-ui;
+  background:#0b0f14;
+  color:#fff;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
 
 .btn{
   border:1px solid #2aa6ff;
@@ -255,6 +266,36 @@ html, body { overflow-x: hidden; }
 }
 /* ===== END MONTHLY BILLS PAGE STYLES ===== */
 
+
+/* ===== QUICK INCOME FORM ===== */
+#quickIncomeForm select,
+#quickIncomeForm input{
+  font-size:16px;
+}
+
+@media (max-width: 520px){
+  #quickIncomeForm{
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #quickIncomeForm select,
+  #quickIncomeForm input,
+  #quickIncomeForm .confirmBtn,
+  #quickIncomeForm .cancelBtn{
+    width:100% !important;
+    min-width:0 !important;
+    box-sizing:border-box;
+    font-size:16px;
+  }
+
+  #plannerPage input,
+  #plannerPage select,
+  #plannerPage textarea{
+    font-size:16px !important;
+  }
+}
+
 /* ===== BILL PAID TOGGLE BUTTON ===== */
 .billPaidBtn{
   min-width: 120px;
@@ -351,6 +392,7 @@ html, body { overflow-x: hidden; }
 
 </head>
 <body>
+<div id="fatalErrorBanner" style="display:none; margin:12px; padding:12px; border:1px solid #5a1f1f; background:rgba(180,40,40,0.2); color:#ffd7d7; border-radius:10px; font-size:13px; line-height:1.3;"></div>
 <div class="header">
   <div class="menu" id="menuBtn" onclick="toggleMenu()">☰</div>
   <div>Ryan's Finance Dashboard</div>
@@ -384,6 +426,9 @@ html, body { overflow-x: hidden; }
     <div class="item" style="cursor:pointer;" onclick="navigateTo('bills')">
       <div>Monthly Bills</div><div>›</div>
     </div>
+    <div class="item" style="cursor:pointer;" onclick="navigateTo('planner')">
+      <div>Financial Planner</div><div>›</div>
+    </div>
   </div>
 </div>
 
@@ -403,6 +448,7 @@ html, body { overflow-x: hidden; }
   <div id="currentPhaseValue"
        style="margin-top:4px; font-size:18px; font-weight:800; color:#fff;">
   </div>
+  <div style="font-size:12px;color:#9aa7b6;margin-top:4px;">Auto: Phase 1 on days 1–15, Phase 2 on days 16–31</div>
 
 </div>
 
@@ -451,7 +497,23 @@ html, body { overflow-x: hidden; }
 
     <button class="btn" onclick="showDebtForm()">Add Debt Payment</button>
     <button class="btn" onclick="openOneTimeBillModal()">Add One-Time Bill</button>
-    <button class="btn" onclick="toggleBillsEditMode()">Edit Bills</button>
+    <button class="btn" onclick="showQuickIncomeForm()">Add Income</button>
+
+    <div id="quickIncomeForm" style="display:none; gap:10px; align-items:center; margin-top:12px; flex-wrap:wrap;">
+      <select id="quickIncomeSourceSelect" onchange="onQuickIncomeSourceChange()" style="flex:2; min-width:220px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;">
+        <option value="USAF">USAF</option>
+        <option value="UC Health">UC Health</option>
+        <option value="United">United</option>
+        <option value="FastCap">FastCap</option>
+        <option value="Miscellaneous">Miscellaneous</option>
+      </select>
+      <input id="quickIncomeSourceMiscInput" placeholder="Custom source (for Miscellaneous)" style="display:none; flex:2; min-width:220px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
+      <input id="quickIncomeGrossInput" inputmode="decimal" placeholder="Gross" oninput="autoFormatCurrencyInput(this)" onblur="finalizeCurrencyInput(this)" style="width:140px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
+      <input id="quickIncomeTaxInput" inputmode="decimal" placeholder="Taxes" oninput="autoFormatCurrencyInput(this)" onblur="finalizeCurrencyInput(this)" style="width:140px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
+      <input id="quickIncomeDateInput" type="date" style="width:170px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
+      <button class="confirmBtn" onclick="addQuickIncomeEntry()">ADD</button>
+      <button class="cancelBtn" onclick="hideQuickIncomeForm()">CANCEL</button>
+    </div>
 
   </div>
 
@@ -681,6 +743,80 @@ html, body { overflow-x: hidden; }
 
 </div>
 <!-- ===== END MONTHLY BILLS PAGE ===== -->
+
+<!-- ===== BEGIN FINANCIAL PLANNER PAGE ===== -->
+<div class="container page" id="pagePlanner" style="display:none;">
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+      <div style="font-weight:800;">Financial Planner</div>
+      <button class="cancelBtn" onclick="navigateTo('home')" style="width:auto; padding:10px 12px;">BACK</button>
+    </div>
+    <div style="font-size:12px;color:#9aa7b6;margin-top:8px;">Track income, taxes, investments, and major upcoming expenses.</div>
+  </div>
+
+  <div class="card">
+    <div style="font-size:12px;color:#9aa7b6;margin-bottom:10px;">MONTHLY OVERVIEW</div>
+    <div style="display:flex; gap:10px; align-items:center;">
+      <select id="plannerMonthSelect" style="flex:1; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;"></select>
+      <button class="confirmBtn" onclick="renderPlanner()" style="width:auto;">VIEW</button>
+    </div>
+    <div class="row"><div>GROSS INCOME</div><div id="plannerGrossIncome">$0</div></div>
+    <div class="row"><div>TAXES WITHHELD</div><div id="plannerTaxesWithheld">$0</div></div>
+    <div class="row"><div>NET INCOME</div><div id="plannerNetIncome">$0</div></div>
+    <div class="row"><div>BILLS TOTAL</div><div id="plannerBillsTotal">$0</div></div>
+    <div class="row"><div>DEBT PAYMENTS POSTED</div><div id="plannerDebtPosted">$0</div></div>
+    <div class="row"><div>MAJOR EXPENSES (MONTH)</div><div id="plannerMajorExpenseTotal">$0</div></div>
+    <div class="row"><div style="font-weight:900;">EST. LEFT AFTER PLAN</div><div id="plannerOperationalLeft" style="font-weight:900;">$0</div></div>
+  </div>
+
+  <div class="card">
+    <div style="font-size:12px;color:#9aa7b6;margin-bottom:10px;">INCOME + TAXES (MONTHLY)</div>
+    <div id="incomeForm" style="display:flex; gap:10px; align-items:center; margin-bottom:12px; flex-wrap:wrap;">
+      <input id="incomeSourceInput" placeholder="Income source" style="flex:2; min-width:220px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
+      <input id="incomeGrossInput" inputmode="decimal" placeholder="Gross" oninput="autoFormatCurrencyInput(this)" onblur="finalizeCurrencyInput(this)" style="width:140px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
+      <input id="incomeTaxInput" inputmode="decimal" placeholder="Taxes" oninput="autoFormatCurrencyInput(this)" onblur="finalizeCurrencyInput(this)" style="width:140px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
+      <input id="incomeDateInput" type="date" style="width:170px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
+      <button class="confirmBtn" onclick="addIncomeEntry()" style="width:auto;">ADD</button>
+    </div>
+
+    <div style="font-size:12px;color:#9aa7b6;margin:8px 0;">Bulk import rows (Income, Amount, Date). Supports tab-delimited spreadsheet paste.</div>
+    <textarea id="incomeBulkInput" placeholder="VA	$2,150.45	1/28/2026" style="width:100%; min-height:110px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:12px; box-sizing:border-box;"></textarea>
+    <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
+      <button class="confirmBtn" onclick="importIncomeRowsFromText()" style="width:auto;">IMPORT PASTED INCOME</button>
+      <button class="cancelBtn" onclick="clearIncomeBulkInput()" style="width:auto;">CLEAR</button>
+      <button class="btnSmall" onclick="loadProvidedIncomeSample()" style="width:auto;">LOAD PROVIDED SAMPLE</button>
+    </div>
+
+    <div class="list" id="incomeList" style="margin-top:12px;"></div>
+  </div>
+
+  <div class="card">
+    <div style="font-size:12px;color:#9aa7b6;margin-bottom:10px;">INVESTMENT BALANCES</div>
+    <div id="investmentForm" style="display:flex; gap:10px; align-items:center; margin-bottom:12px; flex-wrap:wrap;">
+      <select id="investmentAccountSelect" style="flex:2; min-width:220px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;"></select>
+      <input id="investmentAmountInput" inputmode="decimal" placeholder="Balance" oninput="autoFormatCurrencyInput(this)" onblur="finalizeCurrencyInput(this)" style="width:160px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
+      <button class="confirmBtn" onclick="addInvestmentEntry()" style="width:auto;">UPDATE BALANCE</button>
+    </div>
+    <div style="display:flex; gap:10px; align-items:center; margin-bottom:12px; flex-wrap:wrap;">
+      <input id="investmentNewAccountInput" placeholder="Add account (optional)" style="flex:2; min-width:220px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
+      <button class="btnSmall" onclick="addInvestmentAccount()" style="width:auto;">ADD ACCOUNT</button>
+    </div>
+    <div class="row"><div>TOTAL INVESTMENTS</div><div id="investmentTotal">$0</div></div>
+    <div class="list" id="investmentList"></div>
+  </div>
+
+  <div class="card">
+    <div style="font-size:12px;color:#9aa7b6;margin-bottom:10px;">UPCOMING MAJOR EXPENSES</div>
+    <div id="majorExpenseForm" style="display:flex; gap:10px; align-items:center; margin-bottom:12px; flex-wrap:wrap;">
+      <input id="majorExpenseNameInput" placeholder="Expense name" style="flex:2; min-width:220px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
+      <input id="majorExpenseAmountInput" inputmode="decimal" placeholder="Amount" oninput="autoFormatCurrencyInput(this)" onblur="finalizeCurrencyInput(this)" style="width:140px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
+      <input id="majorExpenseDueInput" type="date" style="width:170px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
+      <button class="confirmBtn" onclick="addMajorExpenseEntry()" style="width:auto;">ADD</button>
+    </div>
+    <div class="list" id="majorExpenseList"></div>
+  </div>
+</div>
+<!-- ===== END FINANCIAL PLANNER PAGE ===== -->
 
 <!-- ===== BEGIN BALANCE UPDATE MODAL ===== -->
 <div id="balBackdrop" onclick="closeBalanceModal()"
@@ -1394,6 +1530,83 @@ const DEBT_ACCOUNTS = [
 
 
 /* ===== BEGIN DEBT PAYMENTS (PERSISTENT) ===== */
+
+
+function showQuickIncomeForm(){
+  const form = document.getElementById("quickIncomeForm");
+  if(!form) return;
+  form.style.display = "flex";
+
+  const dateInput = document.getElementById("quickIncomeDateInput");
+  if(dateInput && !dateInput.value){
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    dateInput.value = `${yyyy}-${mm}-${dd}`;
+  }
+
+  onQuickIncomeSourceChange();
+}
+
+function hideQuickIncomeForm(){
+  const form = document.getElementById("quickIncomeForm");
+  if(form) form.style.display = "none";
+
+  const sourceSelect = document.getElementById("quickIncomeSourceSelect");
+  const miscInput = document.getElementById("quickIncomeSourceMiscInput");
+  const grossInput = document.getElementById("quickIncomeGrossInput");
+  const taxInput = document.getElementById("quickIncomeTaxInput");
+  const dateInput = document.getElementById("quickIncomeDateInput");
+
+  if(sourceSelect) sourceSelect.value = "USAF";
+  if(miscInput){ miscInput.value = ""; miscInput.style.display = "none"; }
+  if(grossInput) grossInput.value = "";
+  if(taxInput) taxInput.value = "";
+  if(dateInput) dateInput.value = "";
+}
+
+function onQuickIncomeSourceChange(){
+  const sourceSelect = document.getElementById("quickIncomeSourceSelect");
+  const miscInput = document.getElementById("quickIncomeSourceMiscInput");
+  if(!sourceSelect || !miscInput) return;
+
+  const useMisc = sourceSelect.value === "Miscellaneous";
+  miscInput.style.display = useMisc ? "block" : "none";
+}
+
+function addQuickIncomeEntry(){
+  const sourceSelect = document.getElementById("quickIncomeSourceSelect");
+  const miscInput = document.getElementById("quickIncomeSourceMiscInput");
+  const grossInput = document.getElementById("quickIncomeGrossInput");
+  const taxInput = document.getElementById("quickIncomeTaxInput");
+  const dateInput = document.getElementById("quickIncomeDateInput");
+
+  if(!sourceSelect || !grossInput || !taxInput || !dateInput) return;
+
+  const selectedSource = String(sourceSelect.value || "").trim();
+  const source = selectedSource === "Miscellaneous"
+    ? String(miscInput?.value || "").trim()
+    : selectedSource;
+
+  const gross = parseMoney(grossInput.value || "");
+  const taxes = parseMoney(taxInput.value || "");
+  const date = normalizeIncomeDate(dateInput.value || "");
+
+  if(!source) return alert("Income source is required.");
+  if(!(gross > 0)) return alert("Gross income must be greater than 0.");
+  if(taxes < 0) return alert("Taxes withheld cannot be negative.");
+
+  const month = date ? monthFromDate(date) : getActiveMonth();
+  const items = getIncomeEntries();
+  items.unshift({ id: Date.now(), month, source, gross, taxes, date });
+  setIncomeEntries(items);
+
+  hideQuickIncomeForm();
+  renderPlanner();
+  updateStatus();
+  alert("Income added.");
+}
 
 function showDebtForm(){
   const form = document.getElementById("debtForm");
@@ -2207,6 +2420,12 @@ if(dest === "bills"){
   return;
   }
 
+  if(dest === "planner"){
+    showPage("pagePlanner");
+    initPlannerPage();
+    return;
+  }
+
 }
 /* ===== END NAVIGATION ===== */
 
@@ -2982,44 +3201,492 @@ function flipActivePhase(){
 }
 
 
-document.addEventListener("DOMContentLoaded", () => {
-  initDebtDropdown();
-  loadDebtPayments(getActiveMonth());
-     syncDebtShowAllBtn();
-  updateHangingDebtWarning(getActiveMonth());
 
+/* ===== BEGIN FINANCIAL PLANNER MODEL ===== */
+const INCOME_ENTRIES_KEY = "income_entries_v1";
+const INVESTMENT_ENTRIES_KEY = "investment_entries_v1";
+const INVESTMENT_ACCOUNTS_KEY = "investment_accounts_v1";
+const MAJOR_EXPENSES_KEY = "major_expenses_v1";
 
-  // Ensure prev/current/next exist in storage BEFORE building month dropdowns
-  const cur = currentMonthYYYYMM();
-  [shiftMonth(cur, -1), cur, shiftMonth(cur, 1)].forEach(m => ensureBillsForMonth(m));
+const DEFAULT_INVESTMENT_ACCOUNTS = [
+  "TSP",
+  "Ryan Roth IRA - Decade Perspective",
+  "Ashley Schwab Roth IRA",
+  "Ashley Schwab Rollover IRA",
+  "Ryan Schwab Brokerage",
+  "Ryan Schwab Brokerage 2",
+  "Ryan PCRA Trust - Bonfire",
+  "UC Health Fidelity",
+  "Ashley Old IRA",
+  "Robinhood"
+];
 
-  initActiveMonthUI();
-  updateCurrentPhaseLabel();
+function getIncomeEntries(){
+  try { return JSON.parse(localStorage.getItem(INCOME_ENTRIES_KEY) || "[]"); }
+  catch { return []; }
+}
+function setIncomeEntries(arr){ localStorage.setItem(INCOME_ENTRIES_KEY, JSON.stringify(arr||[])); }
 
-  if(!Number.isFinite(getLastUpdatedMs())){
-    setLastUpdatedNow();
+function getInvestmentEntries(){
+  try { return JSON.parse(localStorage.getItem(INVESTMENT_ENTRIES_KEY) || "[]"); }
+  catch { return []; }
+}
+function setInvestmentEntries(arr){ localStorage.setItem(INVESTMENT_ENTRIES_KEY, JSON.stringify(arr||[])); }
+
+function normalizeInvestmentAccountName(name){
+  return String(name || "").trim();
+}
+
+function getInvestmentAccounts(){
+  try {
+    const saved = JSON.parse(localStorage.getItem(INVESTMENT_ACCOUNTS_KEY) || "[]");
+    const set = new Set(
+      Array.isArray(saved)
+        ? saved.map(normalizeInvestmentAccountName).filter(Boolean)
+        : []
+    );
+    if(set.size === 0){
+      DEFAULT_INVESTMENT_ACCOUNTS.forEach(x => set.add(x));
+      getInvestmentEntries().forEach(x => {
+        const n = normalizeInvestmentAccountName(x.name);
+        if(n) set.add(n);
+      });
+      const arr = Array.from(set).sort((a,b)=> a.localeCompare(b));
+      localStorage.setItem(INVESTMENT_ACCOUNTS_KEY, JSON.stringify(arr));
+      return arr;
+    }
+    return Array.from(set).sort((a,b)=> a.localeCompare(b));
+  } catch {
+    return DEFAULT_INVESTMENT_ACCOUNTS.slice().sort((a,b)=> a.localeCompare(b));
+  }
+}
+
+function setInvestmentAccounts(arr){
+  const out = Array.from(new Set((arr||[]).map(normalizeInvestmentAccountName).filter(Boolean)))
+    .sort((a,b)=> a.localeCompare(b));
+  localStorage.setItem(INVESTMENT_ACCOUNTS_KEY, JSON.stringify(out));
+}
+
+function renderInvestmentAccountSelect(preferred){
+  const select = document.getElementById("investmentAccountSelect");
+  if(!select) return;
+
+  const accounts = getInvestmentAccounts();
+  select.innerHTML = "";
+  if(accounts.length === 0){
+    const o = document.createElement("option");
+    o.value = "";
+    o.textContent = "No accounts yet";
+    select.appendChild(o);
+    return;
   }
 
-loadStoredBalanceToUI();
+  accounts.forEach(name => {
+    const o = document.createElement("option");
+    o.value = name;
+    o.textContent = name;
+    select.appendChild(o);
+  });
 
-  updateStatus();
-  updateStaleIndicator();
-  setInterval(updateStaleIndicator, 60000);
+  const target = normalizeInvestmentAccountName(preferred);
+  if(target && accounts.includes(target)) select.value = target;
+}
 
-  // Bills: persist + render from storage
-  const month = getActiveMonth();
-  ensureBillsForMonth(month);
-  renderHomeBills(month);
-  renderBillsAndPhaseTotals(month);
- // LEGACY: remove after old localStorage data ages out
-  restoreCarPaymentLabels();
+function addInvestmentAccount(){
+  const input = document.getElementById("investmentNewAccountInput");
+  const name = normalizeInvestmentAccountName(input?.value || "");
+  if(!name) return alert("Enter an investment account name to add.");
 
-
-  // If we load directly onto the Debt page, initialize snapshot
-  if(document.getElementById("pageDebt")?.style.display !== "none"){
-    initDebtSnapshot();
+  const accounts = getInvestmentAccounts();
+  if(accounts.includes(name)){
+    if(input) input.value = "";
+    renderInvestmentAccountSelect(name);
+    return alert("That investment account already exists.");
   }
+
+  accounts.push(name);
+  setInvestmentAccounts(accounts);
+  if(input) input.value = "";
+  renderInvestmentAccountSelect(name);
+  renderPlanner();
+}
+
+function getMajorExpenses(){
+  try { return JSON.parse(localStorage.getItem(MAJOR_EXPENSES_KEY) || "[]"); }
+  catch { return []; }
+}
+function setMajorExpenses(arr){ localStorage.setItem(MAJOR_EXPENSES_KEY, JSON.stringify(arr||[])); }
+
+function plannerMonth(){
+  return document.getElementById("plannerMonthSelect")?.value || getActiveMonth();
+}
+
+function normalizeIncomeDate(raw){
+  const str = String(raw || "").trim();
+  if(!str) return "";
+
+  if(/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+
+  const mdY = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(mdY){
+    const mm = String(Number(mdY[1])).padStart(2, "0");
+    const dd = String(Number(mdY[2])).padStart(2, "0");
+    return `${mdY[3]}-${mm}-${dd}`;
+  }
+
+  return "";
+}
+
+function clearIncomeBulkInput(){
+  const el = document.getElementById("incomeBulkInput");
+  if(el) el.value = "";
+}
+
+function loadProvidedIncomeSample(){
+  const el = document.getElementById("incomeBulkInput");
+  if(!el) return;
+
+  el.value = [
+    "VA	$2,150.45	1/28/2026",
+    "United	$5,006.83	1/28/2026",
+    "USAF	$825.17	2/4/2026",
+    "USAF	$244.36	2/4/2026",
+    "UC Health	$2,724.41	2/6/2026",
+    "FastCap	$151.39	2/7/2026",
+    "USAF	$825.17	2/9/2026",
+    "FastCap	$184.20	2/10/2026",
+    "United	$9,098.98",
+    "UC Health	$2,600.00",
+    "USAF	$248.96"
+  ].join("\n");
+}
+
+function importIncomeRowsFromText(){
+  const bulk = document.getElementById("incomeBulkInput");
+  if(!bulk) return;
+
+  const lines = String(bulk.value || "").split(/\r?\n/).map(x => x.trim()).filter(Boolean);
+  if(lines.length === 0) return alert("Paste income rows first.");
+
+  const fallbackMonth = plannerMonth();
+  const parsed = [];
+  let skipped = 0;
+
+  lines.forEach((line, idx) => {
+    const lower = line.toLowerCase();
+    if(lower.startsWith("income") || lower.startsWith("total income")){
+      skipped += 1;
+      return;
+    }
+
+    let cols = line.split("	").map(x => x.trim()).filter(Boolean);
+    if(cols.length < 2){
+      cols = line.split(/\s{2,}/).map(x => x.trim()).filter(Boolean);
+    }
+
+    if(cols.length < 2){ skipped += 1; return; }
+
+    const source = String(cols[0] || "").trim();
+    const gross = parseMoney(cols[1] || "");
+    const rawDate = cols[2] || "";
+    const date = normalizeIncomeDate(rawDate);
+
+    if(!source || /^total\s+income$/i.test(source) || !(gross > 0)){
+      skipped += 1;
+      return;
+    }
+
+    const month = date ? monthFromDate(date) : fallbackMonth;
+
+    parsed.push({
+      id: Date.now() + idx,
+      month,
+      source,
+      gross,
+      taxes: 0,
+      date
+    });
+  });
+
+  if(parsed.length === 0){
+    return alert("No valid income rows found. Expected: Source, Amount, Date.");
+  }
+
+  const existing = getIncomeEntries();
+  setIncomeEntries(parsed.reverse().concat(existing));
+  bulk.value = "";
+  renderPlanner();
+  alert(`Imported ${parsed.length} income rows${skipped ? ` (${skipped} skipped)` : ""}.`);
+}
+
+function addIncomeEntry(){
+  const source = (document.getElementById("incomeSourceInput")?.value || "").trim();
+  const gross = parseMoney(document.getElementById("incomeGrossInput")?.value || "");
+  const taxes = parseMoney(document.getElementById("incomeTaxInput")?.value || "");
+  const dateRaw = document.getElementById("incomeDateInput")?.value || "";
+  const date = normalizeIncomeDate(dateRaw);
+  const month = date ? monthFromDate(date) : plannerMonth();
+  if(!source) return alert("Income source is required.");
+  if(!(gross > 0)) return alert("Gross income must be greater than 0.");
+  if(taxes < 0) return alert("Taxes withheld cannot be negative.");
+
+  const items = getIncomeEntries();
+  items.unshift({ id: Date.now(), month, source, gross, taxes, date });
+  setIncomeEntries(items);
+
+  document.getElementById("incomeSourceInput").value = "";
+  document.getElementById("incomeGrossInput").value = "";
+  document.getElementById("incomeTaxInput").value = "";
+  const d = document.getElementById("incomeDateInput");
+  if(d) d.value = "";
+  renderPlanner();
+}
+
+function addInvestmentEntry(){
+  const select = document.getElementById("investmentAccountSelect");
+  const name = normalizeInvestmentAccountName(select?.value || "");
+  const amount = parseMoney(document.getElementById("investmentAmountInput")?.value || "");
+  if(!name) return alert("Choose an investment account first.");
+  if(amount < 0) return alert("Investment balance cannot be negative.");
+
+  const accounts = getInvestmentAccounts();
+  if(!accounts.includes(name)){
+    accounts.push(name);
+    setInvestmentAccounts(accounts);
+  }
+
+  const items = getInvestmentEntries();
+  const id = Date.now();
+  items.unshift({ id, name, amount, updatedAt: Date.now() });
+  setInvestmentEntries(items);
+
+  document.getElementById("investmentAmountInput").value = "";
+  renderInvestmentAccountSelect(name);
+  renderPlanner();
+}
+
+function addMajorExpenseEntry(){
+  const name = (document.getElementById("majorExpenseNameInput")?.value || "").trim();
+  const amount = parseMoney(document.getElementById("majorExpenseAmountInput")?.value || "");
+  const dueDate = document.getElementById("majorExpenseDueInput")?.value || "";
+  if(!name) return alert("Expense name is required.");
+  if(!(amount > 0)) return alert("Expense amount must be greater than 0.");
+  if(!dueDate) return alert("A due date is required.");
+
+  const items = getMajorExpenses();
+  items.unshift({ id: Date.now(), name, amount, dueDate, month: monthFromDate(dueDate) });
+  setMajorExpenses(items);
+
+  document.getElementById("majorExpenseNameInput").value = "";
+  document.getElementById("majorExpenseAmountInput").value = "";
+  document.getElementById("majorExpenseDueInput").value = "";
+  renderPlanner();
+}
+
+function deletePlannerEntry(kind, id){
+  const n = Number(id);
+  if(kind === "income") setIncomeEntries(getIncomeEntries().filter(x => Number(x.id) !== n));
+  if(kind === "invest") setInvestmentEntries(getInvestmentEntries().filter(x => Number(x.id) !== n));
+  if(kind === "expense") setMajorExpenses(getMajorExpenses().filter(x => Number(x.id) !== n));
+  renderPlanner();
+}
+
+function deleteInvestmentAccount(name){
+  const normalized = normalizeInvestmentAccountName(name);
+  if(!normalized) return;
+
+  const accounts = getInvestmentAccounts();
+  if(!accounts.includes(normalized)) return;
+
+  const usedCount = getInvestmentEntries().filter(x => normalizeInvestmentAccountName(x.name) === normalized).length;
+  const msg = usedCount > 0
+    ? `Delete account "${normalized}" and ${usedCount} saved balance update(s)?`
+    : `Delete account "${normalized}"?`;
+  if(!confirm(msg)) return;
+
+  setInvestmentAccounts(accounts.filter(x => x !== normalized));
+  if(usedCount > 0){
+    setInvestmentEntries(getInvestmentEntries().filter(x => normalizeInvestmentAccountName(x.name) !== normalized));
+  }
+
+  renderInvestmentAccountSelect();
+  renderPlanner();
+}
+
+function initPlannerPage(){
+  const sel = document.getElementById("plannerMonthSelect");
+  if(!sel) return;
+  buildMonthOptions(sel);
+  const active = getActiveMonth();
+  const hasActive = Array.from(sel.options).some(o => o.value === active);
+  sel.value = hasActive ? active : currentMonthYYYYMM();
+  sel.onchange = () => renderPlanner();
+  renderInvestmentAccountSelect();
+  renderPlanner();
+}
+
+function renderPlanner(){
+  const month = plannerMonth();
+
+  const incomes = getIncomeEntries().filter(x => x.month === month);
+  const grossIncome = incomes.reduce((s,x) => s + Math.max(0, Number(x.gross)||0), 0);
+  const taxes = incomes.reduce((s,x) => s + Math.max(0, Number(x.taxes)||0), 0);
+  const netIncome = grossIncome - taxes;
+
+  const bills = computeBillsTotals(month);
+  const debtPosted = getDebtPaymentHistory().filter(x => x.month === month)
+    .reduce((s,x) => s + Math.max(0, Number(x.amount)||0), 0);
+
+  const major = getMajorExpenses().filter(x => x.month === month);
+  const majorTotal = major.reduce((s,x)=> s + Math.max(0, Number(x.amount)||0), 0);
+
+  const investments = getInvestmentEntries();
+  const investmentAccounts = getInvestmentAccounts();
+  const latestByName = new Map();
+  investments.forEach(x => {
+    const accountName = normalizeInvestmentAccountName(x.name);
+    if(!accountName) return;
+    const cur = latestByName.get(accountName);
+    if(!cur || Number(x.updatedAt||0) >= Number(cur.updatedAt||0)) latestByName.set(accountName, x);
+  });
+  const investRows = investmentAccounts.map(name => ({
+    name,
+    amount: Number(latestByName.get(name)?.amount || 0),
+    updatedAt: Number(latestByName.get(name)?.updatedAt || 0)
+  }));
+  const investTotal = investRows.reduce((s,x)=> s + Math.max(0, Number(x.amount)||0), 0);
+
+  const operationalLeft = netIncome - (Number(bills.total)||0) - debtPosted - majorTotal;
+
+  const setTxt = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent = fmtMoney(val); };
+  setTxt("plannerGrossIncome", grossIncome);
+  setTxt("plannerTaxesWithheld", taxes);
+  setTxt("plannerNetIncome", netIncome);
+  setTxt("plannerBillsTotal", bills.total);
+  setTxt("plannerDebtPosted", debtPosted);
+  setTxt("plannerMajorExpenseTotal", majorTotal);
+  setTxt("plannerOperationalLeft", operationalLeft);
+
+  const leftEl = document.getElementById("plannerOperationalLeft");
+  if(leftEl) leftEl.style.color = operationalLeft >= 0 ? "#2bd576" : "#ff5c5c";
+
+  const incomeList = document.getElementById("incomeList");
+  if(incomeList){
+    if(incomes.length === 0){ incomeList.innerHTML = `<div style="padding:14px; color:#9aa7b6;">No income entries for this month.</div>`; }
+    else {
+      incomeList.innerHTML = "";
+      incomes.forEach(x => {
+        const row = document.createElement("div");
+        row.className = "item";
+        const dateText = x.date ? ` · ${escapeHtml(x.date)}` : "";
+        row.innerHTML = `<div><div style="font-weight:800;">${escapeHtml(x.source||"")}</div><div style="font-size:12px;color:#9aa7b6;">Gross ${fmtMoney(x.gross||0)} · Taxes ${fmtMoney(x.taxes||0)}${dateText}</div></div><button class="cancelBtn" style="width:auto; padding:8px 10px;" onclick="deletePlannerEntry('income', ${Number(x.id)||0})">DELETE</button>`;
+        incomeList.appendChild(row);
+      });
+    }
+  }
+
+  const investmentList = document.getElementById("investmentList");
+  setTxt("investmentTotal", investTotal);
+  if(investmentList){
+    if(investRows.length === 0){ investmentList.innerHTML = `<div style="padding:14px; color:#9aa7b6;">No investment accounts yet. Add one above.</div>`; }
+    else {
+      investmentList.innerHTML = "";
+      investRows.forEach(x => {
+        const row = document.createElement("div");
+        row.className = "item";
+        const updated = x.updatedAt ? `Updated ${new Date(x.updatedAt).toLocaleDateString()}` : "No balance saved";
+        row.innerHTML = `<div><div style="font-weight:800;">${escapeHtml(x.name||"")}</div><div style="font-size:12px;color:#9aa7b6;">${escapeHtml(updated)}</div></div><div style="display:flex; align-items:center; gap:8px;"><div>${fmtMoney(x.amount||0)}</div><button class="cancelBtn" style="width:auto; padding:8px 10px;">DELETE</button></div>`;
+        const deleteBtn = row.querySelector("button");
+        if(deleteBtn){
+          deleteBtn.onclick = () => deleteInvestmentAccount(x.name || "");
+        }
+        investmentList.appendChild(row);
+      });
+    }
+  }
+
+  const majorList = document.getElementById("majorExpenseList");
+  if(majorList){
+    if(major.length === 0){ majorList.innerHTML = `<div style="padding:14px; color:#9aa7b6;">No major expenses for this month.</div>`; }
+    else {
+      majorList.innerHTML = "";
+      major.sort((a,b)=> String(a.dueDate||"").localeCompare(String(b.dueDate||"")));
+      major.forEach(x => {
+        const row = document.createElement("div");
+        row.className = "item";
+        row.innerHTML = `<div><div style="font-weight:800;">${escapeHtml(x.name||"")}</div><div style="font-size:12px;color:#9aa7b6;">Due ${escapeHtml(x.dueDate||"")}</div></div><div style="display:flex; align-items:center; gap:8px;"><div>${fmtMoney(x.amount||0)}</div><button class="cancelBtn" style="width:auto; padding:8px 10px;" onclick="deletePlannerEntry('expense', ${Number(x.id)||0})">DELETE</button></div>`;
+        majorList.appendChild(row);
+      });
+    }
+  }
+}
+/* ===== END FINANCIAL PLANNER MODEL ===== */
+
+function showFatalError(message){
+  const el = document.getElementById("fatalErrorBanner");
+  if(!el) return;
+  el.textContent = `App error: ${message}. Please hard refresh (Ctrl/Cmd+Shift+R). If it continues, clear site data for this app.`;
+  el.style.display = "block";
+}
+
+window.addEventListener("error", (evt) => {
+  const msg = evt?.error?.message || evt?.message || "Unknown error";
+  showFatalError(msg);
 });
+
+window.addEventListener("unhandledrejection", (evt) => {
+  const reason = evt?.reason;
+  const msg = (reason && reason.message) ? reason.message : String(reason || "Promise rejection");
+  showFatalError(msg);
+});
+
+function initApp(){
+  try {
+    initDebtDropdown();
+    loadDebtPayments(getActiveMonth());
+    syncDebtShowAllBtn();
+    updateHangingDebtWarning(getActiveMonth());
+
+    // Ensure prev/current/next exist in storage BEFORE building month dropdowns
+    const cur = currentMonthYYYYMM();
+    [shiftMonth(cur, -1), cur, shiftMonth(cur, 1)].forEach(m => ensureBillsForMonth(m));
+
+    initActiveMonthUI();
+    updateCurrentPhaseLabel();
+
+    if(!Number.isFinite(getLastUpdatedMs())){
+      setLastUpdatedNow();
+    }
+
+    loadStoredBalanceToUI();
+
+    updateStatus();
+    updateStaleIndicator();
+    setInterval(updateStaleIndicator, 60000);
+
+    // Bills: persist + render from storage
+    const month = getActiveMonth();
+    ensureBillsForMonth(month);
+    renderHomeBills(month);
+    renderBillsAndPhaseTotals(month);
+    // LEGACY: remove after old localStorage data ages out
+    restoreCarPaymentLabels();
+
+    // If we load directly onto the Debt page, initialize snapshot
+    if(document.getElementById("pageDebt")?.style.display !== "none"){
+      initDebtSnapshot();
+    }
+  } catch (err) {
+    console.error(err);
+    showFatalError(err?.message || String(err));
+  }
+}
+
+if(document.readyState === "loading"){
+  document.addEventListener("DOMContentLoaded", initApp, { once: true });
+} else {
+  initApp();
+}
 
 
 
