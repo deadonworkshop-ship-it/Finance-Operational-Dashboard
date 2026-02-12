@@ -43,204 +43,7 @@ body{
 }
 
 #activeMonthSelect{
-  width: 200px;
-  background:#0c131d;
-  color:#fff;
-  border:1px solid #1b2533;
-  border-radius:14px;
-  padding:14px 16px;
-  font-size:18px;
-  font-weight:900;
-}
-
-.confirmBar{
-  display:none;
-  margin-top:12px;
-  padding-top:12px;
-  border-top:1px solid #1b2533;
-}
-
-.confirmBtn{
-  background:#18232f;
-  color:white;
-  border:1px solid #2aa6ff55;
-  padding:14px;
-  border-radius:12px;
-  font-weight:800;
-  width:45%;
-  margin-right:8px;
-}
-
-/* Slide-left + fade out (checklist clear) */
-.item.removing{
-  animation: slideOut 220ms ease-in forwards;
-}
-
-@keyframes slideOut{
-  from { transform: translateX(0); opacity:1; }
-  to   { transform: translateX(-22px); opacity:0; }
-}
-
-.cancelBtn{
-  background:#141a22;
-  color:#9aa7b6;
-  border:1px solid #1b2533;
-  padding:14px;
-  border-radius:12px;
-  width:25%;
-}
-
-/* ===== BEGIN EDIT BUTTON ===== */
-.editBtn{
-  background:#141a22;
-  color:#c6d0db;
-  border:1px solid #1b2533;
-  padding:14px;
-  border-radius:12px;
-  width:25%;
-}
-/* ===== END EDIT BUTTON ===== */
-
-/* ===== BEGIN BILLS PAID STATE (REVERSIBLE) ===== */
-.item.paid{
-  opacity: 0.55;
-}
-.item.paid > div:first-child{
-  text-decoration: line-through;
-  color: #9aa7b6;
-}
-/* ===== END BILLS PAID STATE (REVERSIBLE) ===== */
-
-.item .confirmBar{
-  animation: dropIn 160ms ease-out;
-}
-
-@keyframes dropIn{
-  from { transform: translateY(-6px); opacity:0; }
-  to   { transform: translateY(0); opacity:1; }
-}
-
-.header{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:14px;
-  border-bottom:1px solid #1b2533;
-  position:relative;
-}
-
-.header .menu{
-  position:absolute;
-  left:14px;
-}
-
-.menu{font-size:22px;margin-right:12px;}
-.container{padding:18px;}
-.card{background:#101722;border:1px solid #1b2533;border-radius:14px;padding:18px;margin-bottom:14px;}
-.big{font-size:42px;font-weight:800;}
-.row{display:flex;justify-content:space-between;margin-top:12px;font-size:16px;}
-.list{background:#101722;border:1px solid #1b2533;border-radius:14px;}
-.item{display:flex;justify-content:space-between;padding:14px;border-top:1px solid #1b2533;}
-.item:first-child{border-top:none;}
-.one{color:#f5b942;}
-
-/* ===== BEGIN MOBILE FIX: debt form stacks vertically ===== */
-
-/* Prevent any accidental horizontal scroll */
-html, body { overflow-x: hidden; }
-
-@media (max-width: 520px){
-  #debtForm{
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-  }
-
-  #debtCardSelect,
-  #debtAmountInput,
-  #debtDateInput{
-  width: 100% !important;
-  min-width: 0 !important;   /* override inline min-width:220px */
-  font-size: 16px;           /* prevents iOS zoom */
-  box-sizing: border-box;
-}
-
-
-  #debtForm .confirmBtn,
-  #debtForm .cancelBtn{
-    width: 100%;
-  }
-
-  /* Optional: put ADD/CANCEL on one row instead of full width */
-  /* 
-  #debtForm .confirmBtn, #debtForm .cancelBtn { width: 49%; }
-  #debtForm { flex-direction: column; }
-  */
-}
-/* ===== END MOBILE FIX: debt form stacks vertically ===== */
-
-/* ===== BEGIN MOBILE FIX: debt snapshot controls stack vertically ===== */
-@media (max-width: 520px){
-  #debtSnapshotControls{
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  #activeMonthCard .row{
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-  }
-
-  #activeMonthCard #activeMonthSelect{
-    width: 100% !important;
-  }
-
-  #activeMonthSelect{
-    width: 100% !important;
-    font-size: 18px;
-    padding: 16px 18px;
-  }
-
-  #debtPaymentsMonthSelect{
-    width: 100% !important;
-    box-sizing: border-box;
-    font-size: 16px;
-  }
-
-  #debtSnapshotSelect,
-  #debtSnapshotInput{
-    width: 100% !important;
-    box-sizing: border-box;
-    font-size: 16px; /* prevents iOS zoom/focus weirdness */
-  }
-
-  #debtSnapshotControls .confirmBtn{
-    width: 100% !important;
-  }
-}
-/* ===== END MOBILE FIX: debt snapshot controls stack vertically ===== */
-
-/* ===== BEGIN MONTHLY BILLS PAGE STYLES ===== */
-.billControls{
-  display:flex;
-  gap:10px;
-  align-items:center;
-  justify-content:flex-end;
-  flex-wrap:wrap;
-}
-
-.billControls input[type="date"]{
-  background:#0c131d;
-  color:#fff;
-  border:1px solid #1b2533;
-  border-radius:12px;
-  padding:10px 12px;
-  font-size:14px;
-}
-
-.billControls .miniBtn{
+@@ -233,50 +244,80 @@ html, body { overflow-x: hidden; }
   background:#141a22;
   color:#9aa7b6;
   border:1px solid #1b2533;
@@ -265,6 +68,36 @@ html, body { overflow-x: hidden; }
   }
 }
 /* ===== END MONTHLY BILLS PAGE STYLES ===== */
+
+
+/* ===== QUICK INCOME FORM ===== */
+#quickIncomeForm select,
+#quickIncomeForm input{
+  font-size:16px;
+}
+
+@media (max-width: 520px){
+  #quickIncomeForm{
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #quickIncomeForm select,
+  #quickIncomeForm input,
+  #quickIncomeForm .confirmBtn,
+  #quickIncomeForm .cancelBtn{
+    width:100% !important;
+    min-width:0 !important;
+    box-sizing:border-box;
+    font-size:16px;
+  }
+
+  #plannerPage input,
+  #plannerPage select,
+  #plannerPage textarea{
+    font-size:16px !important;
+  }
+}
 
 
 /* ===== QUICK INCOME FORM ===== */
@@ -539,186 +372,7 @@ html, body { overflow-x: hidden; }
 
       <input id="debtAmountInput"
         inputmode="decimal"
-        placeholder="$0.00"
-        oninput="autoFormatCurrencyInput(this)"
-        onblur="finalizeCurrencyInput(this)"
-        style="width:140px; font-size:16px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
-
-     <input id="debtDateInput"
-       type="date"
-       style="width:160px; font-size:16px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
-
-      <button class="confirmBtn" onclick="addDebtPaymentFromForm()">ADD</button>
-      <button class="cancelBtn" onclick="hideDebtForm()">CANCEL</button>
-    </div>
-
-<div id="debtHangWarn"
-     onclick="revealHangingDebt()"
-     style="display:none; margin:10px 0 12px; padding:12px 12px; border-radius:12px; border:1px solid #3a2b12; background:rgba(255,180,70,0.12); color:#ffd7a1; font-weight:900; font-size:13px; line-height:1.25; cursor:pointer;">
-</div>
-
-
-    <div class="list" id="debtList"></div>
-  </div>
-
-  <!-- ===== Bills (Home) ===== -->
-  <div class="card" id="homeBillsCard">
-    <div style="font-size:12px;color:#9aa7b6;margin-bottom:10px;">Bills</div>
-    <div class="list" id="billsList"></div>
-  </div>
-
-</div>
-<!-- ===== END PAGE HOME WRAPPER (v2) ===== -->
-
-<!-- ===== BEGIN DEBT SNAPSHOT PAGE ===== -->
-<div class="container page" id="pageDebt" style="display:none;">
-
-<div style="display:flex; justify-content:space-between; align-items:center;">
-  <div style="font-weight:800;">Debt Snapshot</div>
-  <button class="cancelBtn" onclick="navigateTo('home')" style="width:auto; padding:10px 12px;">BACK</button>
-</div>
-
-    <div style="font-size:12px;color:#9aa7b6;margin-top:6px;">
-  Update balances manually. Optional: auto-apply confirmed payments to reduce balances.
-</div>
-
-<div class="row" style="margin-top:12px;">
-  <div>AUTO-APPLY PAYMENTS</div>
-  <label style="display:flex;align-items:center;gap:10px;">
-    <input id="autoApplyToggle" type="checkbox" onchange="onToggleAutoApply(this.checked)" />
-    <span style="color:#9aa7b6;font-size:13px;">ON/OFF</span>
-  </label>
-</div>
-
-<div class="row" style="margin-top:12px;">
-  <div>TOTAL DEBT OWED</div>
-  <div id="totalDebtOwed" style="font-weight:800;">$0</div>
-</div>
-
-
-  <div class="card">
-    <div style="font-size:12px;color:#9aa7b6;margin-bottom:10px;">Select Debt</div>
-
-    <div id="debtSnapshotControls" style="display:flex; gap:10px; align-items:center; margin-bottom:12px;">
-      <select id="debtSnapshotSelect"
-              style="flex:1; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;"></select>
-
-      <input id="debtSnapshotInput"
-             inputmode="decimal"
-             placeholder="$0.00"
-             oninput="autoFormatCurrencyInput(this)"
-             onblur="finalizeCurrencyInput(this)"
-             style="width:160px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
-
-    <button class="confirmBtn"
-      onclick="saveDebtSnapshotValue()"
-      style="width:auto;">
-      SAVE
-    </button>
- 
-    </div>
-
-    <div class="list" id="debtSnapshotList"></div>
-  </div>
-
-  <div class="card">
-    <div style="font-size:12px;color:#9aa7b6;margin-bottom:10px;">Debt Payments Posted</div>
-
-    <div style="display:flex; gap:10px; align-items:center; margin-bottom:12px; flex-wrap:wrap;">
-      <select id="debtPaymentsMonthSelect"
-              style="flex:1; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;"></select>
-
-      <button class="confirmBtn"
-              onclick="renderDebtPaymentsHistory(document.getElementById('debtPaymentsMonthSelect')?.value)"
-              style="width:auto;">
-        VIEW
-      </button>
-    </div>
-
-    <div class="row" style="margin-top:8px;">
-      <div>MONTHLY DEBT PAID</div>
-      <div id="debtPaymentsHistoryTotal" style="font-weight:800;">$0</div>
-    </div>
-
-    <div class="list" id="debtPaymentsHistoryList" style="margin-top:12px;"></div>
-  </div>
-
-</div>
-<!-- ===== END DEBT SNAPSHOT PAGE ===== -->
-
-<!-- ===== BEGIN MONTHLY BILLS PAGE ===== -->
-<div class="container page" id="pageBills" style="display:none;">
-
-  <div class="card">
-   <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
-  <div style="font-weight:800;">Monthly Bills</div>
-
-  <div style="display:flex; gap:8px;">
-    <button class="btnSmall"
-            onclick="resetBillsForMonth(document.getElementById('billsPageMonthSelect')?.value)">
-      RESET MONTH
-    </button>
-
-    <button class="cancelBtn"
-            onclick="navigateTo('home')"
-            style="width:auto; padding:10px 12px;">
-      BACK
-    </button>
-  </div>
-</div>
-
-
-    <div style="display:flex; gap:10px; align-items:center; margin-top:12px;">
-      <select id="billsPageMonthSelect"
-              style="flex:1; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;"></select>
-      <button class="confirmBtn" onclick="renderBillsPage()" style="width:auto;">VIEW</button>
-    </div>
-
-    <div class="row" style="margin-top:12px;">
-      <div id="showHiddenLabel">SHOW HIDDEN</div>
-
-      <label class="toggleWrap">
-  <input id="showHiddenBillsToggle"
-         class="toggleSwitch"
-         type="checkbox"
-         onchange="onToggleShowHiddenBills(this.checked)" />
-  <span style="color:#9aa7b6;font-size:13px;">ON/OFF</span>
-</label>
-
-   </div>  
-
-
-    <!-- Totals -->
-    <div class="row" style="margin-top:14px;">
-      <div>MONTH TOTAL</div><div id="billsMonthTotal">$0</div>
-    </div>
-    <div class="row">
-      <div>MONTH PAID</div><div id="billsMonthPaid">$0</div>
-    </div>
-    <div class="row">
-      <div>MONTH REMAINING</div><div id="billsMonthRemaining">$0</div>
-    </div>
-
-    <div style="border-top:1px solid #1b2533; margin-top:14px; padding-top:14px;"></div>
-
-    <div class="row">
-      <div>PHASE 1 TOTAL</div><div id="phase1Total">$0</div>
-    </div>
-    <div class="row">
-      <div>PHASE 1 PAID</div><div id="phase1Paid">$0</div>
-    </div>
-    <div class="row">
-      <div>PHASE 1 REMAINING</div><div id="phase1Remaining">$0</div>
-    </div>
-
-    <div style="border-top:1px solid #1b2533; margin-top:14px; padding-top:14px;"></div>
-
-    <div class="row">
-      <div>PHASE 2 TOTAL</div><div id="phase2Total">$0</div>
-    </div>
-    <div class="row">
-      <div>PHASE 2 PAID</div><div id="phase2Paid">$0</div>
-    </div>
+@@ -660,50 +721,124 @@ html, body { overflow-x: hidden; }
     <div class="row">
       <div>PHASE 2 REMAINING</div><div id="phase2Remaining">$0</div>
     </div>
@@ -743,6 +397,80 @@ html, body { overflow-x: hidden; }
 
 </div>
 <!-- ===== END MONTHLY BILLS PAGE ===== -->
+
+<!-- ===== BEGIN FINANCIAL PLANNER PAGE ===== -->
+<div class="container page" id="pagePlanner" style="display:none;">
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+      <div style="font-weight:800;">Financial Planner</div>
+      <button class="cancelBtn" onclick="navigateTo('home')" style="width:auto; padding:10px 12px;">BACK</button>
+    </div>
+    <div style="font-size:12px;color:#9aa7b6;margin-top:8px;">Track income, taxes, investments, and major upcoming expenses.</div>
+  </div>
+
+  <div class="card">
+    <div style="font-size:12px;color:#9aa7b6;margin-bottom:10px;">MONTHLY OVERVIEW</div>
+    <div style="display:flex; gap:10px; align-items:center;">
+      <select id="plannerMonthSelect" style="flex:1; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;"></select>
+      <button class="confirmBtn" onclick="renderPlanner()" style="width:auto;">VIEW</button>
+    </div>
+    <div class="row"><div>GROSS INCOME</div><div id="plannerGrossIncome">$0</div></div>
+    <div class="row"><div>TAXES WITHHELD</div><div id="plannerTaxesWithheld">$0</div></div>
+    <div class="row"><div>NET INCOME</div><div id="plannerNetIncome">$0</div></div>
+    <div class="row"><div>BILLS TOTAL</div><div id="plannerBillsTotal">$0</div></div>
+    <div class="row"><div>DEBT PAYMENTS POSTED</div><div id="plannerDebtPosted">$0</div></div>
+    <div class="row"><div>MAJOR EXPENSES (MONTH)</div><div id="plannerMajorExpenseTotal">$0</div></div>
+    <div class="row"><div style="font-weight:900;">EST. LEFT AFTER PLAN</div><div id="plannerOperationalLeft" style="font-weight:900;">$0</div></div>
+  </div>
+
+  <div class="card">
+    <div style="font-size:12px;color:#9aa7b6;margin-bottom:10px;">INCOME + TAXES (MONTHLY)</div>
+    <div id="incomeForm" style="display:flex; gap:10px; align-items:center; margin-bottom:12px; flex-wrap:wrap;">
+      <input id="incomeSourceInput" placeholder="Income source" style="flex:2; min-width:220px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
+      <input id="incomeGrossInput" inputmode="decimal" placeholder="Gross" oninput="autoFormatCurrencyInput(this)" onblur="finalizeCurrencyInput(this)" style="width:140px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
+      <input id="incomeTaxInput" inputmode="decimal" placeholder="Taxes" oninput="autoFormatCurrencyInput(this)" onblur="finalizeCurrencyInput(this)" style="width:140px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
+      <input id="incomeDateInput" type="date" style="width:170px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
+      <button class="confirmBtn" onclick="addIncomeEntry()" style="width:auto;">ADD</button>
+    </div>
+
+    <div style="font-size:12px;color:#9aa7b6;margin:8px 0;">Bulk import rows (Income, Amount, Date). Supports tab-delimited spreadsheet paste.</div>
+    <textarea id="incomeBulkInput" placeholder="VA	$2,150.45	1/28/2026" style="width:100%; min-height:110px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:12px; box-sizing:border-box;"></textarea>
+    <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
+      <button class="confirmBtn" onclick="importIncomeRowsFromText()" style="width:auto;">IMPORT PASTED INCOME</button>
+      <button class="cancelBtn" onclick="clearIncomeBulkInput()" style="width:auto;">CLEAR</button>
+      <button class="btnSmall" onclick="loadProvidedIncomeSample()" style="width:auto;">LOAD PROVIDED SAMPLE</button>
+    </div>
+
+    <div class="list" id="incomeList" style="margin-top:12px;"></div>
+  </div>
+
+  <div class="card">
+    <div style="font-size:12px;color:#9aa7b6;margin-bottom:10px;">INVESTMENT BALANCES</div>
+    <div id="investmentForm" style="display:flex; gap:10px; align-items:center; margin-bottom:12px; flex-wrap:wrap;">
+      <select id="investmentAccountSelect" style="flex:2; min-width:220px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;"></select>
+      <input id="investmentAmountInput" inputmode="decimal" placeholder="Balance" oninput="autoFormatCurrencyInput(this)" onblur="finalizeCurrencyInput(this)" style="width:160px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
+      <button class="confirmBtn" onclick="addInvestmentEntry()" style="width:auto;">UPDATE BALANCE</button>
+    </div>
+    <div style="display:flex; gap:10px; align-items:center; margin-bottom:12px; flex-wrap:wrap;">
+      <input id="investmentNewAccountInput" placeholder="Add account (optional)" style="flex:2; min-width:220px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
+      <button class="btnSmall" onclick="addInvestmentAccount()" style="width:auto;">ADD ACCOUNT</button>
+    </div>
+    <div class="row"><div>TOTAL INVESTMENTS</div><div id="investmentTotal">$0</div></div>
+    <div class="list" id="investmentList"></div>
+  </div>
+
+  <div class="card">
+    <div style="font-size:12px;color:#9aa7b6;margin-bottom:10px;">UPCOMING MAJOR EXPENSES</div>
+    <div id="majorExpenseForm" style="display:flex; gap:10px; align-items:center; margin-bottom:12px; flex-wrap:wrap;">
+      <input id="majorExpenseNameInput" placeholder="Expense name" style="flex:2; min-width:220px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
+      <input id="majorExpenseAmountInput" inputmode="decimal" placeholder="Amount" oninput="autoFormatCurrencyInput(this)" onblur="finalizeCurrencyInput(this)" style="width:140px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
+      <input id="majorExpenseDueInput" type="date" style="width:170px; background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px;" />
+      <button class="confirmBtn" onclick="addMajorExpenseEntry()" style="width:auto;">ADD</button>
+    </div>
+    <div class="list" id="majorExpenseList"></div>
+  </div>
+</div>
+<!-- ===== END FINANCIAL PLANNER PAGE ===== -->
 
 <!-- ===== BEGIN FINANCIAL PLANNER PAGE ===== -->
 <div class="container page" id="pagePlanner" style="display:none;">
@@ -843,672 +571,107 @@ html, body { overflow-x: hidden; }
 
       <input id="balInput" type="text" inputmode="decimal"
              placeholder="5195.91"
-             style="
-               width:100%;
-               padding:16px 14px;
-               border-radius:12px;
-               border:1px solid #1b2533;
-               background:#0b0f14;
-               color:#fff;
-               font-size:18px;
-               font-weight:800;
-               box-sizing:border-box;
-             " />
-
-      <div id="balErr" style="display:none; margin-top:10px; color:#ff5c5c; font-size:13px; font-weight:800;"></div>
-
-      <div style="display:flex; gap:10px; margin-top:14px;">
-        <button class="btn" onclick="saveBalanceFromModal()" style="flex:1; margin-top:0;">SAVE</button>
-        <button class="btn" onclick="closeBalanceModal()" style="flex:1; margin-top:0; border-color:#1b2533;">CANCEL</button>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- ===== END BALANCE UPDATE MODAL ===== -->
-
-<!-- ===== BEGIN UNPOSTED DEBT MODAL ===== -->
-<div id="unpostedDebtBackdrop" onclick="closeUnpostedDebtModal()"
-     style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:90;"></div>
-
-<div id="unpostedDebtModal"
-     style="display:none; position:fixed; inset:0; z-index:100; padding:16px; align-items:center; justify-content:center;">
-  <div style="
-    width:100%;
-    max-width:520px;
-    background:#101722;
-    border:1px solid #1b2533;
-    border-radius:14px;
-    box-shadow:0 10px 30px rgba(0,0,0,.35);
-    overflow:hidden;
-  ">
-    <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 16px; border-bottom:1px solid #1b2533;">
-      <div style="font-weight:900;">Unposted Debt Summary</div>
-      <button class="cancelBtn" onclick="closeUnpostedDebtModal()" style="padding:10px 12px;">CLOSE</button>
-    </div>
-
-    <div style="padding:14px 16px;">
-      <div style="font-size:12px;color:#9aa7b6;margin-bottom:10px;">
-        Review queued debt payments across months. Tap a month to jump.
-      </div>
-
-      <div id="unpostedDebtList"></div>
-
-      <div style="display:flex; gap:10px; margin-top:14px;">
-        <button class="btn" onclick="setDebtShowAll(true); syncDebtShowAllBtn(); loadDebtPayments(getActiveMonth()); updateHangingDebtWarning(getActiveMonth()); closeUnpostedDebtModal();"
-                style="flex:1; margin-top:0;">
-          SHOW ALL ON
-        </button>
-        <button class="btn" onclick="closeUnpostedDebtModal()"
-                style="flex:1; margin-top:0; border-color:#1b2533;">
-          DONE
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- ===== END UNPOSTED DEBT MODAL ===== -->
-
-
-<!-- ===== BEGIN ONE-TIME BILL MODAL ===== -->
-<div id="otbBackdrop" onclick="closeOneTimeBillModal()"
-     style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:90;"></div>
-
-<div id="otbModal"
-     style="display:none; position:fixed; inset:0; z-index:100; padding:16px; align-items:center; justify-content:center;">
-  <div style="
-    width:100%;
-    max-width:420px;
-    background:#101722;
-    border:1px solid #1b2533;
-    border-radius:14px;
-    box-shadow:0 10px 30px rgba(0,0,0,.35);
-    overflow:hidden;
-  ">
-    <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 16px; border-bottom:1px solid #1b2533;">
-      <div style="font-weight:900;">Add One-Time Bill</div>
-      <button class="cancelBtn" onclick="closeOneTimeBillModal()" style="width:auto; padding:10px 12px;">CLOSE</button>
-    </div>
-
-    <div style="padding:14px 16px;">
-      <div style="font-size:12px; color:#9aa7b6; margin-bottom:10px;" id="otbMonthHint">Month: —</div>
-
-      <div style="display:flex; flex-direction:column; gap:10px;">
-        <input id="otbName" placeholder="Name (e.g., Car registration)"
-               style="background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px; font-size:16px;" />
-
-        <input id="otbAmount" inputmode="decimal" placeholder="$0.00"
-               oninput="autoFormatCurrencyInput(this)" onblur="finalizeCurrencyInput(this)"
-               style="background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:14px; font-size:16px;" />
-
-        <label style="display:flex; flex-direction:column; gap:6px; font-weight:800;">
-          <span style="font-size:12px; color:#9aa7b6; font-weight:800;">Due date (optional)</span>
-          <input id="otbDueDate" type="date"
-                 style="background:#0c131d; color:#fff; border:1px solid #1b2533; border-radius:12px; padding:12px 12px; font-size:14px;" />
-        </label>
-
-        <div id="otbErr" style="display:none; font-size:13px; color:#ff5c5c; font-weight:800;"></div>
-
-        <div style="display:flex; gap:10px; margin-top:6px;">
-          <button class="cancelBtn" onclick="closeOneTimeBillModal()" style="width:40%;">CANCEL</button>
-          <button class="confirmBtn" onclick="saveOneTimeBillFromModal()" style="width:60%;">SAVE</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- ===== END ONE-TIME BILL MODAL ===== -->
-
-
-<script>
-
-const ACTIVE_MONTH_KEY = "active_month_v1";
-
-function getActiveMonth(){
-  return localStorage.getItem(ACTIVE_MONTH_KEY) || currentMonthYYYYMM();
-}
-
-function setActiveMonth(month){
-  localStorage.setItem(ACTIVE_MONTH_KEY, month);
-  updateCurrentPhaseLabel();
-}
-
-function buildMonthOptions(selectEl){
-  const months = new Set();
-
-  const current = currentMonthYYYYMM();
-  const prev = shiftMonth(current, -1);
-  const next = shiftMonth(current, 1);
-
-  // Always ensure these three exist
-  [prev, current, next].forEach(m => {
-    ensureBillsForMonth(m);
-    months.add(m);
-  });
-
-  // Include saved active month (if different)
-  const saved = localStorage.getItem(ACTIVE_MONTH_KEY);
-  if(saved) months.add(saved);
-
-  // Include any months already in storage
-  for(let i = 0; i < localStorage.length; i++){
-    const k = localStorage.key(i);
-    if(k && k.startsWith("bills_v1_")){
-      const m = k.replace("bills_v1_", "");
-      if(/^\d{4}-\d{2}$/.test(m)) months.add(m);
-    }
-  }
-
-  // Sort chronologically
-  const sorted = Array.from(months).sort();
-
-  selectEl.innerHTML = "";
-  sorted.forEach(m => {
-    const opt = document.createElement("option");
-    opt.value = m;
-    opt.textContent = m;
-    selectEl.appendChild(opt);
-  });
-}
-
-function initActiveMonthUI(){
-  const sel = document.getElementById("activeMonthSelect");
-  if(!sel) return;
-
-  buildMonthOptions(sel);
-
-    sel.onchange = () => {
-    const prev = getActiveMonth();
-    const next = sel.value;
-
-    // If SHOW ALL is OFF and switching would hide queued debt in other months, confirm
-    if(!getDebtShowAll()){
-      const hanging = countHangingDebtForMonth(next);
-      if(hanging > 0){
-        const ok = confirm(
-          `Heads up — you have ${hanging} queued debt payment${hanging===1?"":"s"} in other months.\n\nSwitch months anyway?`
-        );
-        if(!ok){
-          // revert dropdown selection
-          sel.value = prev;
-          return;
-        }
-      }
-    }
-
-    applyActiveMonthChange(next);
-  };
-
-}
-
-function applyActiveMonthChange(m){
-  setActiveMonth(m);
-  updateCurrentPhaseLabel();
-
-  // Ensure month bills exist + refresh screens
-  ensureBillsForMonth(m);
-
-  renderHomeBills(m);
-  loadDebtPayments(m);
-  updateHangingDebtWarning(m);
-
-  // updates menu list / totals
-  renderBillsAndPhaseTotals(m);
-
-  // If Bills page is open, force it to that month too
-  const billsPageSel = document.getElementById("billsPageMonthSelect");
-  if(billsPageSel){
-    billsPageSel.value = m;
-    renderBillsPage();
-  }
-}
-
-
-function todayISO(){
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth()+1).padStart(2,"0");
-  const day = String(d.getDate()).padStart(2,"0");
-  return `${y}-${m}-${day}`;
-}
-
-/* ===== BEGIN MONTHLY BILLS PERSISTENCE (REVERSIBLE) ===== */
-
-function monthFromDate(dateStr){
-  // expects YYYY-MM-DD
-  if(!dateStr || dateStr.length < 7) return "";
-  return dateStr.slice(0,7);
-}
-
-function currentMonthYYYYMM(){
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth()+1).padStart(2,"0");
-  return `${y}-${m}`;
-}
-
-function billId(name, amount, dateStr){
-  // Stable-ish ID: deterministic from fields
-  const key = `${name}|${Number(amount).toFixed(2)}|${dateStr}`;
-  let h = 0;
-  for(let i=0;i<key.length;i++){
-    h = ((h<<5)-h) + key.charCodeAt(i);
-    h |= 0;
-  }
-  return `b_${Math.abs(h)}`;
-}
-
-function billsKey(month){
-  return `bills_v1_${month}`;
-}
-
-// ===== BEGIN BILL TEMPLATES (PREDETERMINED) =====
-// Phase rule: H1 = day 1–15, H2 = day 16–31
-function phaseFromDay(day){
-  return (Number(day) <= 15) ? 1 : 2;
-}
-
-
-function yyyymmToYearMonth(month){
-  const [y,m] = month.split("-");
-  return { year: Number(y), month: Number(m) };
-}
-
-function dueDateFromMonthAndDay(month, day){
-  const { year, month: mm } = yyyymmToYearMonth(month);
-  const dd = String(day).padStart(2,"0");
-  const m2 = String(mm).padStart(2,"0");
-  return `${year}-${m2}-${dd}`;
-}
-
-// Your predetermined monthly bills.
-// NOTE: I split the two "Car Payment" rows by naming them explicitly.
-// If you want different labels, tell me (Tesla/Highlander already in your app).
-const BILL_TEMPLATES = [
-  // Phase 1
-  { templateId:"land_payment",     name:"Land Payment",             category:"Mortgage",               defaultAmount:907.50,  dueDay:2,  phase:1 },
-  { templateId:"tmobile",          name:"T-Mobile",                 category:"Utilities",              defaultAmount:357.34,  dueDay:2,  phase:1 },
-  { templateId:"mortgage",         name:"Mortgage",                 category:"Mortgage",               defaultAmount:2406.28, dueDay:2,  phase:1 },
-
-  { templateId:"aafmaa",           name:"AAFMAA",                   category:"Insurance",              defaultAmount:33.35,   dueDay:3,  phase:1 },
-  { templateId:"travelers_main",   name:"Travelers Insurance",      category:"Insurance",              defaultAmount:392.75,  dueDay:3,  phase:1 },
-  { templateId:"tricare",          name:"TRICARE",                  category:"Insurance",              defaultAmount:286.66,  dueDay:3,  phase:1 },
-
-  { templateId:"express_scripts",  name:"Express Scripts",          category:"Insurance",              defaultAmount:14.00,   dueDay:4,  phase:1 },
-
-  { templateId:"car_highlander",   name:"Car Payment - Highlander", category:"Car Payment",            defaultAmount:229.03,  dueDay:12, phase:1 },
-  { templateId:"car_tesla",        name:"Car Payment - Tesla",      category:"Car Payment",            defaultAmount:569.00,  dueDay:12, phase:1 },
-
-  // Phase 2
-  { templateId:"amelia_529",       name:"Amelia 529",               category:"Investing",              defaultAmount:100.00,  dueDay:22, phase:2 },
-  { templateId:"julia_529",        name:"Julia 529",                category:"Investing",              defaultAmount:100.00,  dueDay:22, phase:2 },
-
-  { templateId:"netflix",          name:"Netflix",                  category:"Dues and Subscriptions", defaultAmount:27.39,   dueDay:27, phase:2 },
-  { templateId:"denver_water",     name:"Denver Water",             category:"Utilities",              defaultAmount:61.06,   dueDay:27, phase:2 },
-
-  { templateId:"travelers_other",  name:"Travelers Insurance",      category:"Insurance",              defaultAmount:378.50,  dueDay:28, phase:2 },
-
-  { templateId:"xcel_energy_small",name:"Xcel Energy",              category:"Utilities",              defaultAmount:296.05,  dueDay:29, phase:2 },
-  { templateId:"bam_internet",     name:"BAM Internet",             category:"Utilities",              defaultAmount:80.10,   dueDay:29, phase:2 },
-];
-
-
-// Create stable ID based on templateId + dueDate (so the same bill persists for the month)
-function billInstanceId(templateId, dueDate){
-  return `tpl_${templateId}_${dueDate}`;
-}
-
-// Ensures a month has bills. If month is empty, generate from templates.
-// Does NOT overwrite existing month bills (so one-time bills are safe).
-function ensureBillsForMonth(month){
-  const existing = (getBills(month) || []).map(normalizeBill);
-
-  // Index existing bills by id so we can merge safely
-  const byId = new Map(existing.map(b => [b.id, b]));
-
-  let changed = false;
-
-  // Generate the template instances for this month
-  const templateInstances = BILL_TEMPLATES.map(t => {
-    const dueDate = dueDateFromMonthAndDay(month, t.dueDay);
-    const id = billInstanceId(t.templateId, dueDate);
-
-    const base = {
-      id,
-      templateId: t.templateId,
-      name: t.name,
-      category: t.category,
-      amount: Number(t.defaultAmount),
-      date: dueDate,                  // DUE date (kept as "date" for now)
-      month,
-      phase: Number(t.phase) || phaseFromDay(t.dueDay), // template phase (1/2), fallback if missing
-      phaseLocked: true,
-      paid: false,
-      paidAt: null,
-      source: "template"
-    };
-
-    const cur = byId.get(id);
-
-    if(cur){
-      // Upgrade existing record in place without overwriting user actions
-      // Keep paid/paidAt if user already set them
-      const upgraded = {
-        ...base,
-        ...cur,
-        // preserve paid state + timestamps
-        paid: !!cur.paid,
-        paidAt: cur.paidAt ?? null,
-        // preserve any manual edits to amount/name/category if you ever add them later
-        name: cur.name || base.name,
-        category: cur.category || base.category,
-        amount: (Number.isFinite(Number(cur.amount)) ? Number(cur.amount) : base.amount),
-        phaseLocked: (cur.phaseLocked === true) ? true : base.phaseLocked,
-        phase: (cur.phaseLocked === true) ? (cur.phase ?? base.phase) : base.phase,
-        source: cur.source || base.source
-
-      };
-
-      // Detect change
-      if(JSON.stringify(upgraded) !== JSON.stringify(cur)){
-        byId.set(id, upgraded);
-        changed = true;
-      }
-    } else {
-      // Missing template bill for this month -> add it
-      byId.set(id, base);
-      changed = true;
-    }
-  });
-
-  if(!changed){
-    // Still make sure the list exists in storage (normalize writes if needed)
-    if(existing.length === 0){
-      setBills(month, templateInstances.sort((a,b)=>a.date.localeCompare(b.date)));
-    }
-    return;
-  }
-
-  // Write merged list back, preserving any one-time/manual bills that don't match template IDs
-  const merged = Array.from(byId.values()).sort((a,b)=> (a.date||"").localeCompare(b.date||""));
-  setBills(month, merged);
-}
-
-// ===== END BILL TEMPLATES (PREDETERMINED) =====
-
-
-function getBills(month){
-  try{
-    return JSON.parse(localStorage.getItem(billsKey(month)) || "[]");
-  }catch{
-    return [];
-  }
-}
-
-function setBills(month, bills){
-  if(!month || !/^\d{4}-\d{2}$/.test(month)){
-    console.warn("Blocked setBills with invalid month:", month);
-    return;
-  }
-  localStorage.setItem(billsKey(month), JSON.stringify(bills));
-}
-
-
-function renderHomeBills(month){
-  const list = document.getElementById("billsList");
-  if(!list) return;
-
-  if(!month) month = currentMonthYYYYMM();
-
-  // Ensure month bills exist and are normalized
-  ensureBillsForMonth(month);
-   const bills = getBills(month)
-        .map(normalizeBill)
-        .filter(b => !b.suppressed)
-        .slice()
-        .sort((a,b)=>String(a.date||"").localeCompare(String(b.date||"")));
-
-  // Render list
-  list.innerHTML = "";
-
-  bills.forEach(b => {
-    const item = document.createElement("div");
-    item.className = `item${b.paid ? " paid" : ""}`;
-    item.dataset.amount = String(b.amount);
-    item.dataset.date = b.date;
-    item.dataset.billId = b.id;
-    item.dataset.paid = b.paid ? "true" : "false";
-
-    // Tap row to open confirm bar (reuses your existing toggleConfirm)
-    item.onclick = function(){ toggleConfirm(item); };
-
-    const flipBtn = (window.BILLS_EDIT_MODE === true)
-      ? `<button class="btnSmall" onclick="flipBillPhase(event,this)">FLIP PHASE</button>`
-      : "";
-
-const badge = (b.source === "oneTime")
-  ? `<span style="font-size:11px; font-weight:900; margin-left:8px; padding:3px 8px; border:1px solid #2aa6ff55; border-radius:999px; color:#9aa7b6;">ONE-TIME</span>`
-  : "";
-
-item.innerHTML = `
-  <div>${escapeHtml(b.name)}${badge}</div>
-
-      <div>${fmtMoney(b.amount)}</div>
-      <div class="confirmBar">
-        <button class="confirmBtn" onclick="toggleBillPaid(event,this)">
-          ${b.paid ? "↩ MARK UNPAID" : "✔ CONFIRM PAID"}
-        </button>
-        ${flipBtn}
-        <button class="cancelBtn" onclick="cancelConfirm(event,this)">CANCEL</button>
-      </div>
-    `;
-
-    list.appendChild(item);
-  });
-
-  // Cockpit recompute: show totals for "today phase"
-  const t = computeBillsTotals(month);
-  const phase = getTodayPhase(); // 1 or 2
-
-  const should = (phase === 1) ? (Number(t.p1Unpaid) || 0) : (Number(t.p2Unpaid) || 0);
-
-  const balEl = document.getElementById("currentBalance");
-  const shouldEl = document.getElementById("shouldHave");
-  const availEl = document.getElementById("avail");
-
-  const bal = balEl ? parseMoney(balEl.textContent) : 0;
-  const avail = bal - should;
-
-  if(shouldEl) shouldEl.textContent = fmtMoney(should);
-  if(availEl) availEl.textContent = fmtMoney(avail);
-
-  // Optional label update (if you add the id in HTML)
-  const lbl = document.getElementById("shouldHaveLabel");
-  if(lbl) lbl.textContent = `YOU SHOULD HAVE (PHASE ${phase})`;
-
-  if(typeof updateStatus === "function") updateStatus();
-}
-
-
-/* Reversible toggle: paid <-> unpaid */
-function toggleBillPaid(e, btn){
-  if(e) e.preventDefault();
-  if(e) e.stopPropagation();
-
-  // Find the bill row element created in renderHomeBills()
-  const item = btn.closest(".item");
-  if(!item) return;
-
-  // Month source of truth: dropdown if present, else currentMonthYYYYMM()
- const month = getActiveMonth();
-
-
-  if(!month) return;
-
-  const id = item.dataset.billId;
-  if(!id) return;
-
-  ensureBillsForMonth(month);
-
-  // Load + normalize
-  const bills = getBills(month).map(normalizeBill);
-
-  // Find bill by id
-  const idx = bills.findIndex(b => String(b.id) === String(id));
-  if(idx === -1) return;
-
-  // Toggle paid state
-  const today = new Date().toISOString().slice(0,10);
-  bills[idx].paid = !bills[idx].paid;
-  bills[idx].paidAt = bills[idx].paid ? today : null;
-
-  // Save
-  setBills(month, bills);
-
-  // Re-render from source of truth (prevents Should Have drift)
-  renderHomeBills(month);
-  if(typeof renderBillsAndPhaseTotals === "function") {
-    renderBillsAndPhaseTotals(month);
-  }
-}
-
-/* ===== END MONTHLY BILLS PERSISTENCE (REVERSIBLE) ===== */
-
-
-
-/* ===== BEGIN DEBT PAYMENTS STORAGE ===== */
-const DEBT_PAYMENTS_KEY = "debt_payments_v1";
-
-function getDebtPayments(){
-  try{
-    return JSON.parse(localStorage.getItem(DEBT_PAYMENTS_KEY) || "[]");
-  }catch{
-    return [];
-  }
-}
-
-function setDebtPayments(arr){
-  localStorage.setItem(DEBT_PAYMENTS_KEY, JSON.stringify(arr));
-}
-
-/* ===== BEGIN DEBT PAYMENTS HISTORY STORAGE ===== */
-const DEBT_PAYMENT_HISTORY_KEY = "debt_payment_history_v1";
-
-function getDebtPaymentHistory(){
-  try{
-    return JSON.parse(localStorage.getItem(DEBT_PAYMENT_HISTORY_KEY) || "[]");
-  }catch{
-    return [];
-  }
-}
-
-function setDebtPaymentHistory(arr){
-  localStorage.setItem(DEBT_PAYMENT_HISTORY_KEY, JSON.stringify(arr));
-}
-/* ===== END DEBT PAYMENTS HISTORY STORAGE ===== */
-
-/* ===== END DEBT PAYMENTS STORAGE ===== */
-
-/* ===== BEGIN AUTO CURRENCY FORMAT ===== */
-
-// Format while typing (no forced decimals yet)
-function autoFormatCurrencyInput(input){
-  let raw = input.value;
-
-  // Strip everything except digits and decimal
-  raw = raw.replace(/[^0-9.]/g, "");
-
-  // Prevent more than one decimal
-  const parts = raw.split(".");
-  if(parts.length > 2){
-    raw = parts[0] + "." + parts.slice(1).join("");
-  }
-
-  // Format integer part with commas
-  const [intPart, decPart] = raw.split(".");
-  const intFormatted = intPart
-    ? Number(intPart).toLocaleString()
-    : "";
-
-  input.value = decPart !== undefined
-    ? `$${intFormatted}.${decPart}`
-    : intFormatted ? `$${intFormatted}` : "";
-}
-
-// Finalize on blur (force 2 decimals)
-function finalizeCurrencyInput(input){
-  const num = parseMoney(input.value);
-  if(!(num > 0)){
-    input.value = "";
-    return;
-  }
-  input.value = fmtMoney(num);
-}
-
-/* ===== END AUTO CURRENCY FORMAT ===== */
-
-
-function updateBalance(){
-  openBalanceModal();
-}
-
-function openBalanceModal(){
-  const modal = document.getElementById("balModal");
-  const back  = document.getElementById("balBackdrop");
-  const input = document.getElementById("balInput");
-  const err   = document.getElementById("balErr");
-  if(!modal || !back || !input) return;
-
-  // Prefill with current value (no $ / commas)
-  const cur = parseMoney(document.getElementById("currentBalance")?.textContent || "$0");
-  input.value = String(cur.toFixed(2));
-
-  if(err){ err.style.display = "none"; err.textContent = ""; }
-
-  back.style.display = "block";
-  modal.style.display = "flex";
-
-  // Focus for quick entry (mobile friendly)
-  setTimeout(() => input.focus(), 0);
-}
-
-function closeBalanceModal(){
-  const modal = document.getElementById("balModal");
-  const back  = document.getElementById("balBackdrop");
-  if(back) back.style.display = "none";
-  if(modal) modal.style.display = "none";
-}
-
-function saveBalanceFromModal(){
-  const input = document.getElementById("balInput");
-  const err   = document.getElementById("balErr");
-  const balEl = document.getElementById("currentBalance");
-  if(!input || !balEl) return;
-
-  const num = parseMoney(input.value);
-
-  if(!Number.isFinite(num)){
-    if(err){
-      err.textContent = "Please enter a valid number (example: 5195.91).";
-      err.style.display = "block";
-    }
-    return;
-  }
-
-  // Persist + update UI
-  setStoredBalance(num);
-  balEl.textContent = fmtMoney(num);
-
-  // Update timestamps + status + derived fields
-  setLastUpdatedNow();
-  updateStaleIndicator();
-  updateStatus();
-
-  // Recompute avail/should-have using your existing logic for the active month
-  const month = getActiveMonth();
-  ensureBillsForMonth(month);
+@@ -1373,50 +1508,127 @@ function saveBalanceFromModal(){
   renderHomeBills(month);
 
   closeBalanceModal();
+}
+
+/* ===== BEGIN DEBT PAYMENTS (DROPDOWN + EDIT AMOUNT) ===== */
+
+// 1) Put your card list here (copy names from your spreadsheet)
+// Replace these placeholders with YOUR actual card names:
+/* ===== BEGIN DEBT DROPDOWN OPTIONS (from your spreadsheet) ===== */
+const DEBT_ACCOUNTS = [
+  "USAA Signature Credit Card",
+  "USAA Platinum Credit Card",
+  "Amazon Prime Credit Card",
+  "AMEX Platinum Card",
+  "AMEX Blue Cash Credit Card",
+  "AMEX Delta Credit Card",
+  "AMEX Bonvoy Card",
+  "Amazon Prime Business Credit Card",
+];
+/* ===== END DEBT DROPDOWN OPTIONS (from your spreadsheet) ===== */
+
+
+/* ===== BEGIN DEBT PAYMENTS (PERSISTENT) ===== */
+
+
+function showQuickIncomeForm(){
+  const form = document.getElementById("quickIncomeForm");
+  if(!form) return;
+  form.style.display = "flex";
+
+  const dateInput = document.getElementById("quickIncomeDateInput");
+  if(dateInput && !dateInput.value){
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    dateInput.value = `${yyyy}-${mm}-${dd}`;
+  }
+
+  onQuickIncomeSourceChange();
+}
+
+function hideQuickIncomeForm(){
+  const form = document.getElementById("quickIncomeForm");
+  if(form) form.style.display = "none";
+
+  const sourceSelect = document.getElementById("quickIncomeSourceSelect");
+  const miscInput = document.getElementById("quickIncomeSourceMiscInput");
+  const grossInput = document.getElementById("quickIncomeGrossInput");
+  const taxInput = document.getElementById("quickIncomeTaxInput");
+  const dateInput = document.getElementById("quickIncomeDateInput");
+
+  if(sourceSelect) sourceSelect.value = "USAF";
+  if(miscInput){ miscInput.value = ""; miscInput.style.display = "none"; }
+  if(grossInput) grossInput.value = "";
+  if(taxInput) taxInput.value = "";
+  if(dateInput) dateInput.value = "";
+}
+
+function onQuickIncomeSourceChange(){
+  const sourceSelect = document.getElementById("quickIncomeSourceSelect");
+  const miscInput = document.getElementById("quickIncomeSourceMiscInput");
+  if(!sourceSelect || !miscInput) return;
+
+  const useMisc = sourceSelect.value === "Miscellaneous";
+  miscInput.style.display = useMisc ? "block" : "none";
+}
+
+function addQuickIncomeEntry(){
+  const sourceSelect = document.getElementById("quickIncomeSourceSelect");
+  const miscInput = document.getElementById("quickIncomeSourceMiscInput");
+  const grossInput = document.getElementById("quickIncomeGrossInput");
+  const taxInput = document.getElementById("quickIncomeTaxInput");
+  const dateInput = document.getElementById("quickIncomeDateInput");
+
+  if(!sourceSelect || !grossInput || !taxInput || !dateInput) return;
+
+  const selectedSource = String(sourceSelect.value || "").trim();
+  const source = selectedSource === "Miscellaneous"
+    ? String(miscInput?.value || "").trim()
+    : selectedSource;
+
+  const gross = parseMoney(grossInput.value || "");
+  const taxes = parseMoney(taxInput.value || "");
+  const date = normalizeIncomeDate(dateInput.value || "");
+
+  if(!source) return alert("Income source is required.");
+  if(!(gross > 0)) return alert("Gross income must be greater than 0.");
+  if(taxes < 0) return alert("Taxes withheld cannot be negative.");
+
+  const month = date ? monthFromDate(date) : getActiveMonth();
+  const items = getIncomeEntries();
+  items.unshift({ id: Date.now(), month, source, gross, taxes, date });
+  setIncomeEntries(items);
+
+  hideQuickIncomeForm();
+  renderPlanner();
+  updateStatus();
+  alert("Income added.");
 }
 
 /* ===== BEGIN DEBT PAYMENTS (DROPDOWN + EDIT AMOUNT) ===== */
@@ -1633,768 +796,7 @@ function hideDebtForm(){
 
 function loadDebtPayments(month){
   const debtList = document.getElementById("debtList");
-  if(!debtList) return;
-
-  const m = month || getActiveMonth();
-
-  debtList.innerHTML = "";
-
-  const showAll = getDebtShowAll();
-
-  const items = getDebtPayments()
-    .filter(p => {
-      // If SHOW ALL is ON, include everything
-      if(showAll) return true;
-
-      // Otherwise month-scope
-      if(p && p.month) return p.month === m;
-
-      // Backward-compat: if an old entry lacks month, show it only for the active month
-      return m === getActiveMonth();
-    });
-
-  if(items.length === 0){
-    debtList.innerHTML = `<div style="padding:14px; color:#9aa7b6;">No queued debt payments for this month.</div>`;
-    return;
-  }
-
-  items.forEach(p => debtList.appendChild(renderDebtPaymentRow(p)));
-}
-
-
-function renderDebtPaymentRow(p){
-  const item = document.createElement("div");
-  item.className = "item";
-  item.dataset.amount = String(p.amount);
-  item.dataset.id = String(p.id);
-  item.onclick = function(){ toggleConfirm(item); };
-
-  item.innerHTML = `
-    <div class="debtName">${escapeHtml(p.name)}</div>
-    <div class="debtAmt">${fmtMoney(p.amount)}</div>
-
-      <div class="confirmBar">
-    <button class="confirmBtn" onclick="confirmDebtPaid(event,this)">✔ CONFIRM PAID</button>
-    <button class="editBtn" onclick="editDebtAmount(event,this)">EDIT</button>
-    <button class="cancelBtn" onclick="cancelConfirm(event,this)">CANCEL</button>
-    <button class="cancelBtn" onclick="deleteDebtPayment(event,this)" style="width:auto;">DELETE</button>
-  </div>
-
-  `;
-  return item;
-}
-
-function addDebtPaymentFromForm(){
-  const sel = document.getElementById("debtCardSelect");
-  const amtInput = document.getElementById("debtAmountInput");
-  const debtList = document.getElementById("debtList");
-  if(!sel || !amtInput || !debtList) return;
-
-  const name = sel.value?.trim();
-  const amt = parseMoney(amtInput.value);
-
-  if(!name){ alert("Pick a card/account."); return; }
-  if(!(amt > 0)){ alert("Enter a valid positive amount."); return; }
-
-  const payments = getDebtPayments();
-  const dateEl = document.getElementById("debtDateInput");
-const postedDate = (dateEl && dateEl.value) ? dateEl.value : new Date().toISOString().slice(0,10);
-const month = getActiveMonth();
-
-const p = { id: Date.now(), name, amount: amt, month, postedDate };
-
-
-  payments.unshift(p);
-  setDebtPayments(payments);
-
-  debtList.prepend(renderDebtPaymentRow(p));
-  hideDebtForm();
-  updateHangingDebtWarning(getActiveMonth());
-
-
-  if(document.getElementById("pageBills")?.style.display !== "none"){
-    const m = document.getElementById("billsPageMonthSelect")?.value || currentMonthYYYYMM();
-    renderBillsAndPhaseTotals(m);
-  }
-
-}
-
-function editDebtAmount(e, btn){
-  e.stopPropagation();
-
-  const item = btn.closest(".item");
-  if(!item) return;
-
-  const id = Number(item.dataset.id || 0);
-  const current = Number(item.dataset.amount || 0);
-
-  const nextStr = prompt("Edit payment amount:", fmtMoney(current));
-  if(!nextStr) return;
-
-  const next = parseMoney(nextStr);
-  if(!(next > 0)){
-    alert("Enter a valid positive amount.");
-    return;
-  }
-
-  // update storage
-  const payments = getDebtPayments().map(p => p.id === id ? { ...p, amount: next } : p);
-  setDebtPayments(payments);
-
-  // update UI
-  item.dataset.amount = String(next);
-  const amtEl = item.querySelector(".debtAmt");
-  if(amtEl) amtEl.textContent = fmtMoney(next);
-
-  // refresh phase totals if Bills page is visible
-    if(document.getElementById("pageBills")?.style.display !== "none"){
-    const m = document.getElementById("billsPageMonthSelect")?.value || currentMonthYYYYMM();
-    renderBillsAndPhaseTotals(m);
-  }
-
-}
-
-function confirmDebtPaid(e, btn){
-  e.stopPropagation();
-
-  const item = btn.closest(".item");
-  if(!item) return;
-
-  const amt = Number(item.dataset.amount || 0);
-  const id  = Number(item.dataset.id || 0);
-
-  // Update totals (Available for Debt down, Current Balance down)
-  const availEl = document.getElementById("avail");
-  const balEl   = document.getElementById("currentBalance");
-  if(!availEl || !balEl) return;
-
-  let avail = parseMoney(availEl.textContent);
-  let bal   = parseMoney(balEl.textContent);
-
-  avail -= amt;
-  bal   -= amt;
-
-
-  availEl.textContent = fmtMoney(avail);
-  balEl.textContent   = fmtMoney(bal);
-  updateStatus();
-
-     // Move from queue -> posted history
-  const payments = getDebtPayments();
-  const match = payments.find(p => p.id === id);
-  const remaining = payments.filter(p => p.id !== id);
-  setDebtPayments(remaining);
-
-  if(match){
-       const history = getDebtPaymentHistory();
-       history.unshift({ ...match, confirmedAt: Date.now() });
-       setDebtPaymentHistory(history);
-      }
-
-
-  // Optional: auto-apply to debt snapshot balance (Option C)
-  if(getAutoApplyEnabled()){
-    const nameEl = item.querySelector(".debtName");
-    const debtName = nameEl ? nameEl.textContent.trim() : "";
-
-    if(debtName){
-      const balances = getDebtBalances();
-      const currentOwed = Number(balances[debtName] || 0);
-      const nextOwed = Math.max(0, currentOwed - amt);
-      balances[debtName] = nextOwed;
-      setDebtBalances(balances);
-
-      // If you're currently on the Debt page, refresh it
-      const debtPage = document.getElementById("pageDebt");
-      if(debtPage && debtPage.style.display !== "none"){
-        renderDebtSnapshotList();
-        renderTotalDebtOwed(); 
-        syncDebtSnapshotInput();
-      }
-    }
-
-  }
-
-// refresh phase totals if Bills page is visible
-if(document.getElementById("pageBills")?.style.display !== "none"){
-  const m = document.getElementById("billsPageMonthSelect")?.value || currentMonthYYYYMM();
-  renderBillsAndPhaseTotals(m);
-}
-
-  updateHangingDebtWarning(getActiveMonth());
-
-
-  // Animate + remove row
-  item.classList.add("removing");
-  setTimeout(()=>{ item.remove(); },230);
-}
-
-function deleteDebtPayment(e, btn){
-  e.stopPropagation();
-
-  const item = btn.closest(".item");
-  if(!item) return;
-
-  const id = Number(item.dataset.id || 0);
-  if(!id) return;
-
-  if(!confirm("Delete this debt payment?")) return;
-
-  const remaining = getDebtPayments().filter(p => Number(p.id) !== id);
-  setDebtPayments(remaining);
-
-  // Update Bills page totals if visible
-  if(document.getElementById("pageBills")?.style.display !== "none"){
-    const m = document.getElementById("billsPageMonthSelect")?.value || currentMonthYYYYMM();
-    renderBillsAndPhaseTotals(m);
-  }
-
- updateHangingDebtWarning(getActiveMonth());
-
-  // Remove UI row with same animation style
-  item.classList.add("removing");
-  setTimeout(()=>{ item.remove(); },230);
-}
-
-
-/* ===== END DEBT PAYMENTS (PERSISTENT) ===== */
-
-
-// Tiny helper so user-entered names can’t break your HTML
-function escapeHtml(str){
-  return String(str)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#39;");
-}
-
-/* ===== END DEBT PAYMENTS (DROPDOWN + EDIT AMOUNT) ===== */
-
-
-function toggleConfirm(el){
-  let bar = el.querySelector(".confirmBar");
-  if(bar.style.display === "block") return;
-  document.querySelectorAll(".confirmBar").forEach(b => b.style.display = "none");
-  bar.style.display = "block";
-}
-
-function cancelConfirm(e,btn){
-  e.stopPropagation();
-  btn.closest(".confirmBar").style.display="none";
-}
-
-
-function parseMoney(str){
-  return Number(String(str).replace(/[^0-9.-]/g,"")) || 0;
-}
-function fmtMoney(n){
-  const x = Number(n) || 0;
-  return x.toLocaleString(undefined,{style:"currency", currency:"USD"});
-}
-
-
-/* ===== BEGIN STATUS (SAFE/SHORTFALL) + DELTA ===== */
-function updateStatus(){
-  const shouldEl  = document.getElementById("shouldHave");
-  const balEl     = document.getElementById("currentBalance");
-  const statusEl  = document.getElementById("statusText");
-  if(!shouldEl || !balEl || !statusEl) return;
-
-  const should = parseMoney(shouldEl.textContent);
-  const bal    = parseMoney(balEl.textContent);
-  const delta  = bal - should;
-
-  if(delta >= 0){
-    statusEl.textContent = `SAFE (+${fmtMoney(delta)})`;
-    statusEl.style.color = "#2bd576";
-  } else {
-    statusEl.textContent = `SHORTFALL (-${fmtMoney(Math.abs(delta))})`;
-    statusEl.style.color = "#ff5c5c";
-  }
-}
-/* ===== END STATUS (SAFE/SHORTFALL) + DELTA ===== */
-
-/* ===== BEGIN DEBT SNAPSHOT MODEL (defaults + storage) ===== */
-
-const DEBT_BALANCES_KEY = "debt_balances_v1";
-const DEBT_AUTO_APPLY_KEY = "debt_auto_apply_v1";
-
-// Store as POSITIVE amounts owed (we'll DISPLAY them as parentheses)
-const DEFAULT_DEBT_BALANCES = {
-  "House Mortgage": 550000.00,
-  "Land Mortgage": 91750.34,
-  "Tesla Loan": 30918.79,
-  "Highlander Loan": 5781.08,
-  "USAA Signature Credit Card": 4519.56,
-  "USAA Platinum Credit Card": 0,
-  "Amazon Prime Credit Card": 90.82,
-  "AMEX Platinum Card": 0,
-  "AMEX Blue Cash Credit Card": 178.57,
-  "AMEX Delta Credit Card": 0,
-  "AMEX Bonvoy Card": 1701.99,
-  "Amazon Prime Business Credit Card": 1715.46
-};
-
-function getDebtBalances(){
-  try{
-    const stored = JSON.parse(localStorage.getItem(DEBT_BALANCES_KEY) || "null");
-    if(stored && typeof stored === "object") return stored;
-  }catch(e){}
-  return { ...DEFAULT_DEBT_BALANCES };
-}
-
-function setDebtBalances(obj){
-  localStorage.setItem(DEBT_BALANCES_KEY, JSON.stringify(obj));
-}
-
-function getAutoApplyEnabled(){
-  return localStorage.getItem(DEBT_AUTO_APPLY_KEY) === "true";
-}
-
-function setAutoApplyEnabled(enabled){
-  localStorage.setItem(DEBT_AUTO_APPLY_KEY, enabled ? "true" : "false");
-}
-
-function fmtOwed(n){
-  const val = Number(n || 0);
-  if(val <= 0) return "$-";
-  // display like your sheet: $(550,000.00)
-  return `$(${val.toLocaleString(undefined,{minimumFractionDigits:2, maximumFractionDigits:2})})`;
-}
-
-/* ===== END DEBT SNAPSHOT MODEL (defaults + storage) ===== */
-
-function computeTotalDebtOwed(){
-  const balances = getDebtBalances();
-  return Object.values(balances).reduce((sum, v) => sum + Math.max(0, Number(v) || 0), 0);
-}
-
-function renderTotalDebtOwed(){
-  const el = document.getElementById("totalDebtOwed");
-  if(!el) return;
-  el.textContent = fmtMoney(computeTotalDebtOwed());
-}
-
-function renderDebtPaymentsHistory(month){
-  const m = month || getActiveMonth();
-
-  const totalEl = document.getElementById("debtPaymentsHistoryTotal");
-  const listEl  = document.getElementById("debtPaymentsHistoryList");
-  if(!totalEl || !listEl) return;
-
-  const items = getDebtPaymentHistory()
-    .filter(p => p.month === m)
-    .sort((a,b) => (b.confirmedAt||0) - (a.confirmedAt||0));
-
-  const total = items.reduce((s,p) => s + (Number(p.amount)||0), 0);
-  totalEl.textContent = fmtMoney(total);
-
-  if(items.length === 0){
-    listEl.innerHTML = `<div style="padding:14px; color:#9aa7b6;">No posted debt payments for this month.</div>`;
-    return;
-  }
-
-  listEl.innerHTML = "";
-  items.forEach(p => {
-    const row = document.createElement("div");
-    row.className = "item";
-    row.innerHTML = `
-      <div>
-        <div style="font-weight:800;">${escapeHtml(p.name || "")}</div>
-        <div style="font-size:12px;color:#9aa7b6;margin-top:3px;">${escapeHtml(p.postedDate || "")}</div>
-      </div>
-      <div style="font-weight:800;">${fmtMoney(Number(p.amount)||0)}</div>
-    `;
-    listEl.appendChild(row);
-  });
-}
-
-
-/* ===== BEGIN DEBT SNAPSHOT PAGE LOGIC ===== */
-
-function initDebtSnapshot(){
-  // Initialize storage once
-  if(!localStorage.getItem(DEBT_BALANCES_KEY)){
-    setDebtBalances({ ...DEFAULT_DEBT_BALANCES });
-  }
-
-  const balances = getDebtBalances();
-
-  const sel = document.getElementById("debtSnapshotSelect");
-  const input = document.getElementById("debtSnapshotInput");
-  const list = document.getElementById("debtSnapshotList");
-  const toggle = document.getElementById("autoApplyToggle");
-
-  if(!sel || !input || !list) return;
-
-  // Toggle init
-  if(toggle){
-    toggle.checked = getAutoApplyEnabled();
-  }
-
-  // Populate dropdown
-  sel.innerHTML = "";
-  Object.keys(balances).forEach(name => {
-    const opt = document.createElement("option");
-    opt.value = name;
-    opt.textContent = name;
-    sel.appendChild(opt);
-  });
-
-  sel.onchange = () => syncDebtSnapshotInput();
-  renderDebtSnapshotList();
-  renderTotalDebtOwed();
-  syncDebtSnapshotInput();
-
-  // Debt payments history UI
-  const mSel = document.getElementById("debtPaymentsMonthSelect");
-  if(mSel){
-    buildMonthOptions(mSel);
-    mSel.value = getActiveMonth();
-    renderDebtPaymentsHistory(mSel.value);
-  }
-
-}
-
-function onToggleAutoApply(checked){
-  setAutoApplyEnabled(checked);
-}
-
-function syncDebtSnapshotInput(){
-  const sel = document.getElementById("debtSnapshotSelect");
-  const input = document.getElementById("debtSnapshotInput");
-  if(!sel || !input) return;
-
-  const balances = getDebtBalances();
-  const val = Number(balances[sel.value] || 0);
-
-  // Input should be normal currency (no parentheses), so user can type easily
-  input.value = val > 0 ? fmtMoney(val) : "";
-}
-
-function saveDebtSnapshotValue(){
-  const sel = document.getElementById("debtSnapshotSelect");
-  const input = document.getElementById("debtSnapshotInput");
-  if(!sel || !input) return;
-
-  const next = Math.max(0, parseMoney(input.value)); // allow 0
-  const balances = getDebtBalances();
-  balances[sel.value] = next;
-  setDebtBalances(balances);
-
-  renderDebtSnapshotList();
-  renderTotalDebtOwed();
-  syncDebtSnapshotInput();
-}
-
-function renderDebtSnapshotList(){
-  const list = document.getElementById("debtSnapshotList");
-  if(!list) return;
-
-  const balances = getDebtBalances();
-  const entries = Object.entries(balances);
-
-  // Sort highest owed first
-  entries.sort((a,b) => (b[1]||0) - (a[1]||0));
-
-  list.innerHTML = "";
-  entries.forEach(([name, val]) => {
-    const row = document.createElement("div");
-    row.className = "item";
-    row.style.cursor = "pointer";
-    row.onclick = () => {
-      const sel = document.getElementById("debtSnapshotSelect");
-      if(sel){
-        sel.value = name;
-        syncDebtSnapshotInput();
-      }
-    };
-    row.innerHTML = `<div>${escapeHtml(name)}</div><div>${fmtOwed(val)}</div>`;
-    list.appendChild(row);
-  });
-}
-
-/* ===== END DEBT SNAPSHOT PAGE LOGIC ===== */
-
-
-/* ===== BEGIN STALE BALANCE (UPDATED X AGO) ===== */
-const LAST_UPDATED_KEY = "bills_lastUpdatedMs";
-
-// ===== BEGIN PERSISTENT CURRENT BALANCE =====
-const BALANCE_KEY = "bills_currentBalance_v1";
-
-function getStoredBalance(){
-  const raw = localStorage.getItem(BALANCE_KEY);
-  const num = raw ? Number(raw) : NaN;
-  return Number.isFinite(num) ? num : NaN;
-}
-
-function setStoredBalance(num){
-  const n = Number(num);
-  localStorage.setItem(BALANCE_KEY, String(Number.isFinite(n) ? n : 0));
-}
-
-function loadStoredBalanceToUI(){
-  const balEl = document.getElementById("currentBalance");
-  if(!balEl) return;
-
-  const stored = getStoredBalance();
-
-  // If we have a stored number, trust it
-  if(Number.isFinite(stored)){
-    balEl.textContent = fmtMoney(stored);
-    return;
-  }
-
-  // Otherwise initialize storage from whatever is currently on-screen
-  const cur = parseMoney(balEl.textContent);
-  setStoredBalance(cur);
-  balEl.textContent = fmtMoney(cur);
-}
-// ===== END PERSISTENT CURRENT BALANCE =====
-
-// ===== BEGIN DEBT SHOW-ALL TOGGLE =====
-const DEBT_SHOW_ALL_KEY = "debt_showAll_v1";
-
-function getDebtShowAll(){
-  return localStorage.getItem(DEBT_SHOW_ALL_KEY) === "1";
-}
-
-function setDebtShowAll(on){
-  localStorage.setItem(DEBT_SHOW_ALL_KEY, on ? "1" : "0");
-}
-
-function syncDebtShowAllBtn(){
-  const btn = document.getElementById("debtShowAllBtn");
-  if(!btn) return;
-
-  const on = getDebtShowAll();
-  btn.textContent = on ? "SHOW ALL: ON" : "SHOW ALL: OFF";
-
-  // Optional: subtle visual cue without changing your global theme
-  btn.style.opacity = on ? "1" : "0.85";
-}
-
-function toggleDebtShowAll(){
-  const next = !getDebtShowAll();
-  setDebtShowAll(next);
-  syncDebtShowAllBtn();
-
-  // Refresh the queued debt list using the ACTIVE month (or all months if toggled)
-  loadDebtPayments(getActiveMonth());
- updateHangingDebtWarning(getActiveMonth());
-
-}
-// ===== END DEBT SHOW-ALL TOGGLE =====
-
-function countHangingDebtForMonth(targetMonth){
-  const items = (typeof getDebtPayments === "function") ? getDebtPayments() : [];
-  const m = targetMonth || getActiveMonth();
-
-  // Hanging = queued items explicitly tagged to some OTHER month
-  return items.filter(p => p && p.month && p.month !== m).length;
-}
-
-
-// ===== BEGIN HANGING DEBT WARNING =====
-function updateHangingDebtWarning(activeMonth){
-  const warn = document.getElementById("debtHangWarn");
-  if(!warn) return;
-
-  const m = activeMonth || getActiveMonth();
-
-  // If SHOW ALL is ON, user can already see everything -> no warning needed
-  if(typeof getDebtShowAll === "function" && getDebtShowAll()){
-    warn.style.display = "none";
-    warn.textContent = "";
-    return;
-  }
-
-  const items = (typeof getDebtPayments === "function") ? getDebtPayments() : [];
-
-  // Count payments that are explicitly tagged to a different month
-  const hanging = items.filter(p => p && p.month && p.month !== m);
-
-  if(hanging.length === 0){
-    warn.style.display = "none";
-    warn.textContent = "";
-    return;
-  }
-
-  const n = hanging.length;
-  warn.textContent = `⚠️ You have ${n} queued debt payment${n===1?"":"s"} in other months. Turn on SHOW ALL to review.`;
-  warn.style.display = "block";
-}
-// ===== END HANGING DEBT WARNING =====
-
-function revealHangingDebt(){
-  // If already showing all, open the summary modal instead (nice UX)
-  if(getDebtShowAll()){
-    openUnpostedDebtModal();
-    return;
-  }
-
-  // Turn SHOW ALL on and refresh list
-  setDebtShowAll(true);
-  syncDebtShowAllBtn();
-  loadDebtPayments(getActiveMonth());
-  updateHangingDebtWarning(getActiveMonth());
-}
-
-function openUnpostedDebtModal(){
-  const modal = document.getElementById("unpostedDebtModal");
-  const back  = document.getElementById("unpostedDebtBackdrop");
-  if(!modal || !back) return;
-
-  renderUnpostedDebtList();
-
-  back.style.display = "block";
-  modal.style.display = "flex";
-}
-
-function closeUnpostedDebtModal(){
-  const modal = document.getElementById("unpostedDebtModal");
-  const back  = document.getElementById("unpostedDebtBackdrop");
-  if(back) back.style.display = "none";
-  if(modal) modal.style.display = "none";
-}
-
-function renderUnpostedDebtList(){
-  const host = document.getElementById("unpostedDebtList");
-  if(!host) return;
-
-  const items = (typeof getDebtPayments === "function") ? getDebtPayments() : [];
-  if(items.length === 0){
-    host.innerHTML = `<div style="padding:12px; color:#9aa7b6;">No queued debt payments.</div>`;
-    return;
-  }
-
-  // Group by month
-  const groups = {};
-  for(const p of items){
-    const m = (p && p.month) ? p.month : "Unassigned";
-    if(!groups[m]) groups[m] = [];
-    groups[m].push(p);
-  }
-
-  const months = Object.keys(groups).sort(); // YYYY-MM sorts naturally
-  const active = getActiveMonth();
-
-  host.innerHTML = months.map(m => {
-    const arr = groups[m];
-    const total = arr.reduce((s, x) => s + Math.max(0, Number(x.amount || 0)), 0);
-    const isActive = (m === active);
-
-    const rows = arr.map(p => `
-      <div style="display:flex; justify-content:space-between; gap:10px; padding:10px 0; border-top:1px solid #1b2533;">
-        <div style="min-width:0;">
-          <div style="font-weight:900; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(p.name || "Debt")}</div>
-          <div style="font-size:12px; color:#9aa7b6;">${escapeHtml(p.postedDate || "")}</div>
-        </div>
-        <div style="font-weight:900;">${fmtMoney(Number(p.amount||0))}</div>
-      </div>
-    `).join("");
-
-    const jumpBtn = (m !== "Unassigned")
-      ? `<button class="btn" onclick="jumpToDebtMonth('${m}')" style="margin-top:0; padding:10px 12px; font-size:12px; font-weight:900;">${isActive ? "ACTIVE" : "GO"}</button>`
-      : "";
-
-    return `
-      <div style="border:1px solid #1b2533; border-radius:12px; margin-bottom:12px; overflow:hidden;">
-        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; padding:12px; background:rgba(255,255,255,0.02);">
-          <div>
-            <div style="font-weight:900;">${m}${isActive ? " (Active)" : ""}</div>
-            <div style="font-size:12px; color:#9aa7b6;">${arr.length} item${arr.length===1?"":"s"} • Total ${fmtMoney(total)}</div>
-          </div>
-          ${jumpBtn}
-        </div>
-        <div style="padding:0 12px 12px;">${rows}</div>
-      </div>
-    `;
-  }).join("");
-}
-
-function jumpToDebtMonth(m){
-  const sel = document.getElementById("activeMonthSelect");
-  if(sel) sel.value = m;
-  applyActiveMonthChange(m);
-  closeUnpostedDebtModal();
-}
-
-
-
-const STALE_HOURS = 6; // change this if you want (e.g., 12)
-
-function setLastUpdatedNow(){
-  localStorage.setItem(LAST_UPDATED_KEY, String(Date.now()));
-}
-
-function getLastUpdatedMs(){
-  const raw = localStorage.getItem(LAST_UPDATED_KEY);
-  const ms = raw ? Number(raw) : NaN;
-  return Number.isFinite(ms) ? ms : NaN;
-}
-
-function formatAge(msAgo){
-  const mins = Math.floor(msAgo / 60000);
-  if(mins < 1) return "just now";
-  if(mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if(hrs < 24) return `${hrs}h ago`;
-  const days = Math.floor(hrs / 24);
-  return `${days}d ago`;
-}
-
-function updateStaleIndicator(){
-  const el = document.getElementById("updatedAgo");
-  if(!el) return;
-
-  const last = getLastUpdatedMs();
-  if(!Number.isFinite(last)){
-    el.textContent = "UPDATED —";
-    el.style.color = "#9aa7b6";
-    return;
-  }
-
-  const ageMs = Date.now() - last;
-  const ageText = formatAge(ageMs);
-
-  const stale = ageMs >= STALE_HOURS * 3600000;
-  el.textContent = stale ? `UPDATED ${ageText} ⚠️` : `UPDATED ${ageText}`;
-  el.style.color = stale ? "#f5b942" : "#9aa7b6";
-}
-/* ===== END STALE BALANCE (UPDATED X AGO) ===== */
-
-/* ===== BEGIN MENU + MONTHLY BILLS ===== */
-
-function toggleMenu(){
-  const drawer = document.getElementById("menuDrawer");
-  const back = document.getElementById("menuBackdrop");
-  if(!drawer || !back) return;
-
-  const open = drawer.style.display === "block";
-  drawer.style.display = open ? "none" : "block";
-  back.style.display = open ? "none" : "block";
-
-  if(!open){
-    // When opening, refresh snapshot + bills view
-   
-  }
-}
-
-/* ===== END MENU + MONTHLY BILLS ===== */
-
-/* ===== BEGIN NAVIGATION ===== */
-function showPage(pageId){
-  document.querySelectorAll(".page").forEach(p => p.style.display = "none");
-  const page = document.getElementById(pageId);
-  if(page) page.style.display = "block";
-}
-
-function navigateTo(dest){
-  // Close menu if open
+@@ -2185,50 +2397,56 @@ function navigateTo(dest){
   const drawer = document.getElementById("menuDrawer");
   const back = document.getElementById("menuBackdrop");
   if(drawer && back){
@@ -2451,731 +853,7 @@ function normalizeBill(b){
   bill.paid = bill.paid === true;
   bill.paidAt = bill.paid ? (bill.paidAt || null) : null;
 
-   // ----- Suppressed (hidden for this month) -----
-     bill.suppressed = bill.suppressed === true;
-
-  return bill;
-}
-
-
-
-
-
-// Keep cockpit numbers consistent even when toggling from Bills page
-function applyBillDelta(amount, markingPaid){
-  const shouldEl = document.getElementById("shouldHave");
-  const availEl  = document.getElementById("avail");
-  if(!shouldEl || !availEl) return;
-
-  let should = parseMoney(shouldEl.textContent);
-  let avail  = parseMoney(availEl.textContent);
-
-  if(markingPaid){
-    should = should - amount;
-    avail  = avail + amount;
-  } else {
-    should = should + amount;
-    avail  = avail - amount;
-  }
-
-  shouldEl.textContent = fmtMoney(should);
-  availEl.textContent  = fmtMoney(avail);
-  updateStatus();
-}
-
-const SHOW_HIDDEN_BILLS_KEY = "show_hidden_bills_v1";
-
-function getShowHiddenBills(){
-  return localStorage.getItem(SHOW_HIDDEN_BILLS_KEY) === "true";
-}
-
-function setShowHiddenBills(enabled){
-  localStorage.setItem(SHOW_HIDDEN_BILLS_KEY, enabled ? "true" : "false");
-}
-
-function onToggleShowHiddenBills(checked){
-  setShowHiddenBills(checked);
-  renderBillsPage();
-}
-
-
-function initBillsPage(){
-  const sel = document.getElementById("billsPageMonthSelect");
-  if(!sel) return;
-
-  // ALWAYS rebuild month options when opening Bills page
-  buildMonthOptions(sel);
-
-  // Default to active month if available
-  const active = getActiveMonth();
-  const hasActive = Array.from(sel.options).some(o => o.value === active);
-  sel.value = hasActive ? active : currentMonthYYYYMM();
-
-      const showHiddenToggle = document.getElementById("showHiddenBillsToggle");
-      if(showHiddenToggle){
-        showHiddenToggle.checked = getShowHiddenBills();
-      }
-
-  // Change handler
-  sel.onchange = () => {
-  const m = sel.value;
-
-  ensureBillsForMonth(m);
-  renderBillsAndPhaseTotals(m);
-  renderBillsPage();
-};
-
-
-  // Initial render
-  renderBillsPage();
-}
-
-function renderBillsPage(){
-  const sel = document.getElementById("billsPageMonthSelect");
-  const out = document.getElementById("billsPageList");
-  if(!sel || !out) return;
-
-  const month = sel.value;
-  renderBillsAndPhaseTotals(month);
-
-  ensureBillsForMonth(month);
-
-
-  const allBills = getBills(month).map(normalizeBill);
-
-// Count suppressed bills for the selected month
-const suppressedCount = allBills.filter(b => b.suppressed).length;
-
-// Update the SHOW HIDDEN label with (n)
-const label = document.getElementById("showHiddenLabel");
-if (label) {
-  label.textContent = suppressedCount > 0
-    ? `SHOW HIDDEN (${suppressedCount})`
-    : "SHOW HIDDEN";
-}
-
-let bills = allBills;
-
-  // persist any normalization upgrades
-  setBills(month, bills);
-
-  const showHidden = getShowHiddenBills();
-  if(!showHidden){
-    bills = bills.filter(b => !b.suppressed);
-  }
-
-  out.innerHTML = "";
-
-  if(bills.length === 0){
-    const row = document.createElement("div");
-    row.className = "item";
-    row.innerHTML = `<div>No bills found for ${month}</div><div></div>`;
-    out.appendChild(row);
-    return;
-  }
-
-  bills.forEach(b => {
-    const row = document.createElement("div");
-    row.className = `item${b.paid ? " paid" : ""}${b.suppressed ? " suppressed" : ""}`;
-
-
-    const paidDateVal = b.paidAt ? b.paidAt : "";
-
-    row.innerHTML = `
-      <div style="flex:1; padding-right:10px;">
-        ${(() => {
-  const badge = (b.source === "oneTime")
-    ? `<span style="font-size:11px; font-weight:900; margin-left:8px; padding:3px 8px; border:1px solid #2aa6ff55; border-radius:999px; color:#9aa7b6;">ONE-TIME</span>`
-    : "";
-  const hiddenBadge = b.suppressed
-  ? `<span style="font-size:11px; font-weight:900; margin-left:8px; padding:3px 8px; border:1px solid #ff5c5c55; border-radius:999px; color:#ffb3b3;">HIDDEN</span>`
-  : "";
-return `<div style="font-weight:800;">${escapeHtml(b.name)}${badge}${hiddenBadge}</div>`;
-
-})()}
-
-        <div style="font-size:12px; color:#9aa7b6; margin-top:4px;">
-          Due: ${escapeHtml(b.date || "—")}
-        </div>
-      </div>
-
-      <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
-        <div style="font-weight:800;">${fmtMoney(Number(b.amount || 0))}</div>
-
-        <div class="billControls">
-  <button class="billPaidBtn ${b.paid ? "paid" : ""}"
-          onclick="onBillPaidToggle('${b.id}', '${month}', ${!b.paid})">
-    ${b.paid ? "✔ PAID" : "MARK PAID"}
-  </button>
-
-  <input type="date"
-         value="${paidDateVal}"
-         onchange="onBillPaidDateChange('${b.id}', '${month}', this.value)">
-
-  <button class="miniBtn"
-          onclick="clearBillPaidDate(event, '${b.id}', '${month}')">CLEAR</button>
-
-  <button class="miniBtn"
-          onclick="editBillAmount('${month}', '${b.id}')">EDIT $</button>
-
-  ${b.source === "oneTime"
-    ? `
-      <button class="miniBtn"
-              onclick="editOneTimeDueDate('${month}', '${b.id}')">DUE</button>
-      <button class="miniBtn"
-              onclick="deleteBill('${month}', '${b.id}')">DELETE</button>
-    `
-    : `
-    <button class="miniBtn"
-        onclick="toggleSuppressBill('${month}', '${b.id}')">
-  ${b.suppressed ? "UNHIDE" : "HIDE"}
-</button>
-
-    `
-  }
-</div>
-
-      </div>
-    `;
-
-    out.appendChild(row);
-  });
-}
-
-function onBillPaidToggle(billIdVal, month, checked){
-  const bills = getBills(month).map(normalizeBill);
-  const idx = bills.findIndex(b => b.id === billIdVal);
-  if(idx < 0) return;
-
-  const wasPaid = !!bills[idx].paid;
-  const amt = Number(bills[idx].amount || 0);
-
-  // If no change, do nothing
-  if(wasPaid === checked) return;
-
-  bills[idx].paid = checked;
-
-  // If toggling paid ON and no paidAt, default to today
-  if(checked && !bills[idx].paidAt){
-    bills[idx].paidAt = todayISO();
-  }
-  // If toggling paid OFF, clear paidAt
-  if(!checked){
-    bills[idx].paidAt = null;
-  }
-
-  setBills(month, bills);
-
-  // Refresh views
-  renderBillsPage();
-
-  // Recompute cockpit from source-of-truth for the ACTIVE month
-  const active = getActiveMonth();
-  ensureBillsForMonth(active);
-  renderHomeBills(active);
-  
-}
-
-function onBillPaidDateChange(billIdVal, month, dateVal){
-  const bills = getBills(month).map(normalizeBill);
-  const idx = bills.findIndex(b => b.id === billIdVal);
-  if(idx < 0) return;
-
-  const prevPaid = !!bills[idx].paid;
-  const amt = Number(bills[idx].amount || 0);
-
-  // Setting a date => Paid
-  if(dateVal){
-    bills[idx].paidAt = dateVal;
-    bills[idx].paid = true;
-    
-  } else {
-    // Date cleared via picker (rare). Treat as unpaid.
-    bills[idx].paidAt = null;
-    bills[idx].paid = false;
-  
-  }
-
-  setBills(month, bills);
-
-  renderBillsPage();
-
-  // Recompute cockpit from source-of-truth for the ACTIVE month
-  const active = getActiveMonth();
-  ensureBillsForMonth(active);
-  renderHomeBills(active);
-
-  
-}
-
-function clearBillPaidDate(e, billIdVal, month){
-  e.stopPropagation();
-
-  const bills = getBills(month).map(normalizeBill);
-  const idx = bills.findIndex(b => b.id === billIdVal);
-  if(idx < 0) return;
-
-  const wasPaid = !!bills[idx].paid;
-  const amt = Number(bills[idx].amount || 0);
-
-  bills[idx].paidAt = null;
-  bills[idx].paid = false;
-  setBills(month, bills);
-
-  renderBillsPage();
-
-  // Recompute cockpit from source-of-truth for the ACTIVE month
-  const active = getActiveMonth();
-  ensureBillsForMonth(active);
-  renderHomeBills(active);
-
-  
-}
-
-/* ===== BEGIN BILL ADJUSTMENT ACTIONS ===== */
-
-function deleteBill(month, billIdVal){
-  const bills = getBills(month).map(normalizeBill);
-  const idx = bills.findIndex(b => b.id === billIdVal);
-  if(idx < 0) return;
-
-  // One-time bills: real delete
-  if(bills[idx].source === "oneTime"){
-    bills.splice(idx, 1);
-  } else {
-    // Template bills: hide for this month
-    bills[idx].suppressed = true;
-  }
-
-  setBills(month, bills);
-  renderBillsPage();
-  renderHomeBills(getActiveMonth());
-  renderBillsAndPhaseTotals(getActiveMonth());
-}
-
-function toggleSuppressBill(month, billIdVal){
-  const bills = getBills(month).map(normalizeBill);
-  const idx = bills.findIndex(b => b.id === billIdVal);
-  if(idx < 0) return;
-
-  bills[idx].suppressed = !bills[idx].suppressed;
-  setBills(month, bills);
-
-  renderBillsPage();
-  renderHomeBills(getActiveMonth());
-  renderBillsAndPhaseTotals(getActiveMonth());
-}
-
-function editBillAmount(month, billIdVal){
-  const bills = getBills(month).map(normalizeBill);
-  const idx = bills.findIndex(b => b.id === billIdVal);
-  if(idx < 0) return;
-
-  const cur = Number(bills[idx].amount || 0);
-  const nextStr = prompt("Edit bill amount:", fmtMoney(cur));
-  if(!nextStr) return;
-
-  const next = parseMoney(nextStr);
-  if(!(next >= 0)){
-    alert("Enter a valid amount.");
-    return;
-  }
-
-  bills[idx].amount = Math.round(next * 100) / 100;
-  setBills(month, bills);
-
-  renderBillsPage();
-  renderHomeBills(getActiveMonth());
-  renderBillsAndPhaseTotals(getActiveMonth());
-}
-
-function editOneTimeDueDate(month, billIdVal){
-  const bills = getBills(month).map(normalizeBill);
-  const idx = bills.findIndex(b => b.id === billIdVal);
-  if(idx < 0) return;
-
-  const b = bills[idx];
-  if(b.source !== "oneTime"){
-    alert("Due date edits are only allowed for one-time bills.");
-    return;
-  }
-
-  const next = prompt("New due date (YYYY-MM-DD):", b.date || "");
-  if(!next) return;
-
-  if(!/^\d{4}-\d{2}-\d{2}$/.test(next)){
-    alert("Format must be YYYY-MM-DD.");
-    return;
-  }
-
-  const targetMonth = monthFromDate(next);
-  if(!targetMonth){
-    alert("Invalid date.");
-    return;
-  }
-
-  // Move bill if month changed
-  if(targetMonth !== month){
-    bills.splice(idx, 1);
-    setBills(month, bills);
-
-    ensureBillsForMonth(targetMonth);
-    const dest = getBills(targetMonth).map(normalizeBill);
-
-    b.date = next;
-    b.month = targetMonth;
-    b.phase = phaseFromDay(Number(next.slice(-2)) || 15);
-
-    dest.push(b);
-    dest.sort((a,c)=>(a.date||"").localeCompare(c.date||""));
-    setBills(targetMonth, dest);
-
-    const sel = document.getElementById("billsPageMonthSelect");
-    if(sel){
-      buildMonthOptions(sel);
-      sel.value = targetMonth;
-    }
-  } else {
-    b.date = next;
-    b.phase = phaseFromDay(Number(next.slice(-2)) || 15);
-    bills[idx] = b;
-    setBills(month, bills);
-  }
-
-  renderBillsPage();
-  renderHomeBills(getActiveMonth());
-  renderBillsAndPhaseTotals(getActiveMonth());
-}
-
-/* ===== END BILL ADJUSTMENT ACTIONS ===== */
-
-function resetBillsForMonth(month){
-  if(!month || !/^\d{4}-\d{2}$/.test(month)){
-    alert("Invalid month. Reset aborted.");
-    return;
-  }
-
-  const ok = confirm(
-    `This will DELETE all bills for ${month} and rebuild from templates.\n\n` +
-    `• One-time bills will be lost\n` +
-    `• Hidden bills will be restored\n` +
-    `• Paid states will be reset\n\n` +
-    `This cannot be undone.\n\nContinue?`
-  );
-
-  if(!ok) return;
-
-  // Delete the month entirely
-  localStorage.removeItem(`bills_v1_${month}`);
-
-  // Rebuild clean from templates
-  ensureBillsForMonth(month);
-
-  // Refresh UI everywhere
-  renderHomeBills(getActiveMonth());
-  renderBillsAndPhaseTotals(getActiveMonth());
-
-  if(document.getElementById("pageBills")?.style.display !== "none"){
-    renderBillsPage();
-  }
-
-  alert(`Bills for ${month} have been reset.`);
-}
-
-
-/* ===== END MONTHLY BILLS PAGE LOGIC ===== */
-
-function computeBillsTotals(month){
-  ensureBillsForMonth(month);
-  const bills = getBills(month).map(normalizeBill);
-
-  let total = 0, paid = 0;
-  let p1Total = 0, p1Paid = 0;
-  let p2Total = 0, p2Paid = 0;
-
-    bills.forEach(b => {
-    if(b.suppressed) return;
-
-    const amt = Number(b.amount) || 0;
-    const isPaid = b.paid === true;
-
-
-    // ALWAYS numeric 1/2
-    let ph = Number(b.phase);
-
-    // fallback only if phase missing/invalid
-    if(!(ph === 1 || ph === 2)){
-      const day = Number(String(b.dueDate || b.date || "").slice(-2)) || 1;
-    ph = phaseFromDay(day); // now returns 1/2
-
-    }
-
-    total += amt;
-    if(isPaid) paid += amt;
-
-    if(ph === 1){
-      p1Total += amt;
-      if(isPaid) p1Paid += amt;
-    } else {
-      p2Total += amt;
-      if(isPaid) p2Paid += amt;
-    }
-  });
-
-  return {
-    total,
-    paid,
-    unpaid: total - paid,
-
-    p1Total,
-    p1Paid,
-    p1Unpaid: p1Total - p1Paid,
-
-    p2Total,
-    p2Paid,
-    p2Unpaid: p2Total - p2Paid,
-
-    billsCount: bills.filter(b => !b.suppressed).length
-
-  };
-}
-
-
-function computeDebtQueuedTotal(month){
-  const items = getDebtPayments ? getDebtPayments() : [];
-  const m = month || getActiveMonth();
-
-  return items
-    .filter(p => {
-      // Prefer explicit month tagging
-      if(p && p.month) return p.month === m;
-
-      // Backward-compat: if an old entry lacks month, count it ONLY for the active month
-      return m === getActiveMonth();
-    })
-    .reduce((sum, p) => sum + Math.max(0, Number(p.amount || 0)), 0);
-}
-
-
-function renderBillsAndPhaseTotals(month){
-  if(!month) month = currentMonthYYYYMM();
-
-  const t = computeBillsTotals(month);
-
-  // Debt queued total (from your debt payments list)
-  const debtQueued = computeDebtQueuedTotal(month);
-
-  // Month unpaid + (optional) queued debt
-  const monthUnpaid = Number(t.unpaid) || 0;
-
-  // If you want "Operational Remaining" to mean Phase 1 unpaid + queued debt:
-  const phaseRemaining = (Number(t.p1Unpaid) || 0) + (Number(debtQueued) || 0);
-
-  // --- Month totals ---
-  const elMonthTotal = document.getElementById("billsMonthTotal");
-  const elMonthPaid = document.getElementById("billsMonthPaid");
-  const elMonthRemaining = document.getElementById("billsMonthRemaining");
-
-  if(elMonthTotal) elMonthTotal.textContent = fmtMoney(Number(t.total) || 0);
-  if(elMonthPaid) elMonthPaid.textContent = fmtMoney(Number(t.paid) || 0);
-  if(elMonthRemaining) elMonthRemaining.textContent = fmtMoney(monthUnpaid);
-
-  // --- Phase 1 totals ---
-  const elP1Total = document.getElementById("phase1Total");
-  const elP1Paid = document.getElementById("phase1Paid");
-  const elP1Remaining = document.getElementById("phase1Remaining");
-
-  if(elP1Total) elP1Total.textContent = fmtMoney(Number(t.p1Total) || 0);
-  if(elP1Paid) elP1Paid.textContent = fmtMoney(Number(t.p1Paid) || 0);
-  if(elP1Remaining) elP1Remaining.textContent = fmtMoney(Number(t.p1Unpaid) || 0);
-
-  // --- Phase 2 totals ---
-  const elP2Total = document.getElementById("phase2Total");
-  const elP2Paid = document.getElementById("phase2Paid");
-  const elP2Remaining = document.getElementById("phase2Remaining");
-
-  if(elP2Total) elP2Total.textContent = fmtMoney(Number(t.p2Total) || 0);
-  if(elP2Paid) elP2Paid.textContent = fmtMoney(Number(t.p2Paid) || 0);
-  if(elP2Remaining) elP2Remaining.textContent = fmtMoney(Number(t.p2Unpaid) || 0);
-
-  // --- Debt queued + overall phase remaining ---
-  const elDebtQueued = document.getElementById("phaseDebtQueued");
-  const elPhaseRemaining = document.getElementById("phaseRemaining");
-
-  if(elDebtQueued) elDebtQueued.textContent = fmtMoney(Number(debtQueued) || 0);
-  if(elPhaseRemaining) elPhaseRemaining.textContent = fmtMoney(Number(phaseRemaining) || 0);
-}
-
-
-function restoreCarPaymentLabels(){
-  const month = currentMonthYYYYMM();
-  const bills = getBills(month);
-  let changed = false;
-
-  bills.forEach(b => {
-    if(b.name === "Car Payment"){
-      if(b.amount === 229.03) b.name = "Car Payment - Highlander";
-      if(b.amount === 569.00) b.name = "Car Payment - Tesla";
-      changed = true;
-    }
-  });
-
-  if(changed){
-    setBills(month, bills);
-    renderHomeBills(month);
-    renderBillsPage();
-    
-  }
-}
-
-function initDebtDropdown(){
-  const sel = document.getElementById("debtCardSelect");
-  if(!sel) return;
-
-  sel.innerHTML = "";
-  DEBT_ACCOUNTS.forEach(name => {
-    const opt = document.createElement("option");
-    opt.value = name;
-    opt.textContent = name;
-    sel.appendChild(opt);
-  });
-}
-
-function openOneTimeBillModal(){
-  const month = getActiveMonth();              // month-aware: uses your Active Month selector
-  ensureBillsForMonth(month);                 // make sure month exists
-
-  const modal = document.getElementById("otbModal");
-  const back  = document.getElementById("otbBackdrop");
-  if(!modal || !back) return;
-
-  // clear fields
-  document.getElementById("otbName").value = "";
-  document.getElementById("otbAmount").value = "";
-  document.getElementById("otbDueDate").value = "";
-  const err = document.getElementById("otbErr");
-  if(err){ err.style.display = "none"; err.textContent = ""; }
-
-  // show month hint + store month on modal
-  const hint = document.getElementById("otbMonthHint");
-  if(hint) hint.textContent = `Month: ${month}`;
-  modal.dataset.month = month;
-
-  back.style.display = "block";
-  modal.style.display = "flex";
-
-  setTimeout(()=>document.getElementById("otbName")?.focus(), 0);
-}
-
-function closeOneTimeBillModal(){
-  const modal = document.getElementById("otbModal");
-  const back  = document.getElementById("otbBackdrop");
-  if(back) back.style.display = "none";
-  if(modal) modal.style.display = "none";
-}
-
-function saveOneTimeBillFromModal(){
-  const modal = document.getElementById("otbModal");
-  const month = modal?.dataset?.month || getActiveMonth();
-
-  const name = (document.getElementById("otbName")?.value || "").trim();
-  const amt  = parseMoney(document.getElementById("otbAmount")?.value || "");
-  const due  = document.getElementById("otbDueDate")?.value || ""; // YYYY-MM-DD or ""
-
-  const err = document.getElementById("otbErr");
-  const showErr = (msg) => {
-    if(!err) return;
-    err.textContent = msg;
-    err.style.display = "block";
-  };
-
-  if(!name) return showErr("Name is required.");
-  if(!(amt > 0)) return showErr("Amount must be greater than 0.");
-
-  ensureBillsForMonth(month);
-
-  // If user picked a due date in a DIFFERENT month, honor that month (prevents silent mistakes)
-  const targetMonth = due ? monthFromDate(due) : month;
-
-  ensureBillsForMonth(targetMonth);
-
-  const bills = getBills(targetMonth).map(normalizeBill);
-
-  // Default due date: if none provided, use the 15th of that month (keeps phase predictable)
-  const defaultDue = due || `${targetMonth}-15`;
-  const dueDay = Number(defaultDue.slice(-2)) || 15;
-
-  const oneTime = {
-    id: `ot_${Date.now()}_${Math.random().toString(16).slice(2,6)}`,
-    name,
-    category: "One-Time",
-    amount: Math.round(amt * 100) / 100,
-    date: defaultDue,                 // uses your existing "date" field as due date
-    month: targetMonth,
-    phase: phaseFromDay(dueDay),      // auto phase based on due day
-    phaseLocked: true,                // keep it stable unless you decide otherwise later
-    paid: false,
-    paidAt: null,
-    source: "oneTime"
-  };
-
-  bills.push(oneTime);
-  bills.sort((a,b)=>(a.date||"").localeCompare(b.date||""));
-  setBills(targetMonth, bills);
-
-  closeOneTimeBillModal();
-
-  // Refresh UI everywhere it matters
-  renderHomeBills(getActiveMonth());
-  renderBillsAndPhaseTotals(getActiveMonth());
-
-  // If Bills page is open, update it too
-  if(document.getElementById("pageBills")?.style.display !== "none"){
-    const sel = document.getElementById("billsPageMonthSelect");
-    if(sel){
-      buildMonthOptions(sel);
-      sel.value = targetMonth;
-    }
-    renderBillsPage();
-  }
-}
-
-
-function getTodayPhase(){
-  return (new Date().getDate() <= 15) ? 1 : 2;
-}
-
-function updateCurrentPhaseLabel(){
-  const el = document.getElementById("currentPhaseValue");
-  if(!el) return;
-
-  const phase = getTodayPhase();
-  el.textContent = `Phase ${phase}`;
-}
-
-
-function shiftMonth(yyyyMM, delta){
-  const [y, m] = yyyyMM.split("-").map(Number);
-  const d = new Date(y, m - 1 + delta, 1);
-  const yy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  return `${yy}-${mm}`;
-}
-
-window.BILLS_EDIT_MODE = false;
-
-function toggleBillsEditMode(){
-  window.BILLS_EDIT_MODE = !window.BILLS_EDIT_MODE;
-  const month = getActiveMonth();
-  renderHomeBills(month);
-}
-
-function flipBillPhase(e, btn){
-  e.stopPropagation();
-
-  const item = btn.closest(".item");
-  if(!item) return;
-
+@@ -2960,50 +3178,471 @@ function flipBillPhase(e, btn){
   const month = getActiveMonth();
   const id = item.dataset.billId;
   if(!id) return;
@@ -3200,6 +878,427 @@ function flipActivePhase(){
   alert("Flip Phase behavior coming next.");
 }
 
+
+
+/* ===== BEGIN FINANCIAL PLANNER MODEL ===== */
+const INCOME_ENTRIES_KEY = "income_entries_v1";
+const INVESTMENT_ENTRIES_KEY = "investment_entries_v1";
+const INVESTMENT_ACCOUNTS_KEY = "investment_accounts_v1";
+const MAJOR_EXPENSES_KEY = "major_expenses_v1";
+
+const DEFAULT_INVESTMENT_ACCOUNTS = [
+  "TSP",
+  "Ryan Roth IRA - Decade Perspective",
+  "Ashley Schwab Roth IRA",
+  "Ashley Schwab Rollover IRA",
+  "Ryan Schwab Brokerage",
+  "Ryan Schwab Brokerage 2",
+  "Ryan PCRA Trust - Bonfire",
+  "UC Health Fidelity",
+  "Ashley Old IRA",
+  "Robinhood"
+];
+
+function getIncomeEntries(){
+  try { return JSON.parse(localStorage.getItem(INCOME_ENTRIES_KEY) || "[]"); }
+  catch { return []; }
+}
+function setIncomeEntries(arr){ localStorage.setItem(INCOME_ENTRIES_KEY, JSON.stringify(arr||[])); }
+
+function getInvestmentEntries(){
+  try { return JSON.parse(localStorage.getItem(INVESTMENT_ENTRIES_KEY) || "[]"); }
+  catch { return []; }
+}
+function setInvestmentEntries(arr){ localStorage.setItem(INVESTMENT_ENTRIES_KEY, JSON.stringify(arr||[])); }
+
+function normalizeInvestmentAccountName(name){
+  return String(name || "").trim();
+}
+
+function getInvestmentAccounts(){
+  try {
+    const saved = JSON.parse(localStorage.getItem(INVESTMENT_ACCOUNTS_KEY) || "[]");
+    const set = new Set(
+      Array.isArray(saved)
+        ? saved.map(normalizeInvestmentAccountName).filter(Boolean)
+        : []
+    );
+    if(set.size === 0){
+      DEFAULT_INVESTMENT_ACCOUNTS.forEach(x => set.add(x));
+      getInvestmentEntries().forEach(x => {
+        const n = normalizeInvestmentAccountName(x.name);
+        if(n) set.add(n);
+      });
+      const arr = Array.from(set).sort((a,b)=> a.localeCompare(b));
+      localStorage.setItem(INVESTMENT_ACCOUNTS_KEY, JSON.stringify(arr));
+      return arr;
+    }
+    return Array.from(set).sort((a,b)=> a.localeCompare(b));
+  } catch {
+    return DEFAULT_INVESTMENT_ACCOUNTS.slice().sort((a,b)=> a.localeCompare(b));
+  }
+}
+
+function setInvestmentAccounts(arr){
+  const out = Array.from(new Set((arr||[]).map(normalizeInvestmentAccountName).filter(Boolean)))
+    .sort((a,b)=> a.localeCompare(b));
+  localStorage.setItem(INVESTMENT_ACCOUNTS_KEY, JSON.stringify(out));
+}
+
+function renderInvestmentAccountSelect(preferred){
+  const select = document.getElementById("investmentAccountSelect");
+  if(!select) return;
+
+  const accounts = getInvestmentAccounts();
+  select.innerHTML = "";
+  if(accounts.length === 0){
+    const o = document.createElement("option");
+    o.value = "";
+    o.textContent = "No accounts yet";
+    select.appendChild(o);
+    return;
+  }
+
+  accounts.forEach(name => {
+    const o = document.createElement("option");
+    o.value = name;
+    o.textContent = name;
+    select.appendChild(o);
+  });
+
+  const target = normalizeInvestmentAccountName(preferred);
+  if(target && accounts.includes(target)) select.value = target;
+}
+
+function addInvestmentAccount(){
+  const input = document.getElementById("investmentNewAccountInput");
+  const name = normalizeInvestmentAccountName(input?.value || "");
+  if(!name) return alert("Enter an investment account name to add.");
+
+  const accounts = getInvestmentAccounts();
+  if(accounts.includes(name)){
+    if(input) input.value = "";
+    renderInvestmentAccountSelect(name);
+    return alert("That investment account already exists.");
+  }
+
+  accounts.push(name);
+  setInvestmentAccounts(accounts);
+  if(input) input.value = "";
+  renderInvestmentAccountSelect(name);
+  renderPlanner();
+}
+
+function getMajorExpenses(){
+  try { return JSON.parse(localStorage.getItem(MAJOR_EXPENSES_KEY) || "[]"); }
+  catch { return []; }
+}
+function setMajorExpenses(arr){ localStorage.setItem(MAJOR_EXPENSES_KEY, JSON.stringify(arr||[])); }
+
+function plannerMonth(){
+  return document.getElementById("plannerMonthSelect")?.value || getActiveMonth();
+}
+
+function normalizeIncomeDate(raw){
+  const str = String(raw || "").trim();
+  if(!str) return "";
+
+  if(/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+
+  const mdY = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(mdY){
+    const mm = String(Number(mdY[1])).padStart(2, "0");
+    const dd = String(Number(mdY[2])).padStart(2, "0");
+    return `${mdY[3]}-${mm}-${dd}`;
+  }
+
+  return "";
+}
+
+function clearIncomeBulkInput(){
+  const el = document.getElementById("incomeBulkInput");
+  if(el) el.value = "";
+}
+
+function loadProvidedIncomeSample(){
+  const el = document.getElementById("incomeBulkInput");
+  if(!el) return;
+
+  el.value = [
+    "VA	$2,150.45	1/28/2026",
+    "United	$5,006.83	1/28/2026",
+    "USAF	$825.17	2/4/2026",
+    "USAF	$244.36	2/4/2026",
+    "UC Health	$2,724.41	2/6/2026",
+    "FastCap	$151.39	2/7/2026",
+    "USAF	$825.17	2/9/2026",
+    "FastCap	$184.20	2/10/2026",
+    "United	$9,098.98",
+    "UC Health	$2,600.00",
+    "USAF	$248.96"
+  ].join("\n");
+}
+
+function importIncomeRowsFromText(){
+  const bulk = document.getElementById("incomeBulkInput");
+  if(!bulk) return;
+
+  const lines = String(bulk.value || "").split(/\r?\n/).map(x => x.trim()).filter(Boolean);
+  if(lines.length === 0) return alert("Paste income rows first.");
+
+  const fallbackMonth = plannerMonth();
+  const parsed = [];
+  let skipped = 0;
+
+  lines.forEach((line, idx) => {
+    const lower = line.toLowerCase();
+    if(lower.startsWith("income") || lower.startsWith("total income")){
+      skipped += 1;
+      return;
+    }
+
+    let cols = line.split("	").map(x => x.trim()).filter(Boolean);
+    if(cols.length < 2){
+      cols = line.split(/\s{2,}/).map(x => x.trim()).filter(Boolean);
+    }
+
+    if(cols.length < 2){ skipped += 1; return; }
+
+    const source = String(cols[0] || "").trim();
+    const gross = parseMoney(cols[1] || "");
+    const rawDate = cols[2] || "";
+    const date = normalizeIncomeDate(rawDate);
+
+    if(!source || /^total\s+income$/i.test(source) || !(gross > 0)){
+      skipped += 1;
+      return;
+    }
+
+    const month = date ? monthFromDate(date) : fallbackMonth;
+
+    parsed.push({
+      id: Date.now() + idx,
+      month,
+      source,
+      gross,
+      taxes: 0,
+      date
+    });
+  });
+
+  if(parsed.length === 0){
+    return alert("No valid income rows found. Expected: Source, Amount, Date.");
+  }
+
+  const existing = getIncomeEntries();
+  setIncomeEntries(parsed.reverse().concat(existing));
+  bulk.value = "";
+  renderPlanner();
+  alert(`Imported ${parsed.length} income rows${skipped ? ` (${skipped} skipped)` : ""}.`);
+}
+
+function addIncomeEntry(){
+  const source = (document.getElementById("incomeSourceInput")?.value || "").trim();
+  const gross = parseMoney(document.getElementById("incomeGrossInput")?.value || "");
+  const taxes = parseMoney(document.getElementById("incomeTaxInput")?.value || "");
+  const dateRaw = document.getElementById("incomeDateInput")?.value || "";
+  const date = normalizeIncomeDate(dateRaw);
+  const month = date ? monthFromDate(date) : plannerMonth();
+  if(!source) return alert("Income source is required.");
+  if(!(gross > 0)) return alert("Gross income must be greater than 0.");
+  if(taxes < 0) return alert("Taxes withheld cannot be negative.");
+
+  const items = getIncomeEntries();
+  items.unshift({ id: Date.now(), month, source, gross, taxes, date });
+  setIncomeEntries(items);
+
+  document.getElementById("incomeSourceInput").value = "";
+  document.getElementById("incomeGrossInput").value = "";
+  document.getElementById("incomeTaxInput").value = "";
+  const d = document.getElementById("incomeDateInput");
+  if(d) d.value = "";
+  renderPlanner();
+}
+
+function addInvestmentEntry(){
+  const select = document.getElementById("investmentAccountSelect");
+  const name = normalizeInvestmentAccountName(select?.value || "");
+  const amount = parseMoney(document.getElementById("investmentAmountInput")?.value || "");
+  if(!name) return alert("Choose an investment account first.");
+  if(amount < 0) return alert("Investment balance cannot be negative.");
+
+  const accounts = getInvestmentAccounts();
+  if(!accounts.includes(name)){
+    accounts.push(name);
+    setInvestmentAccounts(accounts);
+  }
+
+  const items = getInvestmentEntries();
+  const id = Date.now();
+  items.unshift({ id, name, amount, updatedAt: Date.now() });
+  setInvestmentEntries(items);
+
+  document.getElementById("investmentAmountInput").value = "";
+  renderInvestmentAccountSelect(name);
+  renderPlanner();
+}
+
+function addMajorExpenseEntry(){
+  const name = (document.getElementById("majorExpenseNameInput")?.value || "").trim();
+  const amount = parseMoney(document.getElementById("majorExpenseAmountInput")?.value || "");
+  const dueDate = document.getElementById("majorExpenseDueInput")?.value || "";
+  if(!name) return alert("Expense name is required.");
+  if(!(amount > 0)) return alert("Expense amount must be greater than 0.");
+  if(!dueDate) return alert("A due date is required.");
+
+  const items = getMajorExpenses();
+  items.unshift({ id: Date.now(), name, amount, dueDate, month: monthFromDate(dueDate) });
+  setMajorExpenses(items);
+
+  document.getElementById("majorExpenseNameInput").value = "";
+  document.getElementById("majorExpenseAmountInput").value = "";
+  document.getElementById("majorExpenseDueInput").value = "";
+  renderPlanner();
+}
+
+function deletePlannerEntry(kind, id){
+  const n = Number(id);
+  if(kind === "income") setIncomeEntries(getIncomeEntries().filter(x => Number(x.id) !== n));
+  if(kind === "invest") setInvestmentEntries(getInvestmentEntries().filter(x => Number(x.id) !== n));
+  if(kind === "expense") setMajorExpenses(getMajorExpenses().filter(x => Number(x.id) !== n));
+  renderPlanner();
+}
+
+function deleteInvestmentAccount(name){
+  const normalized = normalizeInvestmentAccountName(name);
+  if(!normalized) return;
+
+  const accounts = getInvestmentAccounts();
+  if(!accounts.includes(normalized)) return;
+
+  const usedCount = getInvestmentEntries().filter(x => normalizeInvestmentAccountName(x.name) === normalized).length;
+  const msg = usedCount > 0
+    ? `Delete account "${normalized}" and ${usedCount} saved balance update(s)?`
+    : `Delete account "${normalized}"?`;
+  if(!confirm(msg)) return;
+
+  setInvestmentAccounts(accounts.filter(x => x !== normalized));
+  if(usedCount > 0){
+    setInvestmentEntries(getInvestmentEntries().filter(x => normalizeInvestmentAccountName(x.name) !== normalized));
+  }
+
+  renderInvestmentAccountSelect();
+  renderPlanner();
+}
+
+function initPlannerPage(){
+  const sel = document.getElementById("plannerMonthSelect");
+  if(!sel) return;
+  buildMonthOptions(sel);
+  const active = getActiveMonth();
+  const hasActive = Array.from(sel.options).some(o => o.value === active);
+  sel.value = hasActive ? active : currentMonthYYYYMM();
+  sel.onchange = () => renderPlanner();
+  renderInvestmentAccountSelect();
+  renderPlanner();
+}
+
+function renderPlanner(){
+  const month = plannerMonth();
+
+  const incomes = getIncomeEntries().filter(x => x.month === month);
+  const grossIncome = incomes.reduce((s,x) => s + Math.max(0, Number(x.gross)||0), 0);
+  const taxes = incomes.reduce((s,x) => s + Math.max(0, Number(x.taxes)||0), 0);
+  const netIncome = grossIncome - taxes;
+
+  const bills = computeBillsTotals(month);
+  const debtPosted = getDebtPaymentHistory().filter(x => x.month === month)
+    .reduce((s,x) => s + Math.max(0, Number(x.amount)||0), 0);
+
+  const major = getMajorExpenses().filter(x => x.month === month);
+  const majorTotal = major.reduce((s,x)=> s + Math.max(0, Number(x.amount)||0), 0);
+
+  const investments = getInvestmentEntries();
+  const investmentAccounts = getInvestmentAccounts();
+  const latestByName = new Map();
+  investments.forEach(x => {
+    const accountName = normalizeInvestmentAccountName(x.name);
+    if(!accountName) return;
+    const cur = latestByName.get(accountName);
+    if(!cur || Number(x.updatedAt||0) >= Number(cur.updatedAt||0)) latestByName.set(accountName, x);
+  });
+  const investRows = investmentAccounts.map(name => ({
+    name,
+    amount: Number(latestByName.get(name)?.amount || 0),
+    updatedAt: Number(latestByName.get(name)?.updatedAt || 0)
+  }));
+  const investTotal = investRows.reduce((s,x)=> s + Math.max(0, Number(x.amount)||0), 0);
+
+  const operationalLeft = netIncome - (Number(bills.total)||0) - debtPosted - majorTotal;
+
+  const setTxt = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent = fmtMoney(val); };
+  setTxt("plannerGrossIncome", grossIncome);
+  setTxt("plannerTaxesWithheld", taxes);
+  setTxt("plannerNetIncome", netIncome);
+  setTxt("plannerBillsTotal", bills.total);
+  setTxt("plannerDebtPosted", debtPosted);
+  setTxt("plannerMajorExpenseTotal", majorTotal);
+  setTxt("plannerOperationalLeft", operationalLeft);
+
+  const leftEl = document.getElementById("plannerOperationalLeft");
+  if(leftEl) leftEl.style.color = operationalLeft >= 0 ? "#2bd576" : "#ff5c5c";
+
+  const incomeList = document.getElementById("incomeList");
+  if(incomeList){
+    if(incomes.length === 0){ incomeList.innerHTML = `<div style="padding:14px; color:#9aa7b6;">No income entries for this month.</div>`; }
+    else {
+      incomeList.innerHTML = "";
+      incomes.forEach(x => {
+        const row = document.createElement("div");
+        row.className = "item";
+        const dateText = x.date ? ` · ${escapeHtml(x.date)}` : "";
+        row.innerHTML = `<div><div style="font-weight:800;">${escapeHtml(x.source||"")}</div><div style="font-size:12px;color:#9aa7b6;">Gross ${fmtMoney(x.gross||0)} · Taxes ${fmtMoney(x.taxes||0)}${dateText}</div></div><button class="cancelBtn" style="width:auto; padding:8px 10px;" onclick="deletePlannerEntry('income', ${Number(x.id)||0})">DELETE</button>`;
+        incomeList.appendChild(row);
+      });
+    }
+  }
+
+  const investmentList = document.getElementById("investmentList");
+  setTxt("investmentTotal", investTotal);
+  if(investmentList){
+    if(investRows.length === 0){ investmentList.innerHTML = `<div style="padding:14px; color:#9aa7b6;">No investment accounts yet. Add one above.</div>`; }
+    else {
+      investmentList.innerHTML = "";
+      investRows.forEach(x => {
+        const row = document.createElement("div");
+        row.className = "item";
+        const updated = x.updatedAt ? `Updated ${new Date(x.updatedAt).toLocaleDateString()}` : "No balance saved";
+        row.innerHTML = `<div><div style="font-weight:800;">${escapeHtml(x.name||"")}</div><div style="font-size:12px;color:#9aa7b6;">${escapeHtml(updated)}</div></div><div style="display:flex; align-items:center; gap:8px;"><div>${fmtMoney(x.amount||0)}</div><button class="cancelBtn" style="width:auto; padding:8px 10px;">DELETE</button></div>`;
+        const deleteBtn = row.querySelector("button");
+        if(deleteBtn){
+          deleteBtn.onclick = () => deleteInvestmentAccount(x.name || "");
+        }
+        investmentList.appendChild(row);
+      });
+    }
+  }
+
+  const majorList = document.getElementById("majorExpenseList");
+  if(majorList){
+    if(major.length === 0){ majorList.innerHTML = `<div style="padding:14px; color:#9aa7b6;">No major expenses for this month.</div>`; }
+    else {
+      majorList.innerHTML = "";
+      major.sort((a,b)=> String(a.dueDate||"").localeCompare(String(b.dueDate||"")));
+      major.forEach(x => {
+        const row = document.createElement("div");
+        row.className = "item";
+        row.innerHTML = `<div><div style="font-weight:800;">${escapeHtml(x.name||"")}</div><div style="font-size:12px;color:#9aa7b6;">Due ${escapeHtml(x.dueDate||"")}</div></div><div style="display:flex; align-items:center; gap:8px;"><div>${fmtMoney(x.amount||0)}</div><button class="cancelBtn" style="width:auto; padding:8px 10px;" onclick="deletePlannerEntry('expense', ${Number(x.id)||0})">DELETE</button></div>`;
+        majorList.appendChild(row);
+      });
+    }
+  }
+}
+/* ===== END FINANCIAL PLANNER MODEL ===== */
 
 
 /* ===== BEGIN FINANCIAL PLANNER MODEL ===== */
