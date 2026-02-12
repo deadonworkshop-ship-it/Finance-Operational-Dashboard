@@ -1,7 +1,6 @@
 {
   "name": "Bills Checking Ops",
   "short_name": "BillsOps",
-  "start_url": "index.html",
   "id": "/",
   "start_url": "./index.html",
   "scope": "./",
@@ -9,5 +8,4 @@
   "orientation": "portrait",
   "background_color": "#0b0f14",
   "theme_color": "#0b0f14"
-}
 }

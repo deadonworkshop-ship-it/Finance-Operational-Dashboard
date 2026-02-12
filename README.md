@@ -1,8 +1,3 @@
-diff --git a/README.md b/README.md
-index 7d668766639b2be05ffcaf6a3c3201f5a931f45c..f4a546f11dc5f57ca5900ae1262943d2abc4bdc7 100644
---- a/README.md
-+++ b/README.md
-@@ -1,2 +1,329 @@
  # Finance Operational Dashboard
 -Finance Dashboard App
 +
