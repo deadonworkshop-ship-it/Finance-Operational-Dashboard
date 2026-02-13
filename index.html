@@ -3629,6 +3629,14 @@ function showFatalError(message){
   el.style.display = "block";
 }
 
+// Ensure inline onclick handlers always resolve on window
+Object.assign(window, {
+  updateBalance,
+  showDebtForm,
+  openOneTimeBillModal,
+  toggleDebtShowAll
+});
+
 window.addEventListener("error", (evt) => {
   const msg = evt?.error?.message || evt?.message || "Unknown error";
   showFatalError(msg);
